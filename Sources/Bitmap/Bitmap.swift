@@ -52,7 +52,7 @@ public struct Bitmap {
 	/// The raw RGBA pixel data
 	public private(set) var rgbaPixelData: [UInt8]
 
-	/// Create an empty bitmap with transparent background
+	/// Create an empty bitmap with transparent background using an RGBA colorspace
 	/// - Parameters:
 	///   - width: bitmap width
 	///   - height: bitmap height

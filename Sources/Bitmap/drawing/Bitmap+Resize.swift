@@ -17,46 +17,28 @@
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// CoreImage additions
-
-#if canImport(CoreImage)
-
 import Foundation
-import CoreImage
+import CoreGraphics
+
+// MARK: - Resizing
 
 public extension Bitmap {
-	init(_ image: CIImage, context: CIContext? = nil, size: CGSize? = nil) throws {
-		let context = context ?? CIContext(options: nil)
-		let rect: CGRect
-		if let size = size {
-			rect = CGRect(origin: .zero, size: size)
-		}
-		else {
-			rect = image.extent
-			// Arbitrary 'large' values here.
-			if rect.width > 20000 || rect.height > 20000 {
-				throw BitmapError.invalidContext
-			}
-		}
-		guard let cgImage = context.createCGImage(image, from: rect) else {
-			throw BitmapError.cannotCreateCGImage
-		}
-		try self.init(cgImage)
+	/// Resizes the bitmap around the centroid of the current image, cropping or extending
+	/// the current bitmap as required
+	/// - Parameter size: The size of the new image
+	/// - Returns: A new bitmap
+	func resizing(to size: CGSize) throws -> Bitmap {
+		var result = try Bitmap(size: size)
+		let woffset = (size.width - self.size.width) / 2
+		let hoffset = (size.height - self.size.height) / 2
+		try result.draw(image: self, atPoint: CGPoint(x: woffset, y: hoffset))
+		return result
+	}
+
+	/// Resizes the bitmap around the centroid of the current image, cropping or extending
+	/// the current bitmap as required
+	/// - Parameter size: The new size for the bitmap
+	@inlinable mutating func resize(to size: CGSize) throws {
+		self = try self.resizing(to: size)
 	}
 }
-
-public extension Bitmap {
-	/// Returns a CIImage representation of the bitmap
-	@inlinable var ciImage: CIImage? {
-		guard let cgImage = self.cgImage else { return nil }
-		return CIImage(cgImage: cgImage)
-	}
-
-	/// Create a new bitmap by filtering using a filter block
-	mutating func applyingFilterChain(_ block: (CIImage) throws -> CIImage) throws -> Bitmap {
-		guard let ciImage = self.ciImage else { throw BitmapError.cannotCreateCGImage }
-		return try Bitmap(try block(ciImage))
-	}
-}
-
-#endif

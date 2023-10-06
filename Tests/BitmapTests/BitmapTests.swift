@@ -237,4 +237,11 @@ final class BitmapTests: XCTestCase {
 		let nsi = masked.image
 		Swift.print(nsi)
 	}
+
+	func testResize() throws {
+		let maskImage = bitmapResource(name: "gps-image", extension: "jpg")
+		let resized = try maskImage.resizing(to: CGSize(width: 100, height: 100))
+		let nsi = resized.image
+		Swift.print(nsi)
+	}
 }
