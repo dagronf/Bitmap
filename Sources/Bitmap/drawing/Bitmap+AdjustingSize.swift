@@ -20,29 +20,25 @@
 import Foundation
 import CoreGraphics
 
-// MARK: - Drawing
+// MARK: - Adjusting bitmap size
 
 public extension Bitmap {
-	/// Perform 'block' within a saved GState on a bitmap
-	@inlinable mutating func savingGState(_ block: (CGContext) -> Void) {
-		self.ctx.saveGState()
-		defer { ctx.restoreGState() }
-		block(self.ctx)
-	}
-}
-
-public extension Bitmap {
-	/// Perform drawing actions within a saved GState on a bitmap
-	@inlinable mutating func draw(_ block: (CGContext) -> Void) {
-		self.savingGState(block)
-	}
-
-	/// Performs drawing operations on a copy of this bitmap
-	/// - Parameter block: The block containing the drawing commands
+	/// Changes the bitmap size around the centroid of the current image, cropping or extending
+	/// the current bitmap as required
+	/// - Parameter size: The size of the new image
 	/// - Returns: A new bitmap
-	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
-		var copy = try self.copy()
-		copy.draw(block)
-		return copy
+	func adjustingSize(to size: CGSize) throws -> Bitmap {
+		var result = try Bitmap(size: size)
+		let woffset = (size.width - self.size.width) / 2
+		let hoffset = (size.height - self.size.height) / 2
+		try result.drawBitmap(self, atPoint: CGPoint(x: woffset, y: hoffset))
+		return result
+	}
+
+	/// Changes the bitmap size around the centroid of the current image, cropping or extending
+	/// the current bitmap as required
+	/// - Parameter size: The new size for the bitmap
+	@inlinable mutating func adjustSize(to size: CGSize) throws {
+		self = try self.adjustingSize(to: size)
 	}
 }

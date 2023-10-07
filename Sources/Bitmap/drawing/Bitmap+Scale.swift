@@ -34,6 +34,19 @@ public extension Bitmap {
 		case aspectFit
 	}
 
+	/// Scale this bitmap
+	/// - Parameters:
+	///   - image: The image to scale
+	///   - scalingType: The type of scaling to perform
+	///   - targetSize: The target size for the image
+	/// - Returns: The scaled image, or nil if an error occurred
+	@inlinable mutating func scaleImage(
+		scalingType: ScalingType = .axesIndependent,
+		to targetSize: CGSize
+	) throws {
+		self = try self.scalingImage(scalingType: scalingType, to: targetSize)
+	}
+
 	/// Create a bitmap by scaling to fit a target size
 	/// - Parameters:
 	///   - image: The image to scale
@@ -56,9 +69,8 @@ public extension Bitmap {
 
 	/// Create a bitmap by scaling to fit a target size
 	/// - Parameters:
-	///   - image: The image to scale
 	///   - targetSize: The target size for the image
-	/// - Returns: The scaled image, or nil if an error occurred
+	/// - Returns: The scaled image
 	func scaling(axesIndependent targetSize: CGSize) throws -> Bitmap {
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(size: targetSize) { ctx in
@@ -66,24 +78,22 @@ public extension Bitmap {
 		}
 	}
 
-	/// Create an image by scaling the provided image to fit the target size
+	/// Create an bitmap by scaling this bitmap to fit the target size
 	/// - Parameters:
-	///   - image: The image to scale
 	///   - targetSize: The target size for the image
 	/// - Returns: The scaled image, or nil if an error occurred
-	@inlinable func scaling(aspectFit targetSize: CGSize) throws -> Bitmap {
+	func scaling(aspectFit targetSize: CGSize) throws -> Bitmap {
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(size: targetSize) { ctx in
 			drawImageToFit(in: ctx, image: image, rect: CGRect(origin: .zero, size: targetSize))
 		}
 	}
 
-	/// Create an image by scaling the provided image to fill the target size
+	/// Create an bitmap by scaling this bitmap to fill the target size
 	/// - Parameters:
-	///   - image: The image to scale
 	///   - targetSize: The target size for the image
 	/// - Returns: The scaled image, or nil if an error occurred
-	@inlinable func scaling(aspectFill targetSize: CGSize) throws -> Bitmap {
+	func scaling(aspectFill targetSize: CGSize) throws -> Bitmap {
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(size: targetSize) { ctx in
 			drawImageToFill(in: ctx, image: image, rect: CGRect(origin: .zero, size: targetSize))

@@ -17,8 +17,8 @@
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 // MARK: - Flip
 
@@ -34,28 +34,35 @@ public extension Bitmap {
 	}
 
 	/// Flip this bitmap
-	@inlinable mutating func flipping(_ flipType: FlipType) throws {
-		self = try flipped(flipType)
+	/// - Parameter flipType: The type of flipping to apply
+	@inlinable mutating func flip(_ flipType: FlipType) throws {
+		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
+		self.eraseAll()
+
+		ctx.saveGState()
+		defer { ctx.restoreGState() }
+
+		// Draw the flipped image
+		switch flipType {
+		case .horizontally:
+			ctx.scaleBy(x: 1, y: -1)
+			ctx.translateBy(x: 0, y: Double(-height))
+		case .vertically:
+			ctx.scaleBy(x: -1, y: 1)
+			ctx.translateBy(x: Double(-width), y: 0)
+		case .both:
+			ctx.scaleBy(x: -1, y: -1)
+			ctx.translateBy(x: Double(-width), y: Double(-height))
+		}
+		ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 	}
 
 	/// Create a new bitmap by flipping this bitmap
-	func flipped(_ flipType: FlipType) throws -> Bitmap {
-		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		var newImage = try Bitmap(width: width, height: height)
-		newImage.savingGState { context in
-			switch flipType {
-			case .horizontally:
-				context.scaleBy(x: 1, y: -1)
-				context.translateBy(x: 0, y: Double(-height))
-			case .vertically:
-				context.scaleBy(x: -1, y: 1)
-				context.translateBy(x: Double(-width), y: 0)
-			case .both:
-				context.scaleBy(x: -1, y: -1)
-				context.translateBy(x: Double(-width), y: Double(-height))
-			}
-			context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-		}
-		return newImage
+	/// - Parameter flipType: The type of flipping to apply
+	/// - Returns: A new image with the original image flipped
+	func flipping(_ flipType: FlipType) throws -> Bitmap {
+		var copy = try self.copy()
+		try copy.flip(flipType)
+		return copy
 	}
 }

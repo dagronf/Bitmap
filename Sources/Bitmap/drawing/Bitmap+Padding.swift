@@ -24,18 +24,28 @@ import CoreGraphics
 
 public extension Bitmap {
 	/// Pad the current image by adding pixels on all edges (so the resulting image will be larger)
-	@inlinable mutating func padding(_ value: CGFloat, backgroundColor: CGColor? = nil) throws {
-		self = try self.padded(value, backgroundColor: backgroundColor)
+	/// - Parameters:
+	///   - value: The amount to pad the edges of the bitmap
+	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
+	@inlinable mutating func padded(_ value: CGFloat, backgroundColor: CGColor? = nil) throws {
+		self = try self.padding(value, backgroundColor: backgroundColor)
 	}
 
 	/// Pad the current image by adding pixels on all edges (so the image will be larger)
-	@inlinable mutating func padding(_ padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
-		self = try self.padded(padding, backgroundColor: backgroundColor)
+	/// - Parameters:
+	///   - padding: The padding to apply to each edge of the bitmap
+	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
+	@inlinable mutating func padded(_ padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
+		self = try self.padding(padding, backgroundColor: backgroundColor)
 	}
 
 	/// Create a new bitmap by padding the edges of the image with additional pixels
-	@inlinable func padded(_ value: Double, backgroundColor: CGColor? = nil) throws -> Bitmap {
-		try padded(
+	/// - Parameters:
+	///   - value: The amount to pad the edges of the bitmap
+	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
+	/// - Returns: A new bitmap
+	@inlinable func padding(_ value: Double, backgroundColor: CGColor? = nil) throws -> Bitmap {
+		try padding(
 			NSEdgeInsets(top: value, left: value, bottom: value, right: value),
 			backgroundColor: backgroundColor
 		)
@@ -46,9 +56,7 @@ public extension Bitmap {
 	///   - edgeInsets: the padding to apply to each edge
 	///   - backgroundColor: The background color to use for the padded areas, or nil for clear
 	/// - Returns: A new bitmap
-	///
-	/// Resulting bitmap will be _bigger_ than the original
-	func padded(_ edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
+	func padding(_ edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
 		guard
 			edgeInsets.top >= 0,
 			edgeInsets.bottom >= 0,
@@ -65,19 +73,25 @@ public extension Bitmap {
 		let nw = Double(self.width) + edgeInsets.left + edgeInsets.right
 		let nh = Double(self.height) + edgeInsets.top + edgeInsets.bottom
 
+		let imageDestination = CGRect(
+			origin: CGPoint(x: edgeInsets.left, y: edgeInsets.bottom),
+			size: CGSize(width: self.width, height: self.height)
+		  )
+
 		var newImage = try Bitmap(width: Int(nw), height: Int(nh))
 		if let backgroundColor = backgroundColor {
-			newImage.fill(backgroundColor)
+			let bounds = newImage.bounds
+			newImage.draw { ctx in
+				// Clip out the image's destination out of the background fill
+				ctx.addRect(bounds)
+				ctx.addPath(CGPath(rect: imageDestination, transform: nil))
+				ctx.clip(using: .evenOdd)
+				ctx.setFillColor(backgroundColor)
+				ctx.fill(bounds)
+			}
 		}
 
-		newImage.draw(
-			cgi,
-			in: CGRect(
-				origin: CGPoint(x: edgeInsets.left, y: edgeInsets.bottom),
-				size: CGSize(width: self.width, height: self.height)
-			)
-		)
-
+		newImage.drawImage(cgi, in: imageDestination)
 		return newImage
 	}
 }

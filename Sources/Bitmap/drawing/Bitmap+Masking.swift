@@ -24,15 +24,13 @@ public extension Bitmap {
 	/// Mask this image using an image mask
 	/// - Parameter maskImage: the mask image
 	@inlinable mutating func mask(using maskImage: CGImage) throws {
-		let copy = try self.masking(using: maskImage)
-		self = copy
+		self = try self.masking(using: maskImage)
 	}
 
-	/// Mask this image using an image mask
+	/// Create a new bitmap by masking this image using an image mask
 	/// - Parameter maskBitmap: The mask image
 	@inlinable mutating func mask(using maskBitmap: Bitmap) throws {
-		let copy = try self.masking(using: maskBitmap)
-		self = copy
+		self = try self.masking(using: maskBitmap)
 	}
 
 	/// Mask this bitmap using a mask bitmap
@@ -43,7 +41,7 @@ public extension Bitmap {
 		return try self.masking(using: origImage)
 	}
 
-	/// Mask this bitmap using a mask image
+	/// Create a new bitmap by masking this bitmap using a mask image
 	/// - Parameter maskBitmap: The mask image
 	/// - Returns: A new bitmap
 	func masking(using maskImage: CGImage) throws -> Bitmap {
@@ -55,5 +53,24 @@ public extension Bitmap {
 			ctx.draw(origImage, in: origRect)
 		}
 		return bitmap
+	}
+}
+
+public extension Bitmap {
+	/// Mask out the part of the bitmap contained within the image
+	/// - Parameter path: The mask path
+	mutating func mask(using path: CGPath) throws {
+		let cropped = try self.cropping(to: path)
+		self.eraseAll()
+		try self.drawBitmap(cropped, atPoint: path.boundingBoxOfPath.origin)
+	}
+
+	/// Create a new bitmap by masking this bitmap with a path
+	/// - Parameter path: The path to mask
+	/// - Returns: A new bitmap
+	func masking(using path: CGPath) throws -> Bitmap {
+		var copy = try self.copy()
+		try copy.mask(using: path)
+		return copy
 	}
 }

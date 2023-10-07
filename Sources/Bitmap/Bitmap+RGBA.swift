@@ -84,7 +84,8 @@ public extension Bitmap.RGBA {
 	/// Create an RGBA struct from an array of four (4) bytes in the form [R, G, B, A]
 	@inlinable init(slice: ArraySlice<UInt8>) {
 		assert(slice.count == 4)
-		self.init(rgbaByteComponents: Array(slice))
+		let i = slice.startIndex
+		self = Self.init(r: slice[i], g: slice[i + 1], b: slice[i + 2], a: slice[i + 3])
 	}
 }
 

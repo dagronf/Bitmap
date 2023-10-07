@@ -20,7 +20,27 @@
 import Foundation
 import CoreGraphics
 
-extension CGImage {
-	/// The image size
-	@inlinable var size: CGSize { CGSize(width: width, height: height) }
+public extension Bitmap {
+	/// Perform a drawing operation clipped to a path
+	/// - Parameters:
+	///   - clippingPath: The path to clip to
+	///   - drawBlock: The drawing operation(s)
+	mutating func clipped(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) {
+		ctx.saveGState()
+		defer { ctx.restoreGState() }
+		ctx.addPath(clippingPath)
+		ctx.clip()
+		drawBlock(ctx)
+	}
+
+	/// Perform a clipped drawing operation on a copy of this bitmap
+	/// - Parameters:
+	///   - clippingPath: The path to clip to
+	///   - drawBlock: The drawing operation(s)
+	/// - Returns: A bitmap
+	@inlinable func clipping(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.clipped(to: clippingPath, drawBlock)
+		return copy
+	}
 }

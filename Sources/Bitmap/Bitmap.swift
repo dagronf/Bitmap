@@ -26,9 +26,9 @@ import AppKit.NSImage
 import UIKit
 #endif
 
-/// A bitmap context
+/// A bitmap
 ///
-/// Coordinates start at the bottom left of the image
+/// Coordinates start at the bottom left of the image, always in the sRGB colorspace
 public struct Bitmap {
 	/// The errors thrown
 	public enum BitmapError: Error {
@@ -38,92 +38,93 @@ public struct Bitmap {
 		case paddingOrInsetMustBePositiveValue
 		case rgbaDataMismatchSize
 		case unableToMask
+		case cannotFilter
+		case cannotConvertColorSpace
 	}
 
-	/// The width of the image in pixels
-	public let width: Int
-	/// The height of the image in pixels
-	public let height: Int
-	/// The size of the image (in pixels)
-	public var size: CGSize { CGSize(width: self.width, height: self.height) }
-	/// The bounds rectangle for the image
-	public var bounds: CGRect { CGRect(origin: .zero, size: size) }
+	/// Raw bitmap information
+	public internal(set) var bitmapData: Bitmap.RGBAData
 
-	/// The raw RGBA pixel data
-	public private(set) var rgbaPixelData: [UInt8]
+	/// The raw RGBA byte data for the bitmap
+	public var rgbaBytes: [UInt8] { bitmapData.rgbaBytes }
+
+	/// The width of the image in pixels
+	@inlinable public var width: Int { bitmapData.width }
+	/// The height of the image in pixels
+	@inlinable public var height: Int { bitmapData.height }
+	/// The size of the image (in pixels)
+	public var size: CGSize { bitmapData.size }
+	/// The bounds rectangle for the image
+	public var bounds: CGRect { bitmapData.bounds }
+
+	/// Create a bitmap from raw bitmap data
+	/// - Parameter bitmapData: The bitmap data
+	public init(_ rgbaBitmapData: Bitmap.RGBAData) throws {
+		self.bitmapData = rgbaBitmapData
+		guard
+			let ctx = CGContext(
+				data: &bitmapData.rgbaBytes,
+				width: bitmapData.width,
+				height: bitmapData.height,
+				bitsPerComponent: 8,
+				bytesPerRow: bitmapData.width * 4,
+				space: Bitmap.colorSpace,
+				bitmapInfo: Bitmap.bitmapInfo.rawValue
+			)
+		else {
+			throw BitmapError.invalidContext
+		}
+		self.ctx = ctx
+	}
 
 	/// Create an empty bitmap with transparent background using an RGBA colorspace
 	/// - Parameters:
 	///   - width: bitmap width
 	///   - height: bitmap height
-	public init(width: Int, height: Int) throws {
-		let dataSize = width * height * 4
-		self.rgbaPixelData = [UInt8](repeating: 0, count: Int(dataSize))
-
-		guard
-			let ctx = CGContext(
-				data: &rgbaPixelData,
-				width: width,
-				height: height,
-				bitsPerComponent: 8,
-				bytesPerRow: width * 4,
-				space: Bitmap.colorSpace,
-				bitmapInfo: Bitmap.bitmapInfo.rawValue
-			)
-		else {
-			throw BitmapError.invalidContext
+	///   - backgroundColor: The background color for the bitmap (defaults to transparent)
+	public init(width: Int, height: Int, backgroundColor: CGColor? = nil) throws {
+		let bitmapData = Bitmap.RGBAData(width: width, height: height)
+		try self.init(bitmapData)
+		if let backgroundColor = backgroundColor {
+			self.fill(backgroundColor)
 		}
-		self.ctx = ctx
-		self.width = width
-		self.height = height
+	}
+
+	/// Create a transparent bitmap
+	/// - Parameters:
+	///   - size: The size of the image to create
+	///   - backgroundColor: The background color for the bitmap (defaults to transparent)
+	@inlinable public init(size: CGSize, backgroundColor: CGColor? = nil) throws {
+		try self.init(width: Int(size.width), height: Int(size.height), backgroundColor: backgroundColor)
 	}
 
 	/// Create a bitmap from raw RGBA bytes
 	/// - Parameters:
-	///   - rgbaData: The raw rgba data
+	///   - rgbaBytes: Raw rgba data (array of R,G,B,A bytes)
 	///   - width: The expected width of the resulting bitmap
 	///   - height: The expected height of the resulting bitmap
-	init(rgbaData: Data, width: Int, height: Int) throws {
-		guard rgbaData.count == (width * height) else { throw BitmapError.rgbaDataMismatchSize }
-		self.width = width
-		self.height = height
-		self.rgbaPixelData = Array(rgbaData)
-
-		guard
-			let ctx = CGContext(
-				data: &rgbaPixelData,
-				width: width,
-				height: height,
-				bitsPerComponent: 8,
-				bytesPerRow: width * 4,
-				space: Bitmap.colorSpace,
-				bitmapInfo: Bitmap.bitmapInfo.rawValue
-			)
-		else {
-			throw BitmapError.invalidContext
-		}
-		self.ctx = ctx
+	public init(rgbaBytes: [UInt8], width: Int, height: Int) throws {
+		guard rgbaBytes.count == (width * height * 4) else { throw BitmapError.rgbaDataMismatchSize }
+		let bitmapData = Bitmap.RGBAData(width: width, height: height, rgbaBytes: rgbaBytes)
+		try self.init(bitmapData)
 	}
 
-	/// Create a transparent bitmap
-	/// - Parameter size: The size of the image to create
-	public init(size: CGSize) throws {
-		try self.init(width: Int(size.width), height: Int(size.height))
+	/// Create a bitmap from raw RGBA bytes
+	/// - Parameters:
+	///   - rgbaData: The raw rgba data as R,G,B,A bytes
+	///   - width: The expected width of the resulting bitmap
+	///   - height: The expected height of the resulting bitmap
+	@inlinable public init(rgbaData: Data, width: Int, height: Int) throws {
+		try self.init(rgbaBytes: Array(rgbaData), width: width, height: height)
 	}
 
-	/// Create a bitmap context containing an image
+	/// Create a bitmap containing an image
 	/// - Parameter image: The initial image contained within the bitmap
 	public init(_ image: CGImage) throws {
 		try self.init(width: image.width, height: image.height)
 		self.draw { ctx in
 			ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
 		}
-	}
-
-	/// Create a bitmap from a copy of a bitmap
-	public init(_ bitmap: Bitmap) throws {
-		guard let cgi = bitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
-		try self.init(cgi)
 	}
 
 	/// Create a bitmap of a specified size with a context block for initialization
@@ -133,11 +134,20 @@ public struct Bitmap {
 		self = bitmap
 	}
 
+	/// Create a bitmap by copying another bitmap
+	@inlinable public init(_ bitmap: Bitmap) throws {
+		try self.init(bitmap.bitmapData)
+	}
 
 	/// Make a copy of this bitmap
 	/// - Returns: A new bitmap
 	@inlinable public func copy() throws -> Bitmap {
-		try Bitmap(self)
+		try Bitmap(self.bitmapData)
+	}
+
+	/// Erase the bitmap
+	public mutating func eraseAll() {
+		self.bitmapData.eraseAll()
 	}
 
 	private static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
@@ -157,56 +167,39 @@ public extension Bitmap {
 // MARK: - Getting/setting pixels
 
 public extension Bitmap {
-	/// sets/gets the image pixel at the given row/column
+	/// sets/gets the image pixel at the given column, row
 	///
-	/// Coordinates start at the bottom left of the image
+	/// Coordinates start at the bottom left (0, 0) of the image
 	subscript(x: Int, y: Int) -> RGBA {
-		get {
-			self.getPixel(x: x, y: y)
-		}
-		set {
-			let offset = self.byteOffset(x: x, y: y)
-			self.rgbaPixelData[offset] = newValue.r
-			self.rgbaPixelData[offset + 1] = newValue.g
-			self.rgbaPixelData[offset + 2] = newValue.b
-			self.rgbaPixelData[offset + 3] = newValue.a
-		}
+		get { self.bitmapData[x, y] }
+		set { self.bitmapData[x, y] = newValue }
 	}
 
 	/// Set the RGBA color of the pixel at (x, y)
-	@inlinable mutating func setPixel(x: Int, y: Int, color: RGBA) {
-		self[x, y] = color
+	///
+	/// Coordinates start at the bottom left (0, 0) of the image
+	mutating func setPixel(x: Int, y: Int, color: RGBA) {
+		self.bitmapData.setPixel(x: x, y: y, color: color)
 	}
 
 	/// Returns a 4 byte array slice for the pixel ([R,G,B,A] bytes)
 	///
-	/// Coordinates start at the bottom left of the image
+	/// Coordinates start at the bottom left (0, 0) of the image
 	@inlinable func getPixelSlice(x: Int, y: Int) -> ArraySlice<UInt8> {
-		assert(y < self.height && x < self.width)
-		let offset = self.byteOffset(x: x, y: y)
-		return self.rgbaPixelData[offset ..< offset + 4]
+		self.bitmapData.getPixelSlice(x: x, y: y)
 	}
 
-	/// Get the RGBA color of the pixel at (x, y)
-	@inlinable func getPixel(x: Int, y: Int) -> RGBA {
-		assert(MemoryLayout<RGBA>.size == 4)
-		assert(y < self.height && x < self.width)
-		return RGBA(slice: self.getPixelSlice(x: x, y: y))
+	/// Get the RGBA color of the pixel at (x, y).
+	///
+	/// Coordinates start at the bottom left (0, 0) of the image
+	@inlinable @inline(__always) func getPixel(x: Int, y: Int) -> RGBA {
+		self.bitmapData.getPixel(x: x, y: y)
 	}
 
 	/// Returns the pixels in the image as an array of RGBA pixels
 	///
 	/// (0) is the top left pixel, <max-1> is the bottom right pixel
-	@inlinable internal var rawPixels: [RGBA] {
-		assert(MemoryLayout<RGBA>.size == 4)
-		return self.rgbaPixelData.withUnsafeBytes { ptr in
-			Array(ptr.bindMemory(to: RGBA.self))
-		}
-	}
-
-	/// Returns the base byte offset for the pixel at (x, y)
-	@inlinable @inline(__always) internal func byteOffset(x: Int, y: Int) -> Int {
-		assert(y < self.height && x < self.width)
-		return ((self.height - 1 - y) * (self.width * 4)) + (x * 4)
+	@inlinable @inline(__always) internal var rawPixels: [RGBA] {
+		self.bitmapData.rawPixels
 	}
 }

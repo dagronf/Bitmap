@@ -21,17 +21,17 @@ import Foundation
 import CoreGraphics
 
 public extension Bitmap {
-	/// Rotate this image clockwise around its center
+	/// Rotate this bitmap clockwise around its center
 	/// - Parameters:
 	///   - radians: The rotation angle in radians
-	@inlinable mutating func rotated(by radians: CGFloat) throws {
+	@inlinable mutating func rotate(by radians: CGFloat) throws {
 		self = try self.rotating(by: radians)
 	}
 
-	/// Create a new image by rotating an image clockwise round its center
+	/// Create a new bitmap by rotating this bitmap clockwise round its center
 	/// - Parameters:
 	///   - radians: The rotation angle in radians
-	/// - Returns: The rotated image, or nil if an error occurred
+	/// - Returns: The rotated bitmap
 	func rotating(by radians: CGFloat) throws -> Bitmap {
 		guard let cgImage = self.cgImage else {
 			throw BitmapError.cannotCreateCGImage

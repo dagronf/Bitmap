@@ -24,13 +24,52 @@ import CoreGraphics
 
 public extension Bitmap {
 	/// Crop this bitmap to the given rect
-	@inlinable mutating func cropping(to rect: CGRect) throws {
-		self = try crop(to: rect)
+	/// - Parameter path: The rect to crop
+	@inlinable mutating func crop(to rect: CGRect) throws {
+		self = try cropping(to: rect)
 	}
 
-	/// Create a new image by cropping to a rect
-	@inlinable func crop(to rect: CGRect) throws -> Bitmap {
+	/// Create a new bitmap by cropping this bitmap to a rect
+	/// - Parameter path: The rect to crop
+	/// - Returns: A new bitmap
+	@inlinable func cropping(to rect: CGRect) throws -> Bitmap {
 		guard let image = self.cgImage?.cropping(to: rect) else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(image)
+	}
+
+	/// Crop the image to a path
+	/// - Parameter path: The path to crop
+	@inlinable mutating func crop(to path: CGPath) throws {
+		self = try self.cropping(to: path)
+	}
+
+	/// Create a new bitmap by cropping this bitmap to the given path
+	/// - Parameter path: The path
+	/// - Returns: A new bitmap with the clipping path applied
+	func cropping(to path: CGPath) throws -> Bitmap {
+		// Crop to the path bounds
+		let flipped = path.boundingBoxOfPath.flippingY(within: self.bounds)
+		var newBitmap = try self.cropping(to: flipped)
+		let newBounds = newBitmap.bounds
+
+		// Take a snapshot of the cropped image so we can mask out the path
+		guard let orig = newBitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
+
+		// Clear the bitmap - we'll reuse it
+		newBitmap.eraseAll()
+
+		// Move the path to the origin
+		let newPath = CGMutablePath()
+		newPath.addPath(path, transform: CGAffineTransform(translationX: -path.boundingBoxOfPath.origin.x,
+																			y: -path.boundingBoxOfPath.origin.y))
+
+		// Okay. Now mask the path and re-draw the original image
+		newBitmap.draw { ctx in
+			ctx.addPath(newPath)
+			ctx.clip()
+			drawImageInContext(ctx, image: orig, rect: newBounds)
+		}
+
+		return newBitmap
 	}
 }

@@ -21,33 +21,30 @@ import Foundation
 import CoreGraphics
 
 public extension Bitmap {
+	/// Shadow definition
 	struct Shadow {
+		/// Specifies a translation in base-space
 		public let offset: CGSize
+		/// A non-negative number specifying the amount of blur.
 		public let blur: Double
+		/// Specifies the color of the shadow, which may contain a non-opaque alpha value. If NULL, then shadowing is disabled.
 		public let color: CGColor
-		public init(
-			offset: CGSize = .init(width: 3, height: -3),
-			blur: Double = 5,
-			color: CGColor = .black
-		) {
+		/// Create a shadow style
+		public init(offset: CGSize = .init(width: 3, height: -3), blur: Double = 5, color: CGColor = .black) {
 			self.offset = offset
 			self.blur = blur
 			self.color = color
 		}
 	}
 
+	/// Apply a shadow to a drawing block
+	/// - Parameters:
+	///   - shadow: The shadow style
+	///   - draw: The drawing to apply the shadow to
 	mutating func applyingShadow(_ shadow: Shadow, _ draw: (inout Bitmap) -> Void) {
 		ctx.saveGState()
 		defer { ctx.restoreGState() }
 		ctx.setShadow(offset: shadow.offset, blur: shadow.blur, color: shadow.color)
 		draw(&self)
-	}
-
-	mutating func clippingToPath(_ clippingPath: CGPath, _ drawBlock: (inout Bitmap) -> Void) {
-		ctx.saveGState()
-		defer { ctx.restoreGState() }
-		ctx.addPath(clippingPath)
-		ctx.clip()
-		drawBlock(&self)
 	}
 }

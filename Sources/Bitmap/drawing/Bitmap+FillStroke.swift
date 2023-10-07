@@ -21,38 +21,80 @@ import Foundation
 import CoreGraphics
 
 public extension Bitmap {
-
+	/// Stroke drawing properties
 	struct Stroke {
+		/// Stroke dash
+		public struct Dash {
+			public let lengths: [CGFloat]
+			public let phase: CGFloat
+			public init(lengths: [CGFloat], phase: CGFloat = 0.0) {
+				self.lengths = lengths
+				self.phase = phase
+			}
+		}
+
 		public let color: CGColor
 		public let lineWidth: Double
+		public let dash: Dash?
+		init(color: CGColor = .black, lineWidth: Double = 1.0, dash: Dash? = nil) {
+			self.color = color
+			self.lineWidth = lineWidth
+			self.dash = dash
+		}
+	}
+
+	/// Fill/stroke a path on a copy of this image
+	/// - Parameters:
+	///   - path: The path to fill/stroke
+	///   - fillColor: The fill color
+	///   - stroke: The stroke style
+	/// - Returns: A new bitmap
+	func drawingPath(_ path: CGPath, fillColor: CGColor? = nil, stroke: Stroke? = nil) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.drawPath(path, fillColor: fillColor, stroke: stroke)
+		return copy
 	}
 
 	/// Draw on the current image
-	@inlinable mutating func draw(
-		rect: CGRect,
-		fillColor: CGColor?,
-		stroke: Stroke?
-	) {
-		draw(rects: [rect], fillColor: fillColor, stroke: stroke)
+	/// - Parameters:
+	///   - path: The path to fill/stroke
+	///   - fillColor: The fill color
+	///   - stroke: The stroke style
+	@inlinable mutating func drawPath(_ path: CGPath, fillColor: CGColor? = nil, stroke: Stroke? = nil) {
+		self.drawPaths([path], fillColor: fillColor, stroke: stroke)
 	}
 
 	/// Draw on the current image
-	@inlinable mutating func draw(
-		rects: [CGRect],
-		fillColor: CGColor?,
-		stroke: Stroke?
-	) {
+	/// - Parameters:
+	///   - rect: The rect to fill/stroke
+	///   - fillColor: The fill color
+	///   - stroke: The stroke style
+	@inlinable mutating func drawRect(_ rect: CGRect, fillColor: CGColor? = nil, stroke: Stroke? = nil) {
+		self.drawPaths([CGPath(rect: rect, transform: nil)], fillColor: fillColor, stroke: stroke)
+	}
+
+	/// Draw on the current image
+	/// - Parameters:
+	///   - paths: The path(s) to fill/stroke
+	///   - fillColor: The fill color
+	///   - stroke: The stroke style
+	@inlinable mutating func drawPaths(_ paths: [CGPath], fillColor: CGColor?, stroke: Stroke?) {
 		self.draw { ctx in
-			rects.forEach {
+			paths.forEach {
 				if let c = fillColor {
 					ctx.setFillColor(c)
-					ctx.fill([$0])
+					ctx.addPath($0)
+					ctx.fillPath()
 				}
 				if let s = stroke {
 					ctx.setStrokeColor(s.color)
+					if let dash = s.dash {
+						ctx.setLineDash(phase: dash.phase, lengths: dash.lengths)
+					}
 					ctx.setLineWidth(s.lineWidth)
-					rects.forEach {
-						ctx.stroke($0)
+					paths.forEach {
+						ctx.addPath($0)
+						ctx.strokePath()
 					}
 				}
 			}
@@ -61,18 +103,27 @@ public extension Bitmap {
 }
 
 public extension Bitmap {
-
 	/// Fill the entire bitmap with a color
-	mutating func fill(_ fillColor: CGColor) {
-		let dest = CGRect(x: 0, y: 0, width: width, height: height)
-		self.savingGState { ctx in
-			ctx.setFillColor(fillColor)
-			ctx.addPath(CGPath(rect: dest, transform: nil))
-			ctx.fillPath()
-		}
+	/// - Parameter fillColor: The color to fill
+	@inlinable mutating func fill(_ fillColor: CGColor) {
+		self.fill(self.bounds.path, fillColor)
 	}
 
-	/// Fill a path in the bitmap
+	/// Create a new bitmap by filling this bitmap with a color
+	/// - Parameter fillColor: The color to fill
+	/// - Returns: A new bitmap
+	@inlinable func filling(with fillColor: CGColor) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.fill(self.bounds.path, fillColor)
+		return copy
+	}
+}
+
+public extension Bitmap {
+	/// Fill a path in this bitmap
+	/// - Parameters:
+	///   - path: The path to fill
+	///   - fillColor: The color to fill
 	mutating func fill(_ path: CGPath, _ fillColor: CGColor) {
 		self.draw { ctx in
 			ctx.addPath(path)
@@ -81,16 +132,63 @@ public extension Bitmap {
 		}
 	}
 
+	/// Create a new bitmap by filling a path in this bitmap with a color
+	/// - Parameters:
+	///   - path: The path to fill
+	///   - fillColor: The color to fill
+	/// - Returns: A new bitmap with the path filled
+	func filling(_ path: CGPath, _ fillColor: CGColor) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.fill(path, fillColor)
+		return copy
+	}
+}
+
+public extension Bitmap {
 	/// Stroke a path in the bitmap
+	/// - Parameters:
+	///   - path: The path to stroke
+	///   - stroke: Stroke parameters
 	mutating func stroke(_ path: CGPath, _ stroke: Stroke) {
 		self.savingGState { ctx in
 			ctx.addPath(path)
 			ctx.setStrokeColor(stroke.color)
 			ctx.setLineWidth(stroke.lineWidth)
+			if let dash = stroke.dash {
+				ctx.setLineDash(phase: dash.phase, lengths: dash.lengths)
+			}
 			ctx.strokePath()
 		}
 	}
 
+	/// Stroke a path in the bitmap
+	/// - Parameters:
+	///   - path: The path to stroke
+	///   - stroke: Stroke parameters
+	/// - Returns: A new bitmap with the path stroked
+	func stroking(_ path: CGPath, _ stroke: Stroke) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.stroke(path, stroke)
+		return copy
+	}
+
+	/// Return a new bitmap by stroking a rect on this bitmap
+	/// - Parameters:
+	///   - rect: The rect to stroke
+	///   - stroke: Stroke style
+	/// - Returns: A new bitmap
+	@inlinable func stroking(_ rect: CGRect, _ stroke: Stroke) throws -> Bitmap {
+		try self.stroking(rect.path, stroke)
+	}
+}
+
+public extension Bitmap {
+	/// Fill and stroke a path on this bitmap
+	/// - Parameters:
+	///   - path: The path
+	///   - fillColor: Fill color
+	///   - stroke: Stroke style
+	/// - Returns: A new bitmap
 	mutating func fillStroke(_ path: CGPath, fillColor: CGColor, stroke: Stroke) {
 		self.savingGState { ctx in
 			ctx.addPath(path)
@@ -99,7 +197,42 @@ public extension Bitmap {
 			ctx.addPath(path)
 			ctx.setStrokeColor(stroke.color)
 			ctx.setLineWidth(stroke.lineWidth)
+			if let dash = stroke.dash {
+				ctx.setLineDash(phase: dash.phase, lengths: dash.lengths)
+			}
 			ctx.strokePath()
 		}
+	}
+
+	/// Return a new bitmap by filling and stroking a path on this bitmap
+	/// - Parameters:
+	///   - path: The path
+	///   - fillColor: Fill color
+	///   - stroke: Stroke style
+	/// - Returns: A new bitmap
+	func fillingStroking(_ path: CGPath, fillColor: CGColor, stroke: Stroke) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.fillStroke(path, fillColor: fillColor, stroke: stroke)
+		return copy
+	}
+}
+
+public extension Bitmap {
+	/// Draw a simple line on the bitmap
+	/// - Parameters:
+	///   - from: The start position of the line
+	///   - to: The end position of the line
+	///   - stroke: The stroke style
+	mutating func drawLine(from: CGPoint, to: CGPoint, stroke: Stroke) {
+		let pth = CGMutablePath()
+		pth.move(to: from)
+		pth.addLine(to: to)
+		pth.closeSubpath()
+		self.stroke(pth, stroke)
+	}
+
+	/// Draw a simple line on the bitmap
+	@inlinable mutating func drawLine(x1: CGFloat, y1: CGFloat, x2: CGFloat, y2: CGFloat, stroke: Stroke) {
+		self.drawLine(from: CGPoint(x: x1, y: y1), to: CGPoint(x: x2, y: y2), stroke: stroke)
 	}
 }

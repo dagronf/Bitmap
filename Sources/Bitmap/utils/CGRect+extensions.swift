@@ -20,29 +20,16 @@
 import Foundation
 import CoreGraphics
 
-// MARK: - Drawing
+extension CGRect {
+	/// A basic path representation for the rect
+	@inlinable var path: CGPath { CGPath(rect: self, transform: nil) }
+	/// A basic ellipse path representation within the bounds of the rect
+	@inlinable var ellipsePath: CGPath { CGPath(ellipseIn: self, transform: nil) }
 
-public extension Bitmap {
-	/// Perform 'block' within a saved GState on a bitmap
-	@inlinable mutating func savingGState(_ block: (CGContext) -> Void) {
-		self.ctx.saveGState()
-		defer { ctx.restoreGState() }
-		block(self.ctx)
-	}
-}
-
-public extension Bitmap {
-	/// Perform drawing actions within a saved GState on a bitmap
-	@inlinable mutating func draw(_ block: (CGContext) -> Void) {
-		self.savingGState(block)
-	}
-
-	/// Performs drawing operations on a copy of this bitmap
-	/// - Parameter block: The block containing the drawing commands
-	/// - Returns: A new bitmap
-	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
-		var copy = try self.copy()
-		copy.draw(block)
-		return copy
+	/// Flip the y axis within a bounds rect
+	@inlinable func flippingY(within bounds: CGRect) -> CGRect {
+		var b = self
+		b.origin.y = bounds.height - (b.origin.y + b.size.height)
+		return b
 	}
 }

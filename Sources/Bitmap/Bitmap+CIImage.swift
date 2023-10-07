@@ -43,19 +43,11 @@ public extension Bitmap {
 		}
 		try self.init(cgImage)
 	}
-}
 
-public extension Bitmap {
 	/// Returns a CIImage representation of the bitmap
 	@inlinable var ciImage: CIImage? {
 		guard let cgImage = self.cgImage else { return nil }
 		return CIImage(cgImage: cgImage)
-	}
-
-	/// Create a new bitmap by filtering using a filter block
-	mutating func applyingFilterChain(_ block: (CIImage) throws -> CIImage) throws -> Bitmap {
-		guard let ciImage = self.ciImage else { throw BitmapError.cannotCreateCGImage }
-		return try Bitmap(try block(ciImage))
 	}
 }
 

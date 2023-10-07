@@ -27,11 +27,16 @@ import UIKit
 #endif
 
 public extension Bitmap {
-
+	/// The minimum size to contain the string
+	/// - Parameter string: The string
+	/// - Returns: The size required to contain the string
 	@inlinable func requiredBounds(for string: String) -> CGSize {
 		self.requiredBounds(for: NSAttributedString(string: string))
 	}
 
+	/// The minimum size to contain the string
+	/// - Parameter attributedString: The string
+	/// - Returns: The size required to contain the string
 	func requiredBounds(for attributedString: NSAttributedString) -> CGSize {
 		var ascent: CGFloat = 0
 		var descent: CGFloat = 0
