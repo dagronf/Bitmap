@@ -267,7 +267,7 @@ final class BitmapTests: XCTestCase {
 		assert(bitmap.width == 255)
 
 		bitmap.drawRect(
-			CGRect(x: 50, y: 50, width: 50, height: 50),
+			CGRect(x: 50, y: 50, width: 80, height: 100),
 			fillColor: CGColor.red,
 			stroke: Bitmap.Stroke(color: CGColor(gray: 0.5, alpha: 1.0), lineWidth: 2)
 		)
@@ -750,6 +750,29 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 		orig.fill(.yellow.copy(alpha: 0.3)!)
 		try markdown.image(orig, linked: true)
+		markdown.raw("|")
+		markdown.br()
+	}
+
+	func testTintExample() throws {
+		markdown.h2("Tint Example 2")
+
+		markdown.raw("| original | tinted |\n")
+		markdown.raw("|----|----|\n")
+		markdown.raw("|")
+
+		let orig = bitmapResource(name: "cmyk", extension: "jpg")
+		try markdown.image(orig, linked: true)
+
+		markdown.raw("|")
+
+		let tintedImage: CGImage? = try {
+			try orig
+				.tinting(with: CGColor(red: 0, green: 0, blue: 1, alpha: 1))
+				.cgImage
+		}()
+		let u = try XCTUnwrap(tintedImage)
+		try markdown.image(u, linked: true)
 		markdown.raw("|")
 		markdown.br()
 	}

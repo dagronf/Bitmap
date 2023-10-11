@@ -39,7 +39,7 @@ typealias PlatformImage = UIImage
 
 #if os(macOS)
 public extension Bitmap {
-	/// Create a bitmap context containing an image
+	/// Create a bitmap using the specified NSImage
 	init(_ image: NSImage) throws {
 		guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
 			throw BitmapError.cannotCreateCGImage
@@ -47,7 +47,7 @@ public extension Bitmap {
 		try self.init(cgImage)
 	}
 
-	/// Returns a platform-specific image
+	/// An NSImage representation of the bitmap
 	var image: NSImage? {
 		guard let cgImage = self.cgImage else { return nil }
 		return NSImage(cgImage: cgImage, size: .zero)
@@ -55,7 +55,13 @@ public extension Bitmap {
 }
 #else
 public extension Bitmap {
-	/// Returns a platform-specific image
+	/// Create a bitmap using the specified UIImage
+	init(_ image: UIImage) throws {
+		guard let cgImage = image.cgImage else { throw BitmapError.cannotCreateCGImage }
+		try self.init(cgImage)
+	}
+
+	/// An UIImage representation of the bitmap
 	var image: UIImage? {
 		guard let cgImage = self.cgImage else { return nil }
 		return UIImage(cgImage: cgImage)

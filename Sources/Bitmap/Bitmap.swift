@@ -139,22 +139,33 @@ public struct Bitmap {
 		try self.init(bitmap.bitmapData)
 	}
 
-	/// Make a copy of this bitmap
-	/// - Returns: A new bitmap
-	@inlinable public func copy() throws -> Bitmap {
-		try Bitmap(self.bitmapData)
+	/// Load a bitmap from an image asset
+	/// - Parameter name: The name of the image asset
+	public init(named name: String) throws {
+		guard let cgi = PlatformImage(named: name)?.cgImage else { throw BitmapError.cannotCreateCGImage }
+		try self.init(cgi)
 	}
 
-	/// Erase the bitmap
-	public mutating func eraseAll() {
-		self.bitmapData.eraseAll()
-	}
+	// Private
 
 	private static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
 	private static let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
 	/// The created image context
 	@usableFromInline internal let ctx: CGContext
+}
+
+public extension Bitmap {
+	/// Make a copy of this bitmap
+	/// - Returns: A new bitmap
+	@inlinable func copy() throws -> Bitmap {
+		try Bitmap(self.bitmapData)
+	}
+
+	/// Erase the bitmap (set the image content to all transparent)
+	mutating func eraseAll() {
+		self.bitmapData.eraseAll()
+	}
 }
 
 // MARK: - Retrieving the image

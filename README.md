@@ -1,21 +1,41 @@
 # Bitmap
 
+![tag](https://img.shields.io/github/v/tag/dagronf/Bitmap)
+![Swift](https://img.shields.io/badge/Swift-5.4-orange.svg)
+[![License MIT](https://img.shields.io/badge/license-MIT-magenta.svg)](https://github.com/dagronf/Bitmap/blob/master/LICENSE) 
+![SPM](https://img.shields.io/badge/spm-compatible-maroon.svg)
+
+![macOS](https://img.shields.io/badge/macOS-10.13+-darkblue)
+![iOS](https://img.shields.io/badge/iOS-13+-crimson)
+![tvOS](https://img.shields.io/badge/tvOS-13+-forestgreen)
+![watchOS](https://img.shields.io/badge/watchOS-6+-indigo)
+![macCatalyst](https://img.shields.io/badge/macCatalyst-2+-orangered)
+
 A Swift-y convenience for loading/saving and manipulating bitmap images.
 
 ## Why?
 
 I wanted a simple Swift interface for wrapping some of the common image manipulations
-that I come across in my day-to-day image needs.
+that I come across in my day-to-day image needs, the primary being easily being able to draw directly into a
+bitmap image.
 
-`Bitmap` has its coordinate system starting from (0, 0) at the bottom left.
-
-The `Bitmap` object represents an RGBA image. This allows simple pixel getting/setting operations.
-
+* Supports all Apple platforms (with some limitations on watchOS)
 * supports loading non-RGBA format images (eg. CMYK) by converting the image to RGBA during load.
 * objects are easily saved via its `representation` property.
 * supports both mutable and immutable methods (functional-style) for manipulating bitmaps.
-* `Sendable` support
-* Supports all Apple platforms (with some limitations on watchOS)
+* bitmap manipulation functions
+* `Sendable` support to push bitmap information between tasks.
+
+## Definitions
+
+The `Bitmap` object represents an RGBA image. The image data is stored internally in a simple 1-D array of bytes
+representing the R,G,B,A sequence of pixels. 
+
+The bitmap object holds and manages a `CGContext` representation of the bitmap to allow CG- operations directly 
+on the bitmap itself. 
+
+* `Bitmap`s coordinate system starts at (0, 0) in the bottom left. 
+* All operations/manipulations/coordinates occur from the bottom left.
 
 ## Creating a new image
 
@@ -53,7 +73,7 @@ let pngData = bitmap.representation?.png()
 
 ## Drawing into a bitmap
 
-### Drawing into the bitmap's context
+### Drawing into the bitmap's context using CG methods
 
 ```swift
 var bitmap = try Bitmap(width: 640, height: 480)
@@ -75,7 +95,7 @@ bitmap.drawBitmap(bitmap, at: CGPoint(x: 300, y: 300))
 
 ## Getting/setting individual pixels
 
-`Bitmap` has methods for getting and setting individual pixel values within an image
+You can directly access pixel information in the bitmap using subscripts or the get/setPixel methods on `Bitmap`
 
 ```swift
 var bitmap = Bitmap(...)
@@ -93,7 +113,7 @@ bitmap[4, 3] = Bitmap.RGBA(r: 255, g: 0, b: 0, a: 255)   // or bitmap.setPixel(x
 
 ### Mutable
 
-Mutating functions operate on a Bitmap variable. Each method modifies the original bitmap instance.
+Mutable functions operate on a Bitmap variable. Each method modifies the original bitmap instance.
 
 ```swift
 // Load an image, rotate it and convert it to grayscale
@@ -104,7 +124,10 @@ try bitmap.grayscale()
 
 ### Immutable
 
-Immutable functions work on a copy of the bitmap and return the copy. 
+Immutable functions work on a copy of the bitmap and return the copy. The original bitmap (which can be a `let` variable
+remains untouched.
+
+Immutable function variations are named with 'ing' in the title, such as `tinting()` or `scaling()`.
 
 ```swift
 // Load an image, rotate it and convert it to grayscale
@@ -121,6 +144,21 @@ let bitmap = try Bitmap(fileURL: ...)
 	.rotating(by: 1.4)
 	.grayscaling()
 ```
+
+### Available bitmap manipulation functions
+
+* Resizing/scaling
+* Padding/inset
+* Clipping/masking
+* Rotation
+* Transparency removal
+* Punching holes
+* Color manipulation (eg. grayscale, tinting, gamma adjustment, saturation etc)
+* Flipping
+* Drawing (eg. lines, shapes, paths, fill/stroke)
+* Drawing text
+
+… and more!
 
 ## Sendable support
 
@@ -140,7 +178,9 @@ let bitmapData = myBitmap.bitmapData
 var myBitmap = try Bitmap(bitmapData)
 ```
 
-## License
+--------
+
+# License
 
 ```
 MIT License
