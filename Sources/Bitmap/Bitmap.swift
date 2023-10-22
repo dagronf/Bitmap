@@ -40,6 +40,7 @@ public struct Bitmap {
 		case unableToMask
 		case cannotFilter
 		case cannotConvertColorSpace
+		case cannotConvert
 	}
 
 	/// Raw bitmap information
@@ -193,11 +194,31 @@ public extension Bitmap {
 		self.bitmapData.setPixel(x: x, y: y, color: color)
 	}
 
+	/// Set the RGBA color of the pixel in the bitmap
+	/// - Parameter pixel: The pixel to set, in bottom left coordinates
+	@inlinable @inline(__always) mutating func setPixel(_ pixel: Bitmap.Pixel) {
+		self.setPixel(x: pixel.x, y: pixel.y, color: pixel.color)
+	}
+
+	/// Set the RGBA color of the pixel at (x, y), assuming (0, 0) is at the bottom left of the bitmap
+	///
+	/// Coordinate is assumed to have its origin at the bottom left
+	mutating func setPixel(_ coordinate: Bitmap.Coordinate, color: RGBA) {
+		self.bitmapData.setPixel(x: coordinate.x, y: coordinate.y, color: color)
+	}
+
 	/// Returns a 4 byte array slice for the pixel ([R,G,B,A] bytes)
 	///
 	/// Coordinates start at the bottom left (0, 0) of the image
-	@inlinable func getPixelSlice(x: Int, y: Int) -> ArraySlice<UInt8> {
+	@inlinable @inline(__always) func getPixelSlice(x: Int, y: Int) -> ArraySlice<UInt8> {
 		self.bitmapData.getPixelSlice(x: x, y: y)
+	}
+
+	/// Returns a 4 byte array slice for the pixel ([R,G,B,A] bytes), assuming (0, 0) is at the bottom left of the bitmap
+	///
+	/// Coordinates start at the bottom left (0, 0) of the image
+	@inlinable @inline(__always) func getPixelSlice(_ coordinate: Bitmap.Coordinate) -> ArraySlice<UInt8> {
+		self.bitmapData.getPixelSlice(x: coordinate.x, y: coordinate.y)
 	}
 
 	/// Get the RGBA color of the pixel at (x, y).
@@ -207,10 +228,56 @@ public extension Bitmap {
 		self.bitmapData.getPixel(x: x, y: y)
 	}
 
+	/// Get the RGBA color of the pixel at (x, y), assuming (0, 0) is at the bottom left of the bitmap
+	///
+	/// Coordinates start at the bottom left (0, 0) of the image
+	@inlinable @inline(__always) func getPixel(_ coordinate: Bitmap.Coordinate) -> RGBA {
+		self.bitmapData.getPixel(x: coordinate.x, y: coordinate.y)
+	}
+
 	/// Returns the pixels in the image as an array of RGBA pixels
 	///
 	/// (0) is the top left pixel, <max-1> is the bottom right pixel
 	@inlinable @inline(__always) internal var rawPixels: [RGBA] {
 		self.bitmapData.rawPixels
+	}
+}
+
+public extension Bitmap {
+	/// Return the pixel coordinates exactly matching the specified color, assuming (0, 0) is at the bottom left of the bitmap
+	/// - Parameter color: The color
+	/// - Returns: An array of pixel coordinates
+	func coordinatesMatching(_ color: RGBA) -> [Bitmap.Coordinate] {
+		assert(MemoryLayout<RGBA>.size == 4)
+		assert(self.rgbaBytes.count % 4 == 0)
+		return stride(from: 0, to: self.rgbaBytes.count, by: 4).compactMap { index in
+			let sl = Array(self.rgbaBytes[index ..< index + 4])
+			assert(sl.count == 4)
+			if sl[0] == color.r, sl[1] == color.g, sl[2] == color.b, sl[3] == color.a {
+				let pIndex = index / 4
+				let x: Int = pIndex % self.width
+				let y: Int = self.height - (pIndex / self.width) - 1
+				return Coordinate(x: x, y: y)
+			}
+			return nil
+		}
+	}
+}
+
+public extension Bitmap {
+	/// Return an array of raw pixels for this bitmap
+	/// - Parameter topLeft: If true, returns coordinates are returned setting (0, 0) at the bottom left,
+	///                      otherwise pixels are returned using (0, 0) in the top left
+	/// - Returns: An array of pixels
+	func pixels(bottomLeft: Bool = true) -> [Bitmap.Pixel] {
+		assert(MemoryLayout<RGBA>.size == 4)
+		assert(self.rgbaBytes.count % 4 == 0)
+		return stride(from: 0, to: self.rgbaBytes.count, by: 4).map { index in
+			let sl = self.rgbaBytes[index ..< index + 4]
+			let pIndex = index / 4
+			let x: Int = pIndex % self.width
+			let y: Int = bottomLeft ? self.height - (pIndex / self.width) - 1 : pIndex / self.width
+			return Pixel(x: x, y: y, color: RGBA(slice: sl))
+		}
 	}
 }
