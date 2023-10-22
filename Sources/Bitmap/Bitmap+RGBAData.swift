@@ -21,7 +21,7 @@ import Foundation
 
 public extension Bitmap {
 	/// Raw RGBA bitmap information
-	struct RGBAData: Sendable {
+	struct RGBAData: Sendable, Equatable {
 		/// The width of the image in pixels
 		public let width: Int
 		/// The height of the image in pixels

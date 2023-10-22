@@ -776,4 +776,123 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 		markdown.br()
 	}
+
+	func testOrientation() throws {
+		// Verify that CG* drawing still starts at 0,0 in the bottom left
+		// Note that if Apple changed the orientation for CGContext drawing it would stuff _everything_ up,
+		// but hey, lets check it.
+
+		var bmp = try Bitmap(width: 20, height: 20)
+
+		bmp.draw { ctx in
+			ctx.setFillColor(.red)
+			ctx.fill([CGRect(x: 0, y: 0, width: 1, height: 1)])
+			ctx.setFillColor(.blue)
+			ctx.fill([CGRect(x: 19, y: 0, width: 1, height: 1)])
+			ctx.setFillColor(.green)
+			ctx.fill([CGRect(x: 19, y: 19, width: 1, height: 1)])
+			ctx.setFillColor(.white)
+			ctx.fill([CGRect(x: 0, y: 19, width: 1, height: 1)])
+			ctx.setFillColor(.black)
+			ctx.fill([
+				CGRect(x: 3, y: 17, width: 1, height: 1),
+				CGRect(x: 16, y: 17, width: 1, height: 1),
+				CGRect(x: 0, y: 3, width: 1, height: 1),
+			])
+		}
+
+		let arr = bmp.pixels()
+		XCTAssertEqual(400, arr.count)
+
+		XCTAssertEqual(bmp[0, 0], Bitmap.RGBA.red)
+		XCTAssertEqual(bmp[19, 0], Bitmap.RGBA.blue)
+		XCTAssertEqual(bmp[19, 19], Bitmap.RGBA.green)
+		XCTAssertEqual(bmp[0, 19], Bitmap.RGBA.white)
+		XCTAssertEqual(bmp[3, 17], Bitmap.RGBA.black)
+
+		let mb = bmp.coordinatesMatching(.blue)
+		XCTAssertEqual(1, mb.count)
+		XCTAssertEqual(.init(x: 19, y: 0), mb[0])
+
+		let mr = bmp.coordinatesMatching(.red)
+		XCTAssertEqual(1, mr.count)
+		XCTAssertEqual(.init(x: 0, y: 0), mr[0])
+
+		let mg = bmp.coordinatesMatching(.green)
+		XCTAssertEqual(1, mg.count)
+		XCTAssertEqual(.init(x: 19, y: 19), mg[0])
+
+		let mw = bmp.coordinatesMatching(.white)
+		XCTAssertEqual(1, mw.count)
+		XCTAssertEqual(.init(x: 0, y: 19), mw[0])
+
+		// Sorted to give consistent ordering for test
+		let mbl = bmp.coordinatesMatching(.black).sorted()
+		XCTAssertEqual(3, mbl.count)
+		XCTAssertEqual(.init(x: 0, y: 3), mbl[0])
+		XCTAssertEqual(.init(x: 3, y: 17), mbl[1])
+		XCTAssertEqual(.init(x: 16, y: 17), mbl[2])
+	}
+
+	func testPPMExport() throws {
+		var bmp = try Bitmap(width: 2, height: 3)
+
+		bmp[0, 0] = .red
+		bmp[0, 1] = .green
+		bmp[0, 2] = .blue
+		bmp[1, 0] = .cyan
+		bmp[1, 1] = .magenta
+		bmp[1, 2] = .yellow
+
+		do {
+			let p3Data = try XCTUnwrap(bmp.representation?.p3())
+			let p3 = try XCTUnwrap(String(data: p3Data, encoding: .ascii))
+			XCTAssert(p3.count > 0)
+
+			let p3url = try tempContainer.testFilenameWithName("p3test.ppm")
+			try p3Data.write(to: p3url)
+
+			let bitmap = try Bitmap(fileURL: p3url)
+			XCTAssertEqual(bitmap, bmp)
+		}
+
+		do {
+			let p6Data = try XCTUnwrap(bmp.representation?.p6())
+			XCTAssert(p6Data.count > 0)
+
+			let p6url = try tempContainer.testFilenameWithName("p6test.ppm")
+			try p6Data.write(to: p6url)
+
+			let bitmap = try Bitmap(fileURL: p6url)
+			XCTAssertEqual(bitmap, bmp)
+		}
+	}
+
+	func testPPMImport() throws {
+		let url = try XCTUnwrap(Bundle.module.url(forResource: "p3test", withExtension: "ppm"))
+		let bitmap = try Bitmap(fileURL: url)
+		XCTAssert(bitmap.width == 4)
+		XCTAssert(bitmap.height == 4)
+		XCTAssertEqual(bitmap[0, 0], Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255))
+		XCTAssertEqual(bitmap[0, 1], Bitmap.RGBA.black)
+		XCTAssertEqual(bitmap[1, 0], Bitmap.RGBA.black)
+		XCTAssertEqual(bitmap[1, 2], Bitmap.RGBA(r: 0, g: 255, b: 119, a: 255))
+
+		let i1 = bitmap.cgImage!
+		Swift.print(i1)
+	}
+
+	func testPPMP6Import() throws {
+		let url = try XCTUnwrap(Bundle.module.url(forResource: "p6test", withExtension: "ppm"))
+		let data = try Data(contentsOf: url)
+		let bitmap = try Bitmap(imageData: data)
+		XCTAssertEqual(2, bitmap.width)
+		XCTAssertEqual(3, bitmap.height)
+		XCTAssertEqual(bitmap[0, 0], Bitmap.RGBA(r: 255, g: 0, b: 0, a: 255))
+		XCTAssertEqual(bitmap[0, 1], Bitmap.RGBA(r: 0, g: 255, b: 0, a: 255))
+		XCTAssertEqual(bitmap[0, 2], Bitmap.RGBA(r: 0, g: 0, b: 255, a: 255))
+		XCTAssertEqual(bitmap[1, 0], Bitmap.RGBA(r: 0, g: 255, b: 255, a: 255))
+		XCTAssertEqual(bitmap[1, 1], Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255))
+		XCTAssertEqual(bitmap[1, 2], Bitmap.RGBA(r: 255, g: 255, b: 0, a: 255))
+	}
 }

@@ -156,6 +156,13 @@ public struct Bitmap {
 	@usableFromInline internal let ctx: CGContext
 }
 
+extension Bitmap: Equatable {
+	/// Check if two bitmaps are equal
+	public static func == (lhs: Bitmap, rhs: Bitmap) -> Bool {
+		lhs.bitmapData == rhs.bitmapData
+	}
+}
+
 public extension Bitmap {
 	/// Make a copy of this bitmap
 	/// - Returns: A new bitmap

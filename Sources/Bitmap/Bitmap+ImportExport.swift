@@ -33,6 +33,7 @@ public extension Bitmap {
 
 	/// Load a bitmap from a file URL
 	init(fileURL: URL) throws {
+		assert(fileURL.isFileURL)
 		let cgImage = try CGImage.load(fileURL: fileURL)
 		try self.init(cgImage)
 	}
@@ -49,9 +50,11 @@ public extension Bitmap {
 	/// Representation generator
 	struct Representation {
 		private let reps: CGImage.ImageRepresentation
+		private let bitmap: Bitmap
 		fileprivate init?(_ bitmap: Bitmap) {
 			guard let reps = bitmap.cgImage?.representation else { return nil }
 			self.reps = reps
+			self.bitmap = bitmap
 		}
 
 		/// Create a png representation of the bitmap
@@ -127,5 +130,33 @@ public extension Bitmap {
 		public func heic(scale: CGFloat = 1, compression: CGFloat? = nil) throws -> Data {
 			try self.reps.heic(scale: scale, compression: compression)
 		}
+
+		/// Return a P3 representation of this bitmap
+		/// - Returns: P3 data
+		public func p3() throws -> Data { try __p3(bitmap) }
+
+		/// Return a P6 representation of this bitmap
+		/// - Returns: P6 data
+		public func p6() throws -> Data { try __p6(bitmap) }
 	}
+}
+
+// MARK: - PPM support routines
+
+/// Returns a P3 PPM encoding for the bitmap
+private func __p3(_ bitmap: Bitmap) throws -> Data {
+	let header = "P3\r\n\(bitmap.width) \(bitmap.height)\r\n255\r\n"
+	let data = bitmap.rawPixels.flatMap { "\($0.r) \($0.g) \($0.b)\r\n" }
+	guard let encoded = (header + data).data(using: .utf8) else { throw Bitmap.BitmapError.cannotConvert }
+	return encoded
+}
+
+/// Returns a P6 PPM encoding for the bitmap
+private func __p6(_ bitmap: Bitmap) throws -> Data {
+	var data = Data()
+	let header = "P6\n\(bitmap.width) \(bitmap.height)\n255\n"
+	data.append(header.data(using: .ascii)!)
+	let rawData = bitmap.rawPixels.flatMap { [$0.r, $0.g, $0.b ] }
+	data.append(contentsOf: rawData)
+	return data
 }
