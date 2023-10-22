@@ -63,7 +63,7 @@ extension Bitmap {
 }
 
 public extension Bitmap.RGBA {
-	static let clear = Bitmap.RGBA(r: 0, g: 0, b: 255, a: 0)
+	static let clear = Bitmap.RGBA(r: 0, g: 0, b: 0, a: 0)
 	static let black = Bitmap.RGBA(r: 0, g: 0, b: 0, a: 255)
 	static let white = Bitmap.RGBA(r: 255, g: 255, b: 255, a: 255)
 	static let red = Bitmap.RGBA(r: 255, g: 0, b: 0, a: 255)
