@@ -56,4 +56,9 @@ public extension Bitmap.RGBA {
 		else { throw Bitmap.BitmapError.cannotConvertColorSpace }
 		self.init(rf: components[0], gf: components[1], bf: components[2], af: components[3])
 	}
+
+	/// Returns a CGColor representation of the RGBA color using our standard colorspace
+	var cgColor: CGColor {
+		CGColor(colorSpace: .csRGB, components: [self.rf, self.gf, self.bf, self.af])!
+	}
 }
