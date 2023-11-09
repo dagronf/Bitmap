@@ -157,6 +157,7 @@ let bitmap = try Bitmap(fileURL: ...)
 * Flipping
 * Drawing (eg. lines, shapes, paths, fill/stroke)
 * Drawing text
+* Drawing borders
 
 … and more!
 

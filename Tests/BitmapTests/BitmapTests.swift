@@ -895,4 +895,44 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(bitmap[1, 1], Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255))
 		XCTAssertEqual(bitmap[1, 2], Bitmap.RGBA(r: 255, g: 255, b: 0, a: 255))
 	}
+
+	func testSimpleBorder() throws {
+
+		markdown.h2("Simple bordering")
+
+		markdown.raw("| original | 0.5px | 1px | 2px |  dotted 1px  |  dotted 2px  |\n")
+		markdown.raw("|----|----|----|----|----|----|\n")
+		markdown.raw("|")
+
+		let orig = bitmapResource(name: "food", extension: "jpg")
+		try markdown.image(orig, linked: true)
+
+		markdown.raw("|")
+
+		let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5))
+		try markdown.image(p1, linked: true)
+
+		markdown.raw("|")
+
+		let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0))
+		try markdown.image(p2, linked: true)
+
+		markdown.raw("|")
+
+		let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0))
+		try markdown.image(p3, linked: true)
+
+		markdown.raw("|")
+
+		let p4 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])))
+		try markdown.image(p4, linked: true)
+
+		markdown.raw("|")
+
+		let p5 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])))
+		try markdown.image(p5, linked: true)
+
+		markdown.raw("|")
+		markdown.br()
+	}
 }

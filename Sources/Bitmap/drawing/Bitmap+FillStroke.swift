@@ -36,7 +36,7 @@ public extension Bitmap {
 		public let color: CGColor
 		public let lineWidth: Double
 		public let dash: Dash?
-		init(color: CGColor = .black, lineWidth: Double = 1.0, dash: Dash? = nil) {
+		public init(color: CGColor = .black, lineWidth: Double = 1.0, dash: Dash? = nil) {
 			self.color = color
 			self.lineWidth = lineWidth
 			self.dash = dash
