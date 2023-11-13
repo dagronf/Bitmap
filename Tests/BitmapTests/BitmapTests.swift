@@ -998,4 +998,73 @@ final class BitmapTests: XCTestCase {
 			markdown.br()
 		}
 	}
+
+	#if !os(watchOS)
+	func testLayer() throws {
+		let l = CAShapeLayer()
+		l.frame = CGRect(origin: .zero, size: CGSize(width: 30, height: 30))
+		l.contentsScale = 2
+		l.path = CGPath(
+			roundedRect: CGRect(x: 0, y: 0, width: 60, height: 60),
+			cornerWidth: 6,
+			cornerHeight: 6,
+			transform: nil
+		)
+		l.fillColor = .blue
+
+		let e1 = CAShapeLayer()
+		e1.path = CGPath(ellipseIn: CGRect(origin: .zero, size: CGSize(width: 30, height: 30)), transform: nil)
+		e1.fillColor = .black
+		l.addSublayer(e1)
+
+		let t = CATextLayer()
+		t.contentsScale = 2
+		t.fontSize = 26
+		t.foregroundColor = .white
+		t.string = "A"
+		t.frame = CGRect(origin: .zero, size: CGSize(width: 30, height: 30))
+		l.addSublayer(t)
+
+		let bitmap = try Bitmap(l)
+		XCTAssertEqual(bitmap.width, 60)
+		XCTAssertEqual(bitmap.height, 60)
+
+		let cg = try XCTUnwrap(bitmap.cgImage)
+		XCTAssertEqual(cg.width, 60)
+		XCTAssertEqual(cg.height, 60)
+	}
+	#endif
+
+	#if os(macOS)
+	func testBasicNSView() throws {
+		let v = NSButton()
+		v.translatesAutoresizingMaskIntoConstraints = false
+		v.title = "Press me!"
+		v.sizeToFit()
+		let bitmap = try Bitmap(v)
+		XCTAssertGreaterThan(bitmap.width, 0)
+		XCTAssertGreaterThan(bitmap.height, 0)
+		let cg = try XCTUnwrap(bitmap.cgImage)
+		XCTAssertEqual(cg.width, bitmap.width)
+		XCTAssertEqual(cg.height, bitmap.height)
+	}
+	#elseif !os(watchOS)
+	func testBasicUIView() throws {
+		let view = UIButton(type: .roundedRect)
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.setTitle("Press me!", for: .normal)
+		view.layer.backgroundColor = .red
+		view.tintColor = .white
+		view.layer.cornerRadius = 6
+ 		view.sizeToFit()
+
+		let bitmap = try Bitmap(view)
+		
+		XCTAssertGreaterThan(bitmap.width, 0)
+		XCTAssertGreaterThan(bitmap.height, 0)
+		let cg = try XCTUnwrap(bitmap.cgImage)
+		XCTAssertEqual(cg.width, bitmap.width)
+		XCTAssertEqual(cg.height, bitmap.height)
+	}
+	#endif
 }

@@ -155,11 +155,32 @@ public struct Bitmap {
 		try self.init(image)
 	}
 
-	#if os(macOS)
-	/// Create a bitmap from the contents of an NSGraphicsContext
-	/// - Parameter ctx: The context
-	@inlinable public init(_ ctx: NSGraphicsContext) throws {
-		try self.init(ctx.cgContext)
+	#if !os(watchOS)
+	/// Create a bitmap from the contents of a CALayer
+	/// - Parameter layer: The layer
+	public init(_ layer: CALayer) throws {
+		let width = Int(layer.bounds.width * layer.contentsScale)
+		let height = Int(layer.bounds.height * layer.contentsScale)
+		guard let ctx = CGContext(
+			data: nil,
+			width: width,
+			height: height,
+			bitsPerComponent: 8,
+			bytesPerRow: 0,
+			space: Bitmap.colorSpace,
+			bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+		) else {
+			throw BitmapError.cannotCreateCGImage
+		}
+		
+#if !os(macOS)
+		// Flip the context to render it the correct orientation.
+		let flipped = CGAffineTransform(1, 0, 0, -1, 0, CGFloat(height))
+		ctx.concatenate(flipped)
+#endif
+
+		layer.render(in: ctx)
+		try self.init(ctx)
 	}
 	#endif
 
@@ -171,6 +192,50 @@ public struct Bitmap {
 	/// The created image context
 	@usableFromInline internal let ctx: CGContext
 }
+
+#if os(macOS)
+public extension Bitmap {
+	/// Create a bitmap from the contents of an NSGraphicsContext
+	/// - Parameter ctx: The context
+	@inlinable init(_ ctx: NSGraphicsContext) throws {
+		try self.init(ctx.cgContext)
+	}
+
+	/// Create a bitmap from the contents of an NSView
+	/// - Parameter view: The view
+	init(_ view: NSView) throws {
+		guard let imageRepresentation = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
+			throw BitmapError.cannotCreateCGImage
+		}
+		view.cacheDisplay(in: view.bounds, to: imageRepresentation)
+		guard let cgImage = imageRepresentation.cgImage else {
+			throw BitmapError.cannotCreateCGImage
+		}
+		try self.init(cgImage)
+	}
+}
+#elseif !os(watchOS)
+public extension Bitmap {
+	/// Create a bitmap from the contents of a UIView
+	/// - Parameter view: The view
+	init(_ view: UIView) throws {
+		precondition(Thread.isMainThread)
+
+		let format = UIGraphicsImageRendererFormat()
+		format.scale = 0		// Use the scaling factor defined in the view
+		format.opaque = view.isOpaque
+		let renderer = UIGraphicsImageRenderer(size: view.bounds.size, format: format)
+		let image = renderer.image { ctx in
+			if view.drawHierarchy(in: view.bounds, afterScreenUpdates: true) == false {
+				// view mustn't be attached to a window, or has not yet fully rendered. 
+				// Fall back to the old method
+				view.layer.render(in: ctx.cgContext)
+			}
+		}
+		try self.init(image)
+	}
+}
+#endif
 
 extension Bitmap: Equatable {
 	/// Check if two bitmaps are equal

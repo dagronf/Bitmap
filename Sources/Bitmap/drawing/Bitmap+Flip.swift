@@ -35,7 +35,7 @@ public extension Bitmap {
 
 	/// Flip this bitmap
 	/// - Parameter flipType: The type of flipping to apply
-	@inlinable mutating func flip(_ flipType: FlipType) throws {
+	mutating func flip(_ flipType: FlipType) throws {
 		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		self.eraseAll()
 
