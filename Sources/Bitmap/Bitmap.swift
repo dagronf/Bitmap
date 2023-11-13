@@ -21,7 +21,7 @@ import CoreGraphics
 import Foundation
 
 #if os(macOS)
-import AppKit.NSImage
+import AppKit
 #else
 import UIKit
 #endif
@@ -146,6 +146,22 @@ public struct Bitmap {
 		guard let cgi = PlatformImage(named: name)?.cgImage else { throw BitmapError.cannotCreateCGImage }
 		try self.init(cgi)
 	}
+
+	/// Make a bitmap from a CGContext
+	/// - Parameter ctx: The context to generate the bitmap from
+	public init(_ ctx: CGContext) throws {
+		ctx.flush()
+		guard let image = ctx.makeImage() else { throw BitmapError.cannotCreateCGImage }
+		try self.init(image)
+	}
+
+	#if os(macOS)
+	/// Create a bitmap from the contents of an NSGraphicsContext
+	/// - Parameter ctx: The context
+	@inlinable public init(_ ctx: NSGraphicsContext) throws {
+		try self.init(ctx.cgContext)
+	}
+	#endif
 
 	// Private
 
