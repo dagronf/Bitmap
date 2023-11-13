@@ -900,39 +900,102 @@ final class BitmapTests: XCTestCase {
 
 		markdown.h2("Simple bordering")
 
-		markdown.raw("| original | 0.5px | 1px | 2px |  dotted 1px  |  dotted 2px  |\n")
-		markdown.raw("|----|----|----|----|----|----|\n")
-		markdown.raw("|")
+		do {
+			markdown.h3("Drawing into original size")
 
-		let orig = bitmapResource(name: "food", extension: "jpg")
-		try markdown.image(orig, linked: true)
+			markdown.raw("| original | 0.5px | 1px | 2px |  dotted 1px  |  dotted 2px  |\n")
+			markdown.raw("|----|----|----|----|----|----|\n")
+			markdown.raw("|")
 
-		markdown.raw("|")
+			let orig = bitmapResource(name: "food", extension: "jpg")
+			try markdown.image(orig, linked: true)
+			markdown.raw("<br/>\(orig.size)")
 
-		let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5))
-		try markdown.image(p1, linked: true)
+			markdown.raw("|")
 
-		markdown.raw("|")
+			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5))
+			try markdown.image(p1, linked: true)
+			markdown.raw("<br/>\(p1.size)")
 
-		let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0))
-		try markdown.image(p2, linked: true)
+			markdown.raw("|")
 
-		markdown.raw("|")
+			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0))
+			try markdown.image(p2, linked: true)
+			markdown.raw("<br/>\(p2.size)")
 
-		let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0))
-		try markdown.image(p3, linked: true)
+			markdown.raw("|")
 
-		markdown.raw("|")
+			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0))
+			try markdown.image(p3, linked: true)
+			markdown.raw("<br/>\(p3.size)")
 
-		let p4 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])))
-		try markdown.image(p4, linked: true)
+			markdown.raw("|")
 
-		markdown.raw("|")
+			let p4 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])))
+			try markdown.image(p4, linked: true)
+			markdown.raw("<br/>\(p4.size)")
 
-		let p5 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])))
-		try markdown.image(p5, linked: true)
+			markdown.raw("|")
 
-		markdown.raw("|")
-		markdown.br()
+			let p5 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])))
+			try markdown.image(p5, linked: true)
+			markdown.raw("<br/>\(p5.size)")
+
+			markdown.raw("|")
+
+			markdown.br()
+		}
+
+		do {
+			markdown.h3("Drawing into expanded size")
+
+			markdown.raw("| original | 0.5px | 1px | 2px |  dotted 1px  |  dotted 2px  |\n")
+			markdown.raw("|----|----|----|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "food", extension: "jpg")
+			try markdown.image(orig, linked: true)
+			markdown.raw("<br/>\(orig.size)")
+
+			markdown.raw("|")
+
+			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5), expanding: true)
+			try markdown.image(p1, linked: true)
+			markdown.raw("<br/>\(p1.size)")
+
+			markdown.raw("|")
+
+			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0), expanding: true)
+			try markdown.image(p2, linked: true)
+			markdown.raw("<br/>\(p2.size)")
+
+			markdown.raw("|")
+
+			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0), expanding: true)
+			try markdown.image(p3, linked: true)
+			markdown.raw("<br/>\(p3.size)")
+
+			markdown.raw("|")
+
+			let p4 = try orig.drawingBorder(
+				stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])),
+				expanding: true
+			)
+			try markdown.image(p4, linked: true)
+			markdown.raw("<br/>\(p4.size)")
+
+			markdown.raw("|")
+
+			let p5 = try orig.drawingBorder(
+				stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])),
+				expanding: true
+			)
+			try markdown.image(p5, linked: true)
+			markdown.raw("<br/>\(p5.size)")
+
+			markdown.raw("|")
+
+			markdown.br()
+		}
 	}
 }

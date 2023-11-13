@@ -30,9 +30,25 @@ public extension Bitmap {
 	}
 
 	/// Create a new bitmap by drawing a line around the border of this bitmap
-	/// - Parameter stroke: The type of border line to draw
-	func drawingBorder(stroke: Stroke = Stroke(color: .black, lineWidth: 1)) throws -> Bitmap {
-		var copy = try self.copy()
+	/// - Parameters:
+	///   - stroke: The type of border line to draw
+	///   - expanding: If true, expands the size of the resulting bitmap to include the border width
+	/// - Returns: A new bitmap
+	func drawingBorder(
+		stroke: Stroke = Stroke(color: .black, lineWidth: 1),
+		expanding: Bool = false
+	) throws -> Bitmap {
+		var copy: Bitmap
+		if expanding {
+			let newS = CGSize(
+				width: self.size.width + (stroke.lineWidth * 2),
+				height: self.size.height + (stroke.lineWidth * 2)
+			)
+			copy = try self.adjustingSize(to: newS)
+		}
+		else {
+			copy = try self.copy()
+		}
 		copy.drawBorder(stroke: stroke)
 		return copy
 	}
