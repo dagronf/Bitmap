@@ -155,6 +155,7 @@ let bitmap = try Bitmap(fileURL: ...)
 * Punching holes
 * Color manipulation (eg. grayscale, tinting, gamma adjustment, saturation etc)
 * Flipping
+* Scrolling
 * Drawing (eg. lines, shapes, paths, fill/stroke)
 * Drawing text
 * Drawing borders
