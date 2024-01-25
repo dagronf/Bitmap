@@ -999,6 +999,78 @@ final class BitmapTests: XCTestCase {
 		}
 	}
 
+	func testScrolling() throws {
+
+		markdown.h2("Image scrolling")
+
+		do {
+			markdown.raw("| original | 1 row downwards | 2 rows upwards |\n")
+			markdown.raw("|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "p3test", extension: "ppm")
+			XCTAssertEqual(orig.width, 4)
+			XCTAssertEqual(orig.height, 4)
+
+			let y0 = orig.bitmapData.rowPixels(at: 0)
+			let y1 = orig.bitmapData.rowPixels(at: 1)
+			let y2 = orig.bitmapData.rowPixels(at: 2)
+			let y3 = orig.bitmapData.rowPixels(at: 3)
+			XCTAssertEqual(y0, [Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255), Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA.black])
+			XCTAssertEqual(y1, [Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA(r: 0, g: 255, b: 119, a: 255), Bitmap.RGBA.black])
+			XCTAssertEqual(y2, [Bitmap.RGBA.black, Bitmap.RGBA(r: 0, g: 255, b: 119, a: 255), Bitmap.RGBA.black, Bitmap.RGBA.black])
+			XCTAssertEqual(y3, [Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255)])
+
+			let x0 = orig.bitmapData.columnPixels(at: 0)
+			let x1 = orig.bitmapData.columnPixels(at: 1)
+			let x2 = orig.bitmapData.columnPixels(at: 2)
+			let x3 = orig.bitmapData.columnPixels(at: 3)
+			XCTAssertEqual(x0, [Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255), Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA.black])
+			XCTAssertEqual(x1, [Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA(r: 0, g: 255, b: 119, a: 255), Bitmap.RGBA.black])
+			XCTAssertEqual(x2, [Bitmap.RGBA.black, Bitmap.RGBA(r: 0, g: 255, b: 119, a: 255), Bitmap.RGBA.black, Bitmap.RGBA.black])
+			XCTAssertEqual(x3, [Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA.black, Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255)])
+
+			try markdown.image(try orig.scaling(multiplier: 32), linked: true)
+
+			markdown.raw(" | ")
+
+			let scrolledDown = try orig.scrolling(direction: .down, rowCount: 1)
+			// Remember that the bitmap origin is lower left
+			XCTAssertEqual(orig.bitmapData.rowPixels(at: 0), scrolledDown.bitmapData.rowPixels(at: 3))
+			try markdown.image(try scrolledDown.scaling(multiplier: 32), linked: true)
+
+			markdown.raw(" | ")
+
+			var scrolledUp = try orig.copy()
+			scrolledUp.scroll(direction: .up, rowCount: 2)
+			XCTAssertEqual(orig.bitmapData.rowPixels(at: 0), scrolledUp.bitmapData.rowPixels(at: 2))
+			try markdown.image(try scrolledUp.scaling(multiplier: 32), linked: true)
+
+			markdown.raw(" | ")
+			markdown.br()
+		}
+
+		do {
+			markdown.raw("| original | downwards | upwards |\n")
+			markdown.raw("|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
+			try markdown.image(orig, linked: true)
+
+			markdown.raw("|")
+
+			let scrolledDown = try orig.scrolling(direction: .down, rowCount: orig.height / 6)
+			try markdown.image(scrolledDown, linked: true)
+			markdown.raw("|")
+
+			let scrolledUp = try orig.scrolling(direction: .up, rowCount: orig.height / 6)
+			try markdown.image(scrolledUp, linked: true)
+			markdown.raw("|")
+			markdown.br()
+		}
+	}
+
 	#if !os(watchOS)
 	func testLayer() throws {
 		let l = CAShapeLayer()
