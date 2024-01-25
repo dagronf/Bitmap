@@ -117,9 +117,9 @@ public extension Bitmap {
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		let targetSize = CGSize(width: width * multiplier, height: height * multiplier)
 		return try Bitmap(size: targetSize) { ctx in
-			ctx.savingGState { ctx in
-				ctx.interpolationQuality = .none
-				drawImageToFill(in: ctx, image: image, rect: CGRect(origin: .zero, size: targetSize))
+			ctx.savingGState { context in
+				context.interpolationQuality = .none
+				drawImageToFill(in: context, image: image, rect: CGRect(origin: .zero, size: targetSize))
 			}
 		}
 	}

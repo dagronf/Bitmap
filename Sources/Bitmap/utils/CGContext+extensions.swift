@@ -20,27 +20,11 @@
 import Foundation
 import CoreGraphics
 
-// MARK: - Drawing
-
-public extension Bitmap {
-	/// Perform 'block' within a saved GState on a bitmap
-	@inlinable mutating func savingGState(_ block: (CGContext) -> Void) {
-		self.ctx.savingGState(block)
-	}
-}
-
-public extension Bitmap {
-	/// Perform drawing actions within a saved GState on a bitmap
-	@inlinable mutating func draw(_ block: (CGContext) -> Void) {
-		self.savingGState(block)
-	}
-
-	/// Performs drawing operations on a copy of this bitmap
-	/// - Parameter block: The block containing the drawing commands
-	/// - Returns: A new bitmap
-	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
-		var copy = try self.copy()
-		copy.draw(block)
-		return copy
+extension CGContext {
+	/// Block-based graphics state saving
+	@inlinable func savingGState(_ drawBlock: (CGContext) throws -> Void ) rethrows -> Void {
+		self.saveGState()
+		defer { self.restoreGState() }
+		try drawBlock(self)
 	}
 }
