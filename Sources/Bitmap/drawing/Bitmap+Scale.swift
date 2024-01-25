@@ -99,4 +99,28 @@ public extension Bitmap {
 			drawImageToFill(in: ctx, image: image, rect: CGRect(origin: .zero, size: targetSize))
 		}
 	}
+
+	/// Create a new bitmap by scaling this bitmap by a scaling factor
+	/// - Parameter scale: The scale fraction
+	/// - Returns: A new bitmap
+	func scaling(scale: CGFloat) throws -> Bitmap {
+		assert(scale > 0)
+		let newSize = CGSize(width: CGFloat(width) * scale, height: CGFloat(height) * scale)
+		return try self.scaling(axesIndependent: newSize)
+	}
+
+	/// Scale this image by a multiplier value without interpolation (so the resulting image is pixelly)
+	/// - Parameter multiplier: The multiplier value
+	/// - Returns: A new bitmap
+	func scaling(multiplier: Int) throws -> Bitmap {
+		assert(multiplier > 0)
+		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
+		let targetSize = CGSize(width: width * multiplier, height: height * multiplier)
+		return try Bitmap(size: targetSize) { ctx in
+			ctx.savingGState { ctx in
+				ctx.interpolationQuality = .none
+				drawImageToFill(in: ctx, image: image, rect: CGRect(origin: .zero, size: targetSize))
+			}
+		}
+	}
 }
