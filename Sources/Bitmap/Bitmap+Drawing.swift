@@ -39,7 +39,7 @@ public extension Bitmap {
 	/// - Parameter block: The block containing the drawing commands
 	/// - Returns: A new bitmap
 	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		copy.draw(block)
 		return copy
 	}

@@ -397,7 +397,7 @@ extension Bitmap {
 	}
 
 	/// Assign the contents of another bitmap to this bitmap object
-	/// - Parameter bitmap: The bitmap data to copy
+	/// - Parameter data: The bitmap data to copy
 	public func assign(_ data: Bitmap.RGBAData) throws {
 		self.bitmapData = data
 		guard
