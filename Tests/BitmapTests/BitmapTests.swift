@@ -358,16 +358,32 @@ final class BitmapTests: XCTestCase {
 	func testRemoveTransparency() throws {
 		markdown.h2("Removing transparency information from an image")
 
-		markdown.raw("| original | transparency removed |\n")
-		markdown.raw("|-----|-----|\n")
-		markdown.raw("|")
-		var orig = bitmapResource(name: "apple-logo-dark", extension: "png")
-		try markdown.image(orig, linked: true)
-		markdown.raw("|")
-		try orig.removeTransparency(backgroundColor: CGColor.red)
-		try markdown.image(orig, linked: true)
-		markdown.raw("|")
-		markdown.br()
+		do {
+			markdown.raw("| original | transparency removed |\n")
+			markdown.raw("|-----|-----|\n")
+			markdown.raw("|")
+			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
+			try markdown.image(orig, linked: true)
+			markdown.raw("|")
+			try orig.removeTransparency(backgroundColor: CGColor.red)
+			try markdown.image(orig, linked: true)
+			markdown.raw("|")
+			markdown.br()
+		}
+
+		do {
+			markdown.raw("| original | black mapped to transparency |\n")
+			markdown.raw("|-----|-----|\n")
+			markdown.raw("|")
+			let orig = bitmapResource(name: "p3test", extension: "ppm")
+			try markdown.image(orig.scaling(multiplier: 32), linked: true)
+			markdown.raw("|")
+			let px = try orig.mappingColorToTransparency(Bitmap.RGBA(r: 0, g: 0, b: 0))
+			try markdown.image(px.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+			markdown.br()
+		}
 	}
 
 	func testRotating() throws {

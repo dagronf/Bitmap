@@ -287,21 +287,3 @@ public extension Bitmap {
 		self.drawImage(ti, in: rect)
 	}
 }
-
-public extension Bitmap {
-	/// Remove transparency
-	/// - Parameter backgroundColor: The background color
-	@inlinable func removeTransparency(backgroundColor: CGColor = .black) throws {
-		try self.assign(try self.removingTransparency(backgroundColor: backgroundColor))
-	}
-
-	/// Remove transparency
-	/// - Parameter backgroundColor: The background color
-	/// - Returns: A new bitmap with transparency removed
-	func removingTransparency(backgroundColor: CGColor = .black) throws -> Bitmap {
-		var newBitmap = try Bitmap(size: self.size)
-		newBitmap.fill(backgroundColor)
-		try newBitmap.drawBitmap(self, atPoint: .zero)
-		return newBitmap
-	}
-}
