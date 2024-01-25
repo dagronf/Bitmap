@@ -368,4 +368,14 @@ public extension Bitmap {
 			return Pixel(x: x, y: y, color: RGBA(slice: sl))
 		}
 	}
+
+	/// Returns the row of pixels at the specified row index
+	///
+	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
+	@inlinable func rowPixels(at y: Int) -> [Bitmap.RGBA]  { self.bitmapData.rowPixels(at: y) }
+
+	/// Returns the column of pixels at the specified column index
+	///
+	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
+	@inlinable func columnPixels(at x: Int) -> [Bitmap.RGBA] { self.bitmapData.columnPixels(at: x) }
 }

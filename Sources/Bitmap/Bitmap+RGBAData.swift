@@ -120,6 +120,42 @@ public extension Bitmap.RGBAData {
 		return ((self.height - 1 - y) * (self.width * 4)) + (x * 4)
 	}
 
+	/// Returns the row of bytes at the specified row index
+	///
+	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
+	@inlinable func rowBytes(at y: Int) -> ArraySlice<UInt8> {
+		assert(y < self.height)
+		let offset = self.byteOffset(x: 0, y: y)
+		return self.rgbaBytes[offset ..< offset + (width * 4)]
+	}
+
+	/// Returns the row of pixels at the specified row index
+	///
+	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
+	@inlinable func rowPixels(at y: Int) -> [Bitmap.RGBA] {
+		self.rowBytes(at: y).withUnsafeBytes { ptr in
+			Array(ptr.bindMemory(to: Bitmap.RGBA.self))
+		}
+	}
+
+	/// Returns the column of pixels at the specified column index
+	///
+	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
+	@inlinable func columnPixels(at x: Int) -> [Bitmap.RGBA] {
+		assert(x >= 0 && x < self.width)
+		var result: [Bitmap.RGBA] = []
+		result.reserveCapacity(self.height)
+		for y in (0 ..< self.height).reversed() {
+			let offset = ((y * self.width) + x) * 4
+			let slice = self.rgbaBytes[offset ..< offset + 4]
+			let pixel = slice.withUnsafeBytes { ptr in
+				ptr.bindMemory(to: Bitmap.RGBA.self)
+			}
+			result += pixel
+		}
+		return result
+	}
+
 	/// Returns the pixels in the image as an array of RGBA pixels
 	///
 	/// (0) is the top left pixel, <max-1> is the bottom right pixel
@@ -137,6 +173,17 @@ public extension Bitmap.RGBAData {
 		// nuke `rgbaBytes` with a new array - it may invalidate the CGContext
 		_ = self.rgbaBytes.withUnsafeMutableBytes { ptr in
 			ptr.initializeMemory(as: UInt8.self, repeating: 0)
+		}
+	}
+}
+
+internal extension Bitmap.RGBAData {
+	/// Set the raw RGBA bytes for the image.
+	/// - Parameter bytes: The image bytes in an RGBA format
+	mutating func setBytes(_ bytes: [UInt8]) {
+		assert(bytes.count == (self.height * (self.width * 4)))
+		self.rgbaBytes.withUnsafeMutableBytes { orig in
+			orig.copyBytes(from: bytes)
 		}
 	}
 }
