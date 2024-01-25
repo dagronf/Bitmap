@@ -49,7 +49,7 @@ public extension Bitmap {
 	func cropping(to path: CGPath) throws -> Bitmap {
 		// Crop to the path bounds
 		let flipped = path.boundingBoxOfPath.flippingY(within: self.bounds)
-		var newBitmap = try self.cropping(to: flipped)
+		let newBitmap = try self.cropping(to: flipped)
 		let newBounds = newBitmap.bounds
 
 		// Take a snapshot of the cropped image so we can mask out the path

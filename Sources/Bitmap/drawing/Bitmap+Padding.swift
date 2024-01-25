@@ -78,7 +78,7 @@ public extension Bitmap {
 			size: CGSize(width: self.width, height: self.height)
 		  )
 
-		var newImage = try Bitmap(width: Int(nw), height: Int(nh))
+		let newImage = try Bitmap(width: Int(nw), height: Int(nh))
 		if let backgroundColor = backgroundColor {
 			let bounds = newImage.bounds
 			newImage.draw { ctx in

@@ -43,7 +43,7 @@ public extension Bitmap {
 		let origRect = CGRect(origin: .zero, size: CGSize(width: origWidth, height: origHeight))
 		let rotatedRect = origRect.applying(CGAffineTransform(rotationAngle: radians))
 
-		var n = try Bitmap(width: Int(rotatedRect.width), height: Int(rotatedRect.height))
+		let n = try Bitmap(width: Int(rotatedRect.width), height: Int(rotatedRect.height))
 		n.draw { ctx in
 			ctx.translateBy(x: rotatedRect.size.width * 0.5, y: rotatedRect.size.height * 0.5)
 			ctx.rotate(by: -radians)

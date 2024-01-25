@@ -41,7 +41,7 @@ public extension Bitmap {
 		color0: CGColor = .black,
 		color1: CGColor = .white
 	) throws -> Bitmap {
-		var bitmap = try Bitmap(width: width, height: height)
+		let bitmap = try Bitmap(width: width, height: height)
 		let center = center ?? CGPoint(x: 150.0, y: 150.0)
 		guard
 			let filter = CIFilter(

@@ -65,7 +65,7 @@ final class BitmapTests: XCTestCase {
 
 		markdown.h2("Creation")
 
-		var bitmap = try Bitmap(width: 100, height: 100)
+		let bitmap = try Bitmap(width: 100, height: 100)
 		XCTAssertEqual(100, bitmap.width)
 
 		bitmap.setPixel(x: 0, y: 0, color: Bitmap.RGBA.red)
@@ -114,7 +114,7 @@ final class BitmapTests: XCTestCase {
 	func testLine() throws {
 		markdown.h2("Drawing lines")
 
-		var bitmap = try Bitmap(width: 200, height: 200)
+		let bitmap = try Bitmap(width: 200, height: 200)
 		bitmap.drawLine(x1: 10, y1: 10, x2: 10, y2: 190, stroke: Bitmap.Stroke())
 
 		let s1 = Bitmap.Stroke(color: CGColor(red: 1, green: 0, blue: 1, alpha: 0.5), lineWidth: 4, dash: .init(lengths: [2, 5]))
@@ -205,7 +205,7 @@ final class BitmapTests: XCTestCase {
 			)
 			.punchingTransparentHole(path: complexPath())
 
-		var total = try Bitmap(size: bitmap.size) { ctx in
+		let total = try Bitmap(size: bitmap.size) { ctx in
 			ctx.setFillColor(red: 1, green: 0, blue: 0, alpha: 0.3)
 			ctx.fill([bitmap.bounds])
 		}
@@ -262,7 +262,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("A basic red square, stroked with gray, on a transparent background")
 		markdown.br()
 
-		var bitmap = try Bitmap(width: 255, height: 255)
+		let bitmap = try Bitmap(width: 255, height: 255)
 		assert(bitmap.width == 255)
 		assert(bitmap.width == 255)
 
@@ -279,7 +279,7 @@ final class BitmapTests: XCTestCase {
 	func testShadow() throws {
 		markdown.h2("Shadow drawing")
 
-		var bitmap = try Bitmap(width: 255, height: 255)
+		let bitmap = try Bitmap(width: 255, height: 255)
 		bitmap.applyingShadow(Bitmap.Shadow()) { bitmap in
 			bitmap.fill(CGRect(x: 10, y: 10, width: 100, height: 100).path, .init(gray: 0.5, alpha: 1))
 		}
@@ -307,19 +307,19 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 
 		do {
-			var bitmap = try Bitmap(width: 200, height: 200)
+			let bitmap = try Bitmap(width: 200, height: 200)
 			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100))
 			try markdown.image(bitmap, linked: true)
 		}
 		markdown.raw("|")
 		do {
-			var bitmap = try Bitmap(width: 200, height: 200)
+			let bitmap = try Bitmap(width: 200, height: 200)
 			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFit)
 			try markdown.image(bitmap, linked: true)
 		}
 		markdown.raw("|")
 		do {
-			var bitmap = try Bitmap(width: 200, height: 200)
+			let bitmap = try Bitmap(width: 200, height: 200)
 			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFill)
 			try markdown.image(bitmap, linked: true)
 		}
@@ -454,7 +454,7 @@ final class BitmapTests: XCTestCase {
 	func testClipping() throws {
 		markdown.h2("Clipping")
 
-		var bitmap = bitmapResource(name: "gps-image", extension: "jpg")
+		let bitmap = bitmapResource(name: "gps-image", extension: "jpg")
 		let bounds = bitmap.bounds
 
 		markdown.raw("| original | clip 1 | clip 2\n")
@@ -497,7 +497,7 @@ final class BitmapTests: XCTestCase {
 
 	func testPut() throws {
 
-		var bitmap = try Bitmap(width: 3, height: 3)
+		let bitmap = try Bitmap(width: 3, height: 3)
 		bitmap.setPixel(x: 0, y: 0, color: .red)
 		bitmap.setPixel(x: 1, y: 1, color: .green)
 		bitmap.setPixel(x: 2, y: 2, color: .blue)
@@ -523,7 +523,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 
 		do {
-			var bitmap = try Bitmap(width: 400, height: 400)
+			let bitmap = try Bitmap(width: 400, height: 400)
 			bitmap.drawText("Hello", color: .init(gray: 0.5, alpha: 1.0), position: .zero)
 			try markdown.image(bitmap, linked: true)
 		}
@@ -531,7 +531,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 
 		do {
-			var bitmap = try Bitmap(width: 400, height: 400)
+			let bitmap = try Bitmap(width: 400, height: 400)
 			bitmap.drawText(
 				"Hello there, how are you? This is exciting",
 				color: CGColor(gray: 0.5, alpha: 1.0),
@@ -542,7 +542,7 @@ final class BitmapTests: XCTestCase {
 		}
 		markdown.raw("|")
 		do {
-			var bitmap2 = try Bitmap(width: 400, height: 400)
+			let bitmap2 = try Bitmap(width: 400, height: 400)
 			bitmap2.drawText(
 				"Hello there, how are you? This is exciting",
 				color: CGColor(gray: 0.5, alpha: 1.0)
@@ -551,7 +551,7 @@ final class BitmapTests: XCTestCase {
 		}
 		markdown.raw("|")
 		do {
-			var bitmap3 = try Bitmap(width: 400, height: 400)
+			let bitmap3 = try Bitmap(width: 400, height: 400)
 			bitmap3.applyingShadow(Bitmap.Shadow()) { bitmap in
 				let f = CTFont(.label, size: 24)
 				let atr = NSAttributedString(
@@ -647,7 +647,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|----|----|\n")
 		markdown.raw("|")
 
-		var image = try Bitmap(width: 200, height: 200)
+		let image = try Bitmap(width: 200, height: 200)
 		image.stroke(
 			CGRect(x: 50, y: 50, width: 100, height: 100).path,
 			Bitmap.Stroke(
@@ -706,7 +706,7 @@ final class BitmapTests: XCTestCase {
 
 		markdown.raw("|")
 
-		var copy = try orig.copy()
+		let copy = try orig.copy()
 		let tinted = try cropped.tinting(with: CGColor(red: 0, green: 0, blue: 1, alpha: 1))
 		
 		try copy.drawBitmap(tinted, atPoint: bezierPath.boundingBoxOfPath.origin)
@@ -715,7 +715,7 @@ final class BitmapTests: XCTestCase {
 
 		markdown.raw("|")
 
-		var masked = try orig.copy()
+		let masked = try orig.copy()
 		try masked.mask(using: bezierPath)
 		try markdown.image(masked, linked: true)
 
@@ -745,7 +745,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|----|----|\n")
 		markdown.raw("|")
 
-		var orig = bitmapResource(name: "food", extension: "jpg")
+		let orig = bitmapResource(name: "food", extension: "jpg")
 		try markdown.image(orig, linked: true)
 		markdown.raw("|")
 		orig.eraseAll()
@@ -761,7 +761,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|----|----|\n")
 		markdown.raw("|")
 
-		var orig = bitmapResource(name: "food", extension: "jpg")
+		let orig = bitmapResource(name: "food", extension: "jpg")
 		try markdown.image(orig, linked: true)
 		markdown.raw("|")
 		orig.fill(.yellow.copy(alpha: 0.3)!)
@@ -798,7 +798,7 @@ final class BitmapTests: XCTestCase {
 		// Note that if Apple changed the orientation for CGContext drawing it would stuff _everything_ up,
 		// but hey, lets check it.
 
-		var bmp = try Bitmap(width: 20, height: 20)
+		let bmp = try Bitmap(width: 20, height: 20)
 
 		bmp.draw { ctx in
 			ctx.setFillColor(.red)
@@ -851,7 +851,7 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testPPMExport() throws {
-		var bmp = try Bitmap(width: 2, height: 3)
+		let bmp = try Bitmap(width: 2, height: 3)
 
 		bmp[0, 0] = .red
 		bmp[0, 1] = .green
@@ -1060,7 +1060,7 @@ final class BitmapTests: XCTestCase {
 
 			markdown.raw(" | ")
 
-			var scrolledUp = try orig.copy()
+			let scrolledUp = try orig.copy()
 			scrolledUp.scroll(direction: .up, count: 2)
 			XCTAssertEqual(orig.bitmapData.rowPixels(at: 0), scrolledUp.bitmapData.rowPixels(at: 2))
 			try markdown.image(try scrolledUp.scaling(multiplier: 32), linked: true)
