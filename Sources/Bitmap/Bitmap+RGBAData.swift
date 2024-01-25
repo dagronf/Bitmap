@@ -182,6 +182,10 @@ internal extension Bitmap.RGBAData {
 	/// - Parameter bytes: The image bytes in an RGBA format
 	mutating func setBytes(_ bytes: [UInt8]) {
 		assert(bytes.count == (self.height * (self.width * 4)))
+
+		// The stored CGContext is (effectively) built with a pointer to the array of bytes
+		// in order to reduce memory requirements.  As a result, we should not just
+		// nuke `rgbaBytes` with a new array - it may invalidate the CGContext
 		self.rgbaBytes.withUnsafeMutableBytes { orig in
 			orig.copyBytes(from: bytes)
 		}

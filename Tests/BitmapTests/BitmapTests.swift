@@ -1003,7 +1003,10 @@ final class BitmapTests: XCTestCase {
 
 		markdown.h2("Image scrolling")
 
+		markdown.h3("Vertical")
+
 		do {
+
 			markdown.raw("| original | 1 row downwards | 2 rows upwards |\n")
 			markdown.raw("|----|----|----|\n")
 			markdown.raw("|")
@@ -1034,7 +1037,7 @@ final class BitmapTests: XCTestCase {
 
 			markdown.raw(" | ")
 
-			let scrolledDown = try orig.scrolling(direction: .down, rowCount: 1)
+			let scrolledDown = try orig.scrolling(direction: .down, count: 1)
 			// Remember that the bitmap origin is lower left
 			XCTAssertEqual(orig.bitmapData.rowPixels(at: 0), scrolledDown.bitmapData.rowPixels(at: 3))
 			try markdown.image(try scrolledDown.scaling(multiplier: 32), linked: true)
@@ -1042,11 +1045,42 @@ final class BitmapTests: XCTestCase {
 			markdown.raw(" | ")
 
 			var scrolledUp = try orig.copy()
-			scrolledUp.scroll(direction: .up, rowCount: 2)
+			scrolledUp.scroll(direction: .up, count: 2)
 			XCTAssertEqual(orig.bitmapData.rowPixels(at: 0), scrolledUp.bitmapData.rowPixels(at: 2))
 			try markdown.image(try scrolledUp.scaling(multiplier: 32), linked: true)
 
 			markdown.raw(" | ")
+			markdown.br()
+		}
+
+		do {
+			markdown.raw("| original | 6 rows down | 6 rows up | 12 rows down | 24 rows up |\n")
+			markdown.raw("|----|----|----|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "16-squares", extension: "png")
+			try markdown.image(try orig.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollRight6 = try orig.scrolling(direction: .down, count: 6)
+			try markdown.image(try scrollRight6.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollLeft6 = try orig.scrolling(direction: .up, count: 6)
+			try markdown.image(try scrollLeft6.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollLeft = try orig.scrolling(direction: .down, count: 12)
+			try markdown.image(try scrollLeft.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollRight = try orig.scrolling(direction: .up, count: 24)
+			try markdown.image(try scrollRight.scaling(multiplier: 32), linked: true)
+
 			markdown.br()
 		}
 
@@ -1060,15 +1094,93 @@ final class BitmapTests: XCTestCase {
 
 			markdown.raw("|")
 
-			let scrolledDown = try orig.scrolling(direction: .down, rowCount: orig.height / 6)
+			let scrolledDown = try orig.scrolling(direction: .down, count: orig.height / 6)
 			try markdown.image(scrolledDown, linked: true)
 			markdown.raw("|")
 
-			let scrolledUp = try orig.scrolling(direction: .up, rowCount: orig.height / 6)
+			let scrolledUp = try orig.scrolling(direction: .up, count: orig.height / 6)
 			try markdown.image(scrolledUp, linked: true)
 			markdown.raw("|")
 			markdown.br()
 		}
+
+		markdown.h3("Horizontal")
+
+		do {
+			markdown.raw("| original | 6 cols right | 6 cols left | 12 cols right | 24 cols left |\n")
+			markdown.raw("|----|----|----|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "16-squares", extension: "png")
+			try markdown.image(try orig.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollRight6 = try orig.scrolling(direction: .right, count: 6)
+			try markdown.image(try scrollRight6.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollLeft6 = try orig.scrolling(direction: .left, count: 6)
+			try markdown.image(try scrollLeft6.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollLeft = try orig.scrolling(direction: .right, count: 12)
+			try markdown.image(try scrollLeft.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+
+			let scrollRight = try orig.scrolling(direction: .left, count: 24)
+			try markdown.image(try scrollRight.scaling(multiplier: 32), linked: true)
+
+			markdown.raw("|")
+			markdown.br()
+		}
+
+		do {
+			markdown.raw("| original | right | left |\n")
+			markdown.raw("|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
+			try markdown.image(orig, linked: true)
+
+			markdown.raw("|")
+
+			let scrolledDown = try orig.scrolling(direction: .right, count: orig.width / 6)
+			try markdown.image(scrolledDown, linked: true)
+			markdown.raw("|")
+
+			let scrolledUp = try orig.scrolling(direction: .left, count: orig.width / 6)
+			try markdown.image(scrolledUp, linked: true)
+			markdown.raw("|")
+			markdown.br()
+		}
+
+		markdown.h3("re-zeroing the bitmap")
+
+		do {
+			markdown.raw("| original | mid | quarter |\n")
+			markdown.raw("|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "16-squares", extension: "png")
+			try markdown.image(orig.scaling(multiplier: 4), linked: true)
+
+			markdown.raw("|")
+
+			let mid = try orig.zeroingPoint(x: orig.width / 2, y: orig.height / 2)
+			try markdown.image(mid.scaling(multiplier: 4), linked: true)
+
+			markdown.raw("|")
+
+			let quarter = try orig.zeroingPoint(x: orig.width / 4, y: orig.height / 4)
+			try markdown.image(quarter.scaling(multiplier: 4), linked: true)
+		}
+
+		markdown.raw("|")
+		markdown.br()
 	}
 
 	#if !os(watchOS)

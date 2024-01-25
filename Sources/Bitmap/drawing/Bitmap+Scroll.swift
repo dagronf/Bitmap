@@ -1,21 +1,21 @@
 //
- //  Copyright © 2024 Darren Ford. All rights reserved.
- //
- //  MIT license
- //
- //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
- //  documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
- //  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- //  permit persons to whom the Software is furnished to do so, subject to the following conditions:
- //
- //  The above copyright notice and this permission notice shall be included in all copies or substantial
- //  portions of the Software.
- //
- //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
- //  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
- //  OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- //
+//  Copyright © 2024 Darren Ford. All rights reserved.
+//
+//  MIT license
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+//  documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+//  permit persons to whom the Software is furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all copies or substantial
+//  portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+//  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+//  OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+//  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 import Foundation
 
@@ -28,25 +28,84 @@ public extension Bitmap {
 		case down
 		/// Scroll up
 		case up
+		/// Scroll left
+		case left
+		/// Scroll right
+		case right
+
+		/// Is horizontal scrolling
+		@inlinable var isHorizontal: Bool { self == .right || self == .left }
+		/// Is vertical scrolling
+		@inlinable var isVertical: Bool { self == .up || self == .down }
 	}
 
 	/// Scroll the bitmap, wrapping the content around the boundary
 	/// - Parameter direction: The direction of scrolling to apply
-	/// - Parameter rowCount: The number of rows to scroll
-	mutating func scroll(direction: ScrollDirection, rowCount: Int = 1) {
+	/// - Parameter count: The number of rows to scroll
+	mutating func scroll(direction: ScrollDirection, count: Int = 1) {
 		// If the row count to scroll is zero, return early
-		if rowCount == 0 { return }
+		if count == 0 { return }
 
-		assert(rowCount >= 1)
-		assert(rowCount < self.height)
+		if direction.isHorizontal {
+			self.scrollHorizonally(direction: direction, count: count)
+		}
+		else {
+			self.scrollVertically(direction: direction, count: count)
+		}
+	}
 
-		let splitSize = self.width * 4 * rowCount
+	/// Create a new bitmap by scrolling the bitmap, wrapping the content around the boundary
+	/// - Parameters:
+	///   - direction: The direction of scrolling to apply
+	///   - count: The number of rows or columns to scroll by
+	/// - Returns: A new image with the original image scrolled
+	func scrolling(direction: ScrollDirection, count: Int = 1) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.scroll(direction: direction, count: count)
+		return copy
+	}
+}
+
+// MARK: - Zero point
+
+public extension Bitmap {
+	/// Reorient the bitmap around the new coordinate
+	/// - Parameters:
+	///   - x: The new x-coordinate to reorient to x=0
+	///   - y: The new y-coordinate to reorient to y=0
+	mutating func zeroPoint(x: Int, y: Int) {
+		assert(x >= 0 && x < self.width)
+		assert(y >= 0 && y < self.height)
+		self.scroll(direction: .left, count: x)
+		self.scroll(direction: .down, count: y)
+	}
+
+	/// Create a new bitmap by reorienting this bitmap around the new coordinate
+	/// - Parameters:
+	///   - x: The new x-coordinate to reorient to x=0
+	///   - y: The new y-coordinate to reorient to y=0
+	func zeroingPoint(x: Int, y: Int) throws -> Bitmap {
+		var copy = try self.copy()
+		copy.zeroPoint(x: x, y: y)
+		return copy
+	}
+}
+
+private extension Bitmap {
+	mutating func scrollVertically(direction: ScrollDirection, count: Int) {
+		assert(direction.isVertical)
+		assert(count >= 1)
+		assert(count < self.height)
+
+		let splitSize = self.width * 4 * count
 		var splitPosition = 0
 		switch direction {
 		case .down:
 			splitPosition = self.rgbaBytes.count - splitSize
 		case .up:
 			splitPosition = splitSize
+		default:
+			fatalError()
 		}
 
 		let topSlice = Array(self.rgbaBytes[..<splitPosition])
@@ -56,13 +115,27 @@ public extension Bitmap {
 		self.bitmapData.setBytes(all)
 	}
 
-	/// Create a new bitmap by scrolling the bitmap, wrapping the content around the boundary
-	/// - Parameter direction: The direction of scrolling to apply
-	/// - Parameter rowNum: The number of rows to scroll
-	/// - Returns: A new image with the original image scrolled
-	func scrolling(direction: ScrollDirection, rowCount: Int = 1) throws -> Bitmap {
-		var copy = try self.copy()
-		copy.scroll(direction: direction, rowCount: rowCount)
-		return copy
+	mutating func scrollHorizonally(direction: ScrollDirection, count: Int = 1) {
+		assert(direction == .left || direction == .right)
+		var result: [UInt8] = []
+		let pixelWidth = 4
+		let rowWidth = width * pixelWidth
+		for y in stride(from: 0, to: height * rowWidth, by: rowWidth) {
+			let rowSlice = bitmapData.rgbaBytes[y ..< y + rowWidth]
+
+			let left: ArraySlice<UInt8>
+			let right: ArraySlice<UInt8>
+			if direction == .right {
+				left = rowSlice[rowSlice.startIndex ..< rowSlice.endIndex - (count * 4)]
+				right = rowSlice[rowSlice.endIndex - (count * 4) ..< rowSlice.endIndex]
+			}
+			else { // direction == .left
+				left = rowSlice[rowSlice.startIndex ..< rowSlice.startIndex + (count * 4)]
+				right = rowSlice[rowSlice.startIndex + (count * 4) ..< rowSlice.endIndex]
+			}
+			result.append(contentsOf: right)
+			result.append(contentsOf: left)
+		}
+		self.bitmapData.setBytes(result)
 	}
 }
