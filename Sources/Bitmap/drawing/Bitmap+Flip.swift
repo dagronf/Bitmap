@@ -35,33 +35,32 @@ public extension Bitmap {
 
 	/// Flip this bitmap
 	/// - Parameter flipType: The type of flipping to apply
-	mutating func flip(_ flipType: FlipType) throws {
+	func flip(_ flipType: FlipType) throws {
 		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		self.eraseAll()
 
-		ctx.saveGState()
-		defer { ctx.restoreGState() }
-
-		// Draw the flipped image
-		switch flipType {
-		case .horizontally:
-			ctx.scaleBy(x: 1, y: -1)
-			ctx.translateBy(x: 0, y: Double(-height))
-		case .vertically:
-			ctx.scaleBy(x: -1, y: 1)
-			ctx.translateBy(x: Double(-width), y: 0)
-		case .both:
-			ctx.scaleBy(x: -1, y: -1)
-			ctx.translateBy(x: Double(-width), y: Double(-height))
+		self.savingGState { ctx in
+			// Draw the flipped image
+			switch flipType {
+			case .horizontally:
+				ctx.scaleBy(x: 1, y: -1)
+				ctx.translateBy(x: 0, y: Double(-height))
+			case .vertically:
+				ctx.scaleBy(x: -1, y: 1)
+				ctx.translateBy(x: Double(-width), y: 0)
+			case .both:
+				ctx.scaleBy(x: -1, y: -1)
+				ctx.translateBy(x: Double(-width), y: Double(-height))
+			}
+			ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 		}
-		ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 	}
 
 	/// Create a new bitmap by flipping this bitmap
 	/// - Parameter flipType: The type of flipping to apply
 	/// - Returns: A new image with the original image flipped
 	func flipping(_ flipType: FlipType) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		try copy.flip(flipType)
 		return copy
 	}

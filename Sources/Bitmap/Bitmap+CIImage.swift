@@ -25,7 +25,7 @@ import Foundation
 import CoreImage
 
 public extension Bitmap {
-	init(_ image: CIImage, context: CIContext? = nil, size: CGSize? = nil) throws {
+	convenience init(_ image: CIImage, context: CIContext? = nil, size: CGSize? = nil) throws {
 		let context = context ?? CIContext(options: nil)
 		let rect: CGRect
 		if let size = size {

@@ -27,16 +27,16 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - value: The amount to pad the edges of the bitmap
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
-	@inlinable mutating func padded(_ value: CGFloat, backgroundColor: CGColor? = nil) throws {
-		self = try self.padding(value, backgroundColor: backgroundColor)
+	@inlinable func padded(_ value: CGFloat, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.padding(value, backgroundColor: backgroundColor))
 	}
 
 	/// Pad the current image by adding pixels on all edges (so the image will be larger)
 	/// - Parameters:
 	///   - padding: The padding to apply to each edge of the bitmap
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
-	@inlinable mutating func padded(_ padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
-		self = try self.padding(padding, backgroundColor: backgroundColor)
+	@inlinable func padded(_ padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.padding(padding, backgroundColor: backgroundColor))
 	}
 
 	/// Create a new bitmap by padding the edges of the image with additional pixels

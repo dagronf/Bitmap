@@ -23,7 +23,7 @@ import CoreGraphics
 public extension Bitmap {
 	/// Draw a line around the border of this bitmap
 	/// - Parameter stroke: The type of border line to draw
-	mutating func drawBorder(stroke: Stroke = Stroke(color: .black, lineWidth: 1)) {
+	func drawBorder(stroke: Stroke = Stroke(color: .black, lineWidth: 1)) {
 		let rect = self.bounds.insetBy(dx: stroke.lineWidth / 2.0, dy: stroke.lineWidth / 2.0)
 		let path = CGPath(rect: rect, transform: nil)
 		self.stroke(path, stroke)

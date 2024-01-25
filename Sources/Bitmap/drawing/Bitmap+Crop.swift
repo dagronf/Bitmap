@@ -25,8 +25,8 @@ import CoreGraphics
 public extension Bitmap {
 	/// Crop this bitmap to the given rect
 	/// - Parameter path: The rect to crop
-	@inlinable mutating func crop(to rect: CGRect) throws {
-		self = try cropping(to: rect)
+	@inlinable func crop(to rect: CGRect) throws {
+		try self.assign(try cropping(to: rect))
 	}
 
 	/// Create a new bitmap by cropping this bitmap to a rect
@@ -39,8 +39,8 @@ public extension Bitmap {
 
 	/// Crop the image to a path
 	/// - Parameter path: The path to crop
-	@inlinable mutating func crop(to path: CGPath) throws {
-		self = try self.cropping(to: path)
+	@inlinable func crop(to path: CGPath) throws {
+		try self.assign(try self.cropping(to: path))
 	}
 
 	/// Create a new bitmap by cropping this bitmap to the given path

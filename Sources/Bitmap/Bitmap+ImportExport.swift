@@ -26,13 +26,13 @@ import SwiftImageReadWrite
 
 public extension Bitmap {
 	/// Load an image from an image format (eg. png data)
-	init(imageData: Data) throws {
+	convenience init(imageData: Data) throws {
 		let cgImage = try CGImage.load(data: imageData)
 		try self.init(cgImage)
 	}
 
 	/// Load a bitmap from a file URL
-	init(fileURL: URL) throws {
+	convenience init(fileURL: URL) throws {
 		assert(fileURL.isFileURL)
 		let cgImage = try CGImage.load(fileURL: fileURL)
 		try self.init(cgImage)

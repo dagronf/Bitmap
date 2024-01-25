@@ -41,10 +41,10 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - shadow: The shadow style
 	///   - draw: The drawing to apply the shadow to
-	mutating func applyingShadow(_ shadow: Shadow, _ draw: (inout Bitmap) -> Void) {
-		ctx.saveGState()
-		defer { ctx.restoreGState() }
-		ctx.setShadow(offset: shadow.offset, blur: shadow.blur, color: shadow.color)
-		draw(&self)
+	func applyingShadow(_ shadow: Shadow, _ draw: (Bitmap) -> Void) {
+		self.savingGState { ctx in
+			ctx.setShadow(offset: shadow.offset, blur: shadow.blur, color: shadow.color)
+			draw(self)
+		}
 	}
 }

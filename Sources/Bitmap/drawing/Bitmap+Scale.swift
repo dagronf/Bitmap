@@ -40,11 +40,11 @@ public extension Bitmap {
 	///   - scalingType: The type of scaling to perform
 	///   - targetSize: The target size for the image
 	/// - Returns: The scaled image, or nil if an error occurred
-	@inlinable mutating func scaleImage(
+	@inlinable func scaleImage(
 		scalingType: ScalingType = .axesIndependent,
 		to targetSize: CGSize
 	) throws {
-		self = try self.scalingImage(scalingType: scalingType, to: targetSize)
+		try self.assign(try self.scalingImage(scalingType: scalingType, to: targetSize))
 	}
 
 	/// Create a bitmap by scaling to fit a target size

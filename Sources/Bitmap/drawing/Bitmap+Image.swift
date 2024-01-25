@@ -31,7 +31,7 @@ public extension Bitmap {
 	/// - Returns: A new bitmap
 	func drawingImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) throws -> Bitmap {
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		var copy = try Bitmap(cgImage)
+		let copy = try Bitmap(cgImage)
 		copy.drawImage(image, in: rect, scaling: scaling)
 		return copy
 	}
@@ -41,8 +41,8 @@ public extension Bitmap {
 	///   - cgImage: The image
 	///   - rect: The destination rect
 	///   - scaling: The scaling method for scaling the image up/down to fit/fill the rect
-	@inlinable mutating func drawImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) {
-		drawImageInContext(self.ctx, image: cgImage, rect: rect, scalingType: scaling)
+	@inlinable func drawImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) {
+		drawImageInContext(self.bitmapContext, image: cgImage, rect: rect, scalingType: scaling)
 	}
 }
 
@@ -53,7 +53,7 @@ public extension Bitmap {
 	///   - point: The point at which to draw the image
 	/// - Returns: A new bitmap
 	@inlinable func drawingBitmap(_ bitmap: Bitmap, atPoint point: CGPoint) throws -> Bitmap {
-		var newBitmap = try self.copy()
+		let newBitmap = try self.copy()
 		try newBitmap.drawBitmap(bitmap, atPoint: point)
 		return newBitmap
 	}
@@ -62,7 +62,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - image: The image to draw
 	///   - point: The point at which to draw the image
-	@inlinable mutating func drawBitmap(_ bitmap: Bitmap, atPoint point: CGPoint) throws {
+	@inlinable func drawBitmap(_ bitmap: Bitmap, atPoint point: CGPoint) throws {
 		guard let overlayImage = bitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
 		self.drawImage(overlayImage, atPoint: point)
 	}
@@ -71,7 +71,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - image: The image to draw
 	///   - point: The point at which to draw the image
-	mutating func drawImage(_ image: CGImage, atPoint point: CGPoint) {
+	func drawImage(_ image: CGImage, atPoint point: CGPoint) {
 		let bounds = self.bounds
 		let dest = CGRect(origin: point, size: image.size)
 		self.draw { ctx in
