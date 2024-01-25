@@ -26,11 +26,11 @@ public extension Bitmap {
 	///   - clippingPath: The path to clip to
 	///   - drawBlock: The drawing operation(s)
 	func clipped(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) {
-		ctx.saveGState()
-		defer { ctx.restoreGState() }
-		ctx.addPath(clippingPath)
-		ctx.clip()
-		drawBlock(ctx)
+		self.savingGState { ctx in
+			ctx.addPath(clippingPath)
+			ctx.clip()
+			drawBlock(ctx)
+		}
 	}
 
 	/// Perform a clipped drawing operation on a copy of this bitmap

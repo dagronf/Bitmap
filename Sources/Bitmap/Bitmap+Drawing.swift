@@ -25,7 +25,7 @@ import CoreGraphics
 public extension Bitmap {
 	/// Perform 'block' within a saved GState on a bitmap
 	@inlinable func savingGState(_ block: (CGContext) -> Void) {
-		self.ctx.savingGState(block)
+		self.bitmapContext.savingGState(block)
 	}
 }
 

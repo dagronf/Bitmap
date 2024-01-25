@@ -75,7 +75,7 @@ public class Bitmap {
 		else {
 			throw BitmapError.invalidContext
 		}
-		self.ctx = ctx
+		self.bitmapContext = ctx
 	}
 
 	/// Create an empty bitmap with transparent background using an RGBA colorspace
@@ -189,7 +189,7 @@ public class Bitmap {
 	private static let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
 	/// The bitmap's image context
-	@usableFromInline internal var ctx: CGContext
+	@usableFromInline internal var bitmapContext: CGContext
 }
 
 #if os(macOS)
@@ -261,7 +261,7 @@ public extension Bitmap {
 
 public extension Bitmap {
 	/// Returns a CGImage representation of this bitmap
-	@inlinable var cgImage: CGImage? { self.ctx.makeImage() }
+	@inlinable var cgImage: CGImage? { self.bitmapContext.makeImage() }
 }
 
 // MARK: - Getting/setting pixels
@@ -413,6 +413,6 @@ extension Bitmap {
 		else {
 			throw BitmapError.invalidContext
 		}
-		self.ctx = ctx
+		self.bitmapContext = ctx
 	}
 }

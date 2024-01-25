@@ -42,7 +42,7 @@ public extension Bitmap {
 	///   - rect: The destination rect
 	///   - scaling: The scaling method for scaling the image up/down to fit/fill the rect
 	@inlinable func drawImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) {
-		drawImageInContext(self.ctx, image: cgImage, rect: rect, scalingType: scaling)
+		drawImageInContext(self.bitmapContext, image: cgImage, rect: rect, scalingType: scaling)
 	}
 }
 
