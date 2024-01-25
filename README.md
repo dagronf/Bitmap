@@ -1,7 +1,7 @@
 # Bitmap
 
 ![tag](https://img.shields.io/github/v/tag/dagronf/Bitmap)
-![Swift](https://img.shields.io/badge/Swift-5.4-orange.svg)
+![Swift](https://img.shields.io/badge/Swift-5.5-orange.svg)
 [![License MIT](https://img.shields.io/badge/license-MIT-magenta.svg)](https://github.com/dagronf/Bitmap/blob/master/LICENSE) 
 ![SPM](https://img.shields.io/badge/spm-compatible-maroon.svg)
 

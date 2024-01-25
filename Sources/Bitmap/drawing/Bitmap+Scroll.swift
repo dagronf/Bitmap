@@ -17,6 +17,9 @@
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+/// Based on work by [BenedictSt](https://github.com/BenedictSt)
+/// See PR [here](https://github.com/dagronf/Bitmap/pull/1)
+
 import Foundation
 
 // MARK: - Scroll
