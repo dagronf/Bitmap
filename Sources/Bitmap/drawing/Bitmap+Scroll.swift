@@ -35,11 +35,6 @@ public extension Bitmap {
 		case left
 		/// Scroll right
 		case right
-
-		/// Is horizontal scrolling
-		@inlinable var isHorizontal: Bool { self == .right || self == .left }
-		/// Is vertical scrolling
-		@inlinable var isVertical: Bool { self == .up || self == .down }
 	}
 
 	/// Scroll the bitmap, wrapping the content around the boundary
@@ -49,11 +44,15 @@ public extension Bitmap {
 		// If the row count to scroll is zero, return early
 		if count == 0 { return }
 
-		if direction.isHorizontal {
-			self.scrollHorizonally(direction: direction, count: count)
-		}
-		else {
-			self.scrollVertically(direction: direction, count: count)
+		switch direction {
+		case .down:
+			self.scrollVertically(isScrollingDown: true, count: count)
+		case .up:
+			self.scrollVertically(isScrollingDown: false, count: count)
+		case .left:
+			self.scrollHorizonally(isScrollingRight: false, count: count)
+		case .right:
+			self.scrollHorizonally(isScrollingRight: true, count: count)
 		}
 	}
 
@@ -95,20 +94,17 @@ public extension Bitmap {
 }
 
 private extension Bitmap {
-	mutating func scrollVertically(direction: ScrollDirection, count: Int) {
-		assert(direction.isVertical)
+	mutating func scrollVertically(isScrollingDown: Bool, count: Int) {
 		assert(count >= 1)
 		assert(count < self.height)
 
 		let splitSize = self.width * 4 * count
-		var splitPosition = 0
-		switch direction {
-		case .down:
+		let splitPosition: Int
+		if isScrollingDown {
 			splitPosition = self.rgbaBytes.count - splitSize
-		case .up:
+		}
+		else {
 			splitPosition = splitSize
-		default:
-			fatalError()
 		}
 
 		let topSlice = Array(self.rgbaBytes[..<splitPosition])
@@ -118,8 +114,7 @@ private extension Bitmap {
 		self.bitmapData.setBytes(all)
 	}
 
-	mutating func scrollHorizonally(direction: ScrollDirection, count: Int = 1) {
-		assert(direction == .left || direction == .right)
+	mutating func scrollHorizonally(isScrollingRight: Bool, count: Int = 1) {
 		var result: [UInt8] = []
 		let pixelWidth = 4
 		let rowWidth = width * pixelWidth
@@ -128,7 +123,7 @@ private extension Bitmap {
 
 			let left: ArraySlice<UInt8>
 			let right: ArraySlice<UInt8>
-			if direction == .right {
+			if isScrollingRight {
 				left = rowSlice[rowSlice.startIndex ..< rowSlice.endIndex - (count * 4)]
 				right = rowSlice[rowSlice.endIndex - (count * 4) ..< rowSlice.endIndex]
 			}
