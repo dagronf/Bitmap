@@ -465,7 +465,7 @@ final class BitmapTests: XCTestCase {
 
 		markdown.raw("|")
 
-		bitmap.clipped(to: CGRect(x: 10, y: 10, width: 50, height: 50).ellipsePath) { ctx in
+		bitmap.clip(to: CGRect(x: 10, y: 10, width: 50, height: 50).ellipsePath) { ctx in
 			ctx.setFillColor(.white)
 			ctx.fill([bounds])
 		}

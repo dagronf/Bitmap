@@ -25,7 +25,16 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - clippingPath: The path to clip to
 	///   - drawBlock: The drawing operation(s)
+	@available(*, deprecated, renamed: "clip", message: "clipped had been renamed to clip")
 	func clipped(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) {
+		self.clip(to: clippingPath, drawBlock)
+	}
+
+	/// Perform a drawing operation in this bitmap clipped to a path
+	/// - Parameters:
+	///   - clippingPath: The path to clip to
+	///   - drawBlock: The drawing operation(s)
+	func clip(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) {
 		self.savingGState { ctx in
 			ctx.addPath(clippingPath)
 			ctx.clip()
@@ -40,7 +49,7 @@ public extension Bitmap {
 	/// - Returns: A bitmap
 	@inlinable func clipping(to clippingPath: CGPath, _ drawBlock: (CGContext) -> Void) throws -> Bitmap {
 		let copy = try self.copy()
-		copy.clipped(to: clippingPath, drawBlock)
+		copy.clip(to: clippingPath, drawBlock)
 		return copy
 	}
 }
