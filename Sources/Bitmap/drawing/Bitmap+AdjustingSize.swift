@@ -28,7 +28,7 @@ public extension Bitmap {
 	/// - Parameter size: The size of the new image
 	/// - Returns: A new bitmap
 	func adjustingSize(to size: CGSize) throws -> Bitmap {
-		var result = try Bitmap(size: size)
+		let result = try Bitmap(size: size)
 		let woffset = (size.width - self.size.width) / 2
 		let hoffset = (size.height - self.size.height) / 2
 		try result.drawBitmap(self, atPoint: CGPoint(x: woffset, y: hoffset))
@@ -38,7 +38,7 @@ public extension Bitmap {
 	/// Changes the bitmap size around the centroid of the current image, cropping or extending
 	/// the current bitmap as required
 	/// - Parameter size: The new size for the bitmap
-	@inlinable mutating func adjustSize(to size: CGSize) throws {
-		self = try self.adjustingSize(to: size)
+	@inlinable func adjustSize(to size: CGSize) throws {
+		try self.assign(try self.adjustingSize(to: size))
 	}
 }

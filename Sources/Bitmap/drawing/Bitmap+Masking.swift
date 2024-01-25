@@ -23,14 +23,14 @@ import CoreGraphics
 public extension Bitmap {
 	/// Mask this image using an image mask
 	/// - Parameter maskImage: the mask image
-	@inlinable mutating func mask(using maskImage: CGImage) throws {
-		self = try self.masking(using: maskImage)
+	@inlinable func mask(using maskImage: CGImage) throws {
+		try self.assign(try self.masking(using: maskImage))
 	}
 
 	/// Create a new bitmap by masking this image using an image mask
 	/// - Parameter maskBitmap: The mask image
-	@inlinable mutating func mask(using maskBitmap: Bitmap) throws {
-		self = try self.masking(using: maskBitmap)
+	@inlinable func mask(using maskBitmap: Bitmap) throws {
+		try self.assign(try self.masking(using: maskBitmap))
 	}
 
 	/// Mask this bitmap using a mask bitmap
@@ -47,7 +47,7 @@ public extension Bitmap {
 	func masking(using maskImage: CGImage) throws -> Bitmap {
 		guard let origImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		let origRect = self.bounds
-		var bitmap = try Bitmap(size: origRect.size)
+		let bitmap = try Bitmap(size: origRect.size)
 		bitmap.draw { ctx in
 			ctx.clip(to: origRect, mask: maskImage)
 			ctx.draw(origImage, in: origRect)
@@ -59,7 +59,7 @@ public extension Bitmap {
 public extension Bitmap {
 	/// Mask out the part of the bitmap contained within the image
 	/// - Parameter path: The mask path
-	mutating func mask(using path: CGPath) throws {
+	func mask(using path: CGPath) throws {
 		let cropped = try self.cropping(to: path)
 		self.eraseAll()
 		try self.drawBitmap(cropped, atPoint: path.boundingBoxOfPath.origin)
@@ -69,7 +69,7 @@ public extension Bitmap {
 	/// - Parameter path: The path to mask
 	/// - Returns: A new bitmap
 	func masking(using path: CGPath) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		try copy.mask(using: path)
 		return copy
 	}

@@ -24,8 +24,9 @@ public extension Bitmap {
 	/// Rotate this bitmap clockwise around its center
 	/// - Parameters:
 	///   - radians: The rotation angle in radians
-	@inlinable mutating func rotate(by radians: CGFloat) throws {
-		self = try self.rotating(by: radians)
+	@inlinable func rotate(by radians: CGFloat) throws {
+		let update = try self.rotating(by: radians)
+		try self.assign(update.bitmapData)
 	}
 
 	/// Create a new bitmap by rotating this bitmap clockwise round its center

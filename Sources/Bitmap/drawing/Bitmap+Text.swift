@@ -51,7 +51,7 @@ public extension Bitmap {
 	///   - string: The string to draw
 	///   - color: The text color
 	///   - path: The position to draw the text
-	@inlinable mutating func drawText(_ string: String, color: CGColor = .black, position: CGPoint) {
+	@inlinable func drawText(_ string: String, color: CGColor = .black, position: CGPoint) {
 		let astr = NSAttributedString(string: string, attributes: [NSAttributedString.Key.foregroundColor: color])
 		self.drawText(astr, position: position)
 	}
@@ -61,7 +61,7 @@ public extension Bitmap {
 	///   - string: The string to draw
 	///   - color: The text color
 	///   - path: The path containing the text, or nil for the entire image
-	@inlinable mutating func drawText(_ string: String, color: CGColor = .black, path: CGPath? = nil) {
+	@inlinable func drawText(_ string: String, color: CGColor = .black, path: CGPath? = nil) {
 		let astr = NSAttributedString(string: string, attributes: [NSAttributedString.Key.foregroundColor: color])
 		self.drawText(astr, path: path)
 	}
@@ -70,7 +70,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - attributedString: The attributed string to draw
 	///   - position: The position to draw the text
-	mutating func drawText(_ attributedString: NSAttributedString, position: CGPoint) {
+	func drawText(_ attributedString: NSAttributedString, position: CGPoint) {
 		self.savingGState { ctx in
 			let line = CTLineCreateWithAttributedString(attributedString as CFAttributedString)
 			ctx.textPosition = position
@@ -82,7 +82,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - attributedString: The string to draw
 	///   - path: The path containing the text, or nil for the entire image
-	mutating func drawText(
+	func drawText(
 		_ attributedString: NSAttributedString,
 		path: CGPath? = nil
 	) {

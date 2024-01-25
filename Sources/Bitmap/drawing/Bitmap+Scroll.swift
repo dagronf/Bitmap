@@ -40,7 +40,7 @@ public extension Bitmap {
 	/// Scroll the bitmap, wrapping the content around the boundary
 	/// - Parameter direction: The direction of scrolling to apply
 	/// - Parameter count: The number of rows to scroll
-	mutating func scroll(direction: ScrollDirection, count: Int = 1) {
+	func scroll(direction: ScrollDirection, count: Int = 1) {
 		// If the row count to scroll is zero, return early
 		if count == 0 { return }
 
@@ -62,7 +62,7 @@ public extension Bitmap {
 	///   - count: The number of rows or columns to scroll by
 	/// - Returns: A new image with the original image scrolled
 	func scrolling(direction: ScrollDirection, count: Int = 1) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		copy.scroll(direction: direction, count: count)
 		return copy
 	}
@@ -75,7 +75,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - x: The new x-coordinate to reorient to x=0
 	///   - y: The new y-coordinate to reorient to y=0
-	mutating func zeroPoint(x: Int, y: Int) {
+	func zeroPoint(x: Int, y: Int) {
 		assert(x >= 0 && x < self.width)
 		assert(y >= 0 && y < self.height)
 		self.scroll(direction: .left, count: x)
@@ -87,14 +87,14 @@ public extension Bitmap {
 	///   - x: The new x-coordinate to reorient to x=0
 	///   - y: The new y-coordinate to reorient to y=0
 	func zeroingPoint(x: Int, y: Int) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		copy.zeroPoint(x: x, y: y)
 		return copy
 	}
 }
 
 private extension Bitmap {
-	mutating func scrollVertically(isScrollingDown: Bool, count: Int) {
+	func scrollVertically(isScrollingDown: Bool, count: Int) {
 		assert(count >= 1)
 		assert(count < self.height)
 
@@ -114,7 +114,7 @@ private extension Bitmap {
 		self.bitmapData.setBytes(all)
 	}
 
-	mutating func scrollHorizonally(isScrollingRight: Bool, count: Int = 1) {
+	func scrollHorizonally(isScrollingRight: Bool, count: Int = 1) {
 		var result: [UInt8] = []
 		let pixelWidth = 4
 		let rowWidth = width * pixelWidth

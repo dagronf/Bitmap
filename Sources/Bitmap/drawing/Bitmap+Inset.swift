@@ -25,13 +25,13 @@ import CoreGraphics
 public extension Bitmap {
 	/// Insets the current bitmap
 	/// - Parameter value: The amount to inset the bitmap
-	@inlinable mutating func inset(_ value: Double) throws {
-		self = try self.inset(NSEdgeInsets(top: value, left: value, bottom: value, right: value))
+	@inlinable func inset(_ value: Double) throws {
+		try self.assign(try self.inset(NSEdgeInsets(top: value, left: value, bottom: value, right: value)))
 	}
 
 	/// Insets the current bitmap
-	@inlinable mutating func insetting(_ edgeInsets: NSEdgeInsets) throws {
-		self = try self.inset(edgeInsets)
+	@inlinable func insetting(_ edgeInsets: NSEdgeInsets) throws {
+		try self.assign(try self.inset(edgeInsets))
 	}
 
 	/// Create a new image by insetting the current image with transparent pixels
@@ -59,7 +59,7 @@ public extension Bitmap {
 		}
 
 		// New bitmap will be the same pixel size as the original
-		var newImage = try Bitmap(width: self.width, height: self.height)
+		let newImage = try Bitmap(width: self.width, height: self.height)
 		let nw = Double(self.width) - (edgeInsets.left + edgeInsets.right)
 		let nh = Double(self.height) - (edgeInsets.top + edgeInsets.bottom)
 		newImage.drawImage(

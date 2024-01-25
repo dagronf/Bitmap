@@ -32,8 +32,8 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - color: The tinting color
 	///   - intensity: The tinting intensity (0 -> 1)
-	@inlinable mutating func tint(with color: CGColor, intensity: CGFloat = 1.0) throws {
-		self = try self.tinting(with: color, intensity: intensity)
+	@inlinable func tint(with color: CGColor, intensity: CGFloat = 1.0) throws {
+		try self.assign(try self.tinting(with: color, intensity: intensity))
 	}
 
 	/// Returns a new image tinted with a color
@@ -62,8 +62,8 @@ public extension Bitmap {
 
 public extension Bitmap {
 	/// Apply a grayscale filter to this bitmap
-	@inlinable mutating func grayscale() throws {
-		self = try self.grayscaling()
+	@inlinable func grayscale() throws {
+		try self.assign(try self.grayscaling())
 	}
 
 	/// Return a grayscale representation of this bitmap
@@ -87,8 +87,8 @@ public extension Bitmap {
 public extension Bitmap {
 	/// Adjusts midtone brightness
 	/// - Parameter power: The input power. The larger the value, the darker the result
-	@inlinable mutating func adjustGamma(power: Double) throws {
-		self = try self.adjustingGamma(power: power)
+	@inlinable func adjustGamma(power: Double) throws {
+		try self.assign(try self.adjustingGamma(power: power))
 	}
 
 	/// Adjusts midtone brightness
@@ -117,12 +117,18 @@ public extension Bitmap {
 	///   - saturation: The amount of saturation to apply. The larger the value, the more saturated the result.
 	///   - brightness: The amount of brightness to apply. The larger the value, the brighter the result.
 	///   - contrast: The amount of contrast to apply. The larger the value, the more contrast in the resulting image.
-	@inlinable mutating func adjustColorControls(
+	@inlinable func adjustColorControls(
 		saturation: Double = 1.0,
 		brightness: Double = 0.0,
 		contrast: Double = 1.0
 	) throws {
-		self = try self.adjustingColorControls(saturation: saturation, brightness: brightness, contrast: contrast)
+		try self.assign(
+			try self.adjustingColorControls(
+				saturation: saturation,
+				brightness: brightness,
+				contrast: contrast
+			)
+		)
 	}
 
 	/// Adjust saturation, brightness, and contrast values.
@@ -165,8 +171,8 @@ public extension Bitmap {
 
 public extension Bitmap {
 	/// Apply a grayscale filter to this bitmap
-	@inlinable mutating func grayscale() throws {
-		self = try self.grayscaling()
+	@inlinable func grayscale() throws {
+		try self.assign(try self.grayscaling())
 	}
 
 	/// Return a grayscale representation of this bitmap
@@ -209,8 +215,8 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - color: The tinting color
 	///   - intensity: The tinting intensity (0 -> 1)
-	@inlinable mutating func tint(with color: CGColor, intensity: CGFloat = 1.0) throws {
-		self = try self.tinting(with: color, intensity: intensity)
+	@inlinable func tint(with color: CGColor, intensity: CGFloat = 1.0) throws {
+		try self.assign(try self.tinting(with: color, intensity: intensity))
 	}
 
 	/// Returns a new image tinted with a color
@@ -254,7 +260,7 @@ public extension Bitmap {
 	///   - rect: The rect within the bitmap to tint
 	///   - intensity: The color intensity (0.0 -> 1.0)
 	func tinting(with color: CGColor, in rect: CGRect, intensity: CGFloat = 1.0) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		try copy.tint(with: color, in: rect, intensity: intensity)
 		return copy
 	}
@@ -264,7 +270,7 @@ public extension Bitmap {
 	///   - color: The tint color
 	///   - rect: The rect within the bitmap to tint
 	///   - intensity: The color intensity (0.0 -> 1.0)
-	mutating func tint(with color: CGColor, in rect: CGRect, intensity: CGFloat = 1.0) throws {
+	func tint(with color: CGColor, in rect: CGRect, intensity: CGFloat = 1.0) throws {
 		// Cropping occurs from the start of the image data - ie. the top left
 		// Our coordinate system is from bottom left.
 		var converted = rect
@@ -285,8 +291,8 @@ public extension Bitmap {
 public extension Bitmap {
 	/// Remove transparency
 	/// - Parameter backgroundColor: The background color
-	@inlinable mutating func removeTransparency(backgroundColor: CGColor = .black) throws {
-		self = try self.removingTransparency(backgroundColor: backgroundColor)
+	@inlinable func removeTransparency(backgroundColor: CGColor = .black) throws {
+		try self.assign(try self.removingTransparency(backgroundColor: backgroundColor))
 	}
 
 	/// Remove transparency

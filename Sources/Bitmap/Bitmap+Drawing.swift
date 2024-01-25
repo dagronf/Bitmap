@@ -24,14 +24,14 @@ import CoreGraphics
 
 public extension Bitmap {
 	/// Perform 'block' within a saved GState on a bitmap
-	@inlinable mutating func savingGState(_ block: (CGContext) -> Void) {
+	@inlinable func savingGState(_ block: (CGContext) -> Void) {
 		self.ctx.savingGState(block)
 	}
 }
 
 public extension Bitmap {
 	/// Perform drawing actions within a saved GState on a bitmap
-	@inlinable mutating func draw(_ block: (CGContext) -> Void) {
+	@inlinable func draw(_ block: (CGContext) -> Void) {
 		self.savingGState(block)
 	}
 

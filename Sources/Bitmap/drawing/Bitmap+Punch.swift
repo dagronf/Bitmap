@@ -23,13 +23,14 @@ import Foundation
 public extension Bitmap {
 	/// Punch a transparent hole in this bitmap
 	/// - Parameter path: The hole's path
-	mutating func punchTransparentHole(path: CGPath) throws {
-		self = try self.punchingTransparentHole(path: path)
+	func punchTransparentHole(path: CGPath) throws {
+		let e = try self.punchingTransparentHole(path: path)
+		self.bitmapData.setBytes(e.bitmapData.rgbaBytes)
 	}
 
 	/// Punch a transparent hole in this bitmap
 	/// - Parameter rect: The rect to punch out
-	@inlinable mutating func punchTransparentHole(rect: CGRect) throws {
+	@inlinable func punchTransparentHole(rect: CGRect) throws {
 		try self.punchTransparentHole(path: rect.path)
 	}
 
@@ -38,7 +39,7 @@ public extension Bitmap {
 	/// - Returns: A new bitmap
 	func punchingTransparentHole(path: CGPath) throws -> Bitmap {
 		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		var copy = try Bitmap(size: self.size)
+		let copy = try Bitmap(size: self.size)
 		let bounds = copy.bounds
 		copy.draw { ctx in
 			ctx.addRect(bounds)
@@ -52,7 +53,7 @@ public extension Bitmap {
 	/// Create a new bitmap by punching a transparent hole in this bitmap
 	/// - Parameter rect: The rect to punch out
 	/// - Returns: A new bitmap
-	@inlinable mutating func punchingTransparentHole(rect: CGRect) throws -> Bitmap {
+	@inlinable func punchingTransparentHole(rect: CGRect) throws -> Bitmap {
 		try self.punchingTransparentHole(path: rect.path)
 	}
 }

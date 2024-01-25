@@ -29,7 +29,7 @@ import UIKit
 /// A bitmap
 ///
 /// Coordinates start at the bottom left of the image, always in the sRGB colorspace
-public struct Bitmap {
+public class Bitmap {
 	/// The errors thrown
 	public enum BitmapError: Error {
 		case outOfBounds
@@ -83,7 +83,7 @@ public struct Bitmap {
 	///   - width: bitmap width
 	///   - height: bitmap height
 	///   - backgroundColor: The background color for the bitmap (defaults to transparent)
-	public init(width: Int, height: Int, backgroundColor: CGColor? = nil) throws {
+	public convenience init(width: Int, height: Int, backgroundColor: CGColor? = nil) throws {
 		let bitmapData = Bitmap.RGBAData(width: width, height: height)
 		try self.init(bitmapData)
 		if let backgroundColor = backgroundColor {
@@ -95,7 +95,7 @@ public struct Bitmap {
 	/// - Parameters:
 	///   - size: The size of the image to create
 	///   - backgroundColor: The background color for the bitmap (defaults to transparent)
-	@inlinable public init(size: CGSize, backgroundColor: CGColor? = nil) throws {
+	@inlinable public convenience init(size: CGSize, backgroundColor: CGColor? = nil) throws {
 		try self.init(width: Int(size.width), height: Int(size.height), backgroundColor: backgroundColor)
 	}
 
@@ -104,7 +104,7 @@ public struct Bitmap {
 	///   - rgbaBytes: Raw rgba data (array of R,G,B,A bytes)
 	///   - width: The expected width of the resulting bitmap
 	///   - height: The expected height of the resulting bitmap
-	public init(rgbaBytes: [UInt8], width: Int, height: Int) throws {
+	public convenience init(rgbaBytes: [UInt8], width: Int, height: Int) throws {
 		guard rgbaBytes.count == (width * height * 4) else { throw BitmapError.rgbaDataMismatchSize }
 		let bitmapData = Bitmap.RGBAData(width: width, height: height, rgbaBytes: rgbaBytes)
 		try self.init(bitmapData)
@@ -115,13 +115,13 @@ public struct Bitmap {
 	///   - rgbaData: The raw rgba data as R,G,B,A bytes
 	///   - width: The expected width of the resulting bitmap
 	///   - height: The expected height of the resulting bitmap
-	@inlinable public init(rgbaData: Data, width: Int, height: Int) throws {
+	@inlinable public convenience init(rgbaData: Data, width: Int, height: Int) throws {
 		try self.init(rgbaBytes: Array(rgbaData), width: width, height: height)
 	}
 
 	/// Create a bitmap containing an image
 	/// - Parameter image: The initial image contained within the bitmap
-	public init(_ image: CGImage) throws {
+	public convenience init(_ image: CGImage) throws {
 		try self.init(width: image.width, height: image.height)
 		self.draw { ctx in
 			ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
@@ -129,27 +129,26 @@ public struct Bitmap {
 	}
 
 	/// Create a bitmap of a specified size with a context block for initialization
-	public init(size: CGSize, _ setupBlock: (CGContext) -> Void) throws {
-		let bitmap = try Bitmap(width: Int(size.width), height: Int(size.height))
-		setupBlock(bitmap.ctx)
-		self = bitmap
+	public convenience init(size: CGSize, _ setupBlock: (CGContext) -> Void) throws {
+		try self.init(width: Int(size.width), height: Int(size.height))
+		self.draw(setupBlock)
 	}
 
 	/// Create a bitmap by copying another bitmap
-	@inlinable public init(_ bitmap: Bitmap) throws {
+	@inlinable public convenience init(_ bitmap: Bitmap) throws {
 		try self.init(bitmap.bitmapData)
 	}
 
 	/// Load a bitmap from an image asset
 	/// - Parameter name: The name of the image asset
-	public init(named name: String) throws {
+	public convenience init(named name: String) throws {
 		guard let cgi = PlatformImage(named: name)?.cgImage else { throw BitmapError.cannotCreateCGImage }
 		try self.init(cgi)
 	}
 
 	/// Make a bitmap from a CGContext
 	/// - Parameter ctx: The context to generate the bitmap from
-	public init(_ ctx: CGContext) throws {
+	public convenience init(_ ctx: CGContext) throws {
 		ctx.flush()
 		guard let image = ctx.makeImage() else { throw BitmapError.cannotCreateCGImage }
 		try self.init(image)
@@ -158,7 +157,7 @@ public struct Bitmap {
 	#if !os(watchOS)
 	/// Create a bitmap from the contents of a CALayer
 	/// - Parameter layer: The layer
-	public init(_ layer: CALayer) throws {
+	public convenience init(_ layer: CALayer) throws {
 		let width = Int(layer.bounds.width * layer.contentsScale)
 		let height = Int(layer.bounds.height * layer.contentsScale)
 		guard let ctx = CGContext(
@@ -189,21 +188,22 @@ public struct Bitmap {
 	private static let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
 	private static let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
-	/// The created image context
-	@usableFromInline internal let ctx: CGContext
+	/// The bitmap's image context
+	@usableFromInline internal var ctx: CGContext
 }
 
 #if os(macOS)
 public extension Bitmap {
-	/// Create a bitmap from the contents of an NSGraphicsContext
+	/// Create a bitmap from the contents of an NSGraphicsContext. Must be called on the main thread
 	/// - Parameter ctx: The context
-	@inlinable init(_ ctx: NSGraphicsContext) throws {
+	@inlinable convenience init(_ ctx: NSGraphicsContext) throws {
 		try self.init(ctx.cgContext)
 	}
 
-	/// Create a bitmap from the contents of an NSView
+	/// Create a bitmap from the contents of an NSView. Must be called on the main thread
 	/// - Parameter view: The view
-	init(_ view: NSView) throws {
+	convenience init(_ view: NSView) throws {
+		precondition(Thread.isMainThread)
 		guard let imageRepresentation = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
 			throw BitmapError.cannotCreateCGImage
 		}
@@ -216,9 +216,9 @@ public extension Bitmap {
 }
 #elseif !os(watchOS)
 public extension Bitmap {
-	/// Create a bitmap from the contents of a UIView
+	/// Create a bitmap from the contents of a UIView. Must be called on the main thread
 	/// - Parameter view: The view
-	init(_ view: UIView) throws {
+	convenience init(_ view: UIView) throws {
 		precondition(Thread.isMainThread)
 
 		let format = UIGraphicsImageRendererFormat()
@@ -252,7 +252,7 @@ public extension Bitmap {
 	}
 
 	/// Erase the bitmap (set the image content to all transparent)
-	mutating func eraseAll() {
+	func eraseAll() {
 		self.bitmapData.eraseAll()
 	}
 }
@@ -278,20 +278,20 @@ public extension Bitmap {
 	/// Set the RGBA color of the pixel at (x, y)
 	///
 	/// Coordinates start at the bottom left (0, 0) of the image
-	mutating func setPixel(x: Int, y: Int, color: RGBA) {
+	func setPixel(x: Int, y: Int, color: RGBA) {
 		self.bitmapData.setPixel(x: x, y: y, color: color)
 	}
 
 	/// Set the RGBA color of the pixel in the bitmap
 	/// - Parameter pixel: The pixel to set, in bottom left coordinates
-	@inlinable @inline(__always) mutating func setPixel(_ pixel: Bitmap.Pixel) {
+	@inlinable @inline(__always) func setPixel(_ pixel: Bitmap.Pixel) {
 		self.setPixel(x: pixel.x, y: pixel.y, color: pixel.color)
 	}
 
 	/// Set the RGBA color of the pixel at (x, y), assuming (0, 0) is at the bottom left of the bitmap
 	///
 	/// Coordinate is assumed to have its origin at the bottom left
-	mutating func setPixel(_ coordinate: Bitmap.Coordinate, color: RGBA) {
+	func setPixel(_ coordinate: Bitmap.Coordinate, color: RGBA) {
 		self.bitmapData.setPixel(x: coordinate.x, y: coordinate.y, color: color)
 	}
 
@@ -378,4 +378,41 @@ public extension Bitmap {
 	///
 	/// NOTE: Given that this image is lower-left coordinates, row 0 is the BOTTOM row of the image
 	@inlinable func columnPixels(at x: Int) -> [Bitmap.RGBA] { self.bitmapData.columnPixels(at: x) }
+}
+
+// MARK: - Adopting data from another bitmap
+
+extension Bitmap {
+	/// Assign the contents of another bitmap to this bitmap object
+	/// - Parameter bitmap: The bitmap to copy
+	public func assign(_ bitmap: Bitmap) throws {
+		if bitmap.width == self.width, bitmap.height == self.height {
+			// If the dimensions are the same, just reuse our existing context
+			self.bitmapData.setBytes(bitmap.rgbaBytes)
+		}
+		else {
+			// Build a new context and map the new data
+			try self.assign(bitmap.bitmapData)
+		}
+	}
+
+	/// Assign the contents of another bitmap to this bitmap object
+	/// - Parameter bitmap: The bitmap data to copy
+	public func assign(_ data: Bitmap.RGBAData) throws {
+		self.bitmapData = data
+		guard
+			let ctx = CGContext(
+				data: &bitmapData.rgbaBytes,
+				width: bitmapData.width,
+				height: bitmapData.height,
+				bitsPerComponent: 8,
+				bytesPerRow: bitmapData.width * 4,
+				space: Bitmap.colorSpace,
+				bitmapInfo: Bitmap.bitmapInfo.rawValue
+			)
+		else {
+			throw BitmapError.invalidContext
+		}
+		self.ctx = ctx
+	}
 }

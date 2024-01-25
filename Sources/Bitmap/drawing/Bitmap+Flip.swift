@@ -35,7 +35,7 @@ public extension Bitmap {
 
 	/// Flip this bitmap
 	/// - Parameter flipType: The type of flipping to apply
-	mutating func flip(_ flipType: FlipType) throws {
+	func flip(_ flipType: FlipType) throws {
 		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
 		self.eraseAll()
 
@@ -61,7 +61,7 @@ public extension Bitmap {
 	/// - Parameter flipType: The type of flipping to apply
 	/// - Returns: A new image with the original image flipped
 	func flipping(_ flipType: FlipType) throws -> Bitmap {
-		var copy = try self.copy()
+		let copy = try self.copy()
 		try copy.flip(flipType)
 		return copy
 	}
