@@ -31,8 +31,7 @@ public extension Bitmap {
 	///   - path: The path to erase
 	///   - backgroundColor: The background color for the erased path
 	func erase(_ path: CGPath, backgroundColor: CGColor? = nil) throws {
-		let b = try self.erasing(path)
-		self.bitmapData.setBytes(b.bitmapData.rgbaBytes)
+		try self.assign(try self.erasing(path))
 	}
 
 	/// Create a new bitmap by erasing the content of the path
@@ -63,7 +62,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - rect: The rect to erase
 	///   - backgroundColor: The background color for the erased path
-	@inlinable func erase(_ rect: CGRect, backgroundColor: CGColor? = nil) throws {
+	func erase(_ rect: CGRect, backgroundColor: CGColor? = nil) throws {
 		try self.erase(rect.path, backgroundColor: backgroundColor)
 	}
 
@@ -72,7 +71,7 @@ public extension Bitmap {
 	///   - rect: The rect to erase
 	///   - backgroundColor: The background color for the erased path
 	/// - Returns: The new bitmap
-	@inlinable func erasing(_ rect: CGRect, backgroundColor: CGColor? = nil) throws -> Bitmap {
+	func erasing(_ rect: CGRect, backgroundColor: CGColor? = nil) throws -> Bitmap {
 		try self.erasing(rect.path, backgroundColor: backgroundColor)
 	}
 }
