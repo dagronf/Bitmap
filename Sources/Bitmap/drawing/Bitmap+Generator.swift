@@ -64,4 +64,47 @@ public extension Bitmap {
 	}
 }
 
+public extension Bitmap {
+	/// Generate diagonal lines
+	/// - Parameters:
+	///   - width: The width for the resulting bitmap
+	///   - height: The height for the resulting bitmap
+	///   - lineWidth: The line width for the dialog lines
+	///   - radiansAngle: The line angle
+	///   - color0: color 0
+	///   - color1: color 1
+	/// - Returns: A bitmap containing diagonal lines
+	static func DiagonalLines(
+		width: Int,
+		height: Int,
+		lineWidth: CGFloat,
+		angle: Angle<Double> = .radians(Double.pi * 3 / 4),
+		color0: CGColor = .black,
+		color1: CGColor = .white
+	) throws -> Bitmap {
+		let bitmap = try Bitmap(width: width, height: height)
+		let center = CIVector(x: 0.0, y: 0.0)
+		let filterSize = CGRect(origin: .zero, size: CGSize(width: width * 2, height: height * 2))
+		guard
+			let filter = CIFilter(
+				name: "CIStripesGenerator",
+				parameters: [
+					"inputCenter": center,
+					"inputColor0": CIColor(cgColor: color0),
+					"inputColor1": CIColor(cgColor: color1),
+					"inputWidth": lineWidth * 2,
+					"inputSharpness": 1.0,
+				]
+			),
+			let lines = filter.outputImage?.transformed(by: .init(rotationAngle: CGFloat(angle.radians))),
+			let cgImage = CIContext().createCGImage(lines, from: filterSize)
+		else {
+			throw BitmapError.cannotFilter
+		}
+		// Scale the 2x generated image down into the bitmap
+		bitmap.drawImage(cgImage, in: .init(origin: .zero, size: bitmap.bounds.size) )
+		return bitmap
+	}
+}
+
 #endif

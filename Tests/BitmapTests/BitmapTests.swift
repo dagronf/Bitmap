@@ -183,41 +183,6 @@ final class BitmapTests: XCTestCase {
 	}
 #endif
 
-	func testPunchHole() throws {
-
-		markdown.h2("Punch hole")
-
-		markdown.raw("| original | punched |\n")
-		markdown.raw("|----|----|\n")
-		markdown.raw("|")
-
-		let bitmap = bitmapResource(name: "gps-image", extension: "jpg")
-		try markdown.image(bitmap.cgImage!, linked: true)
-
-		markdown.raw("|")
-
-		let punch = CGRect(x: 50, y: 50, width: 70, height: 150).insetBy(dx: 0.5, dy: 0.5)
-		let punched = try bitmap.punchingTransparentHole(path: punch.path)
-			.drawingPath(
-				CGPath(rect: punch, transform: nil),
-				fillColor: nil,
-				stroke: Bitmap.Stroke(color: .white, lineWidth: 1)
-			)
-			.punchingTransparentHole(path: complexPath())
-
-		let total = try Bitmap(size: bitmap.size) { ctx in
-			ctx.setFillColor(red: 1, green: 0, blue: 0, alpha: 0.3)
-			ctx.fill([bitmap.bounds])
-		}
-
-		try total.drawBitmap(punched, atPoint: .zero)
-		try markdown.image(total, linked: true)
-
-		markdown.raw("|")
-
-		markdown.br()
-	}
-
 	func testPixelAccesses() throws {
 
 		markdown.h2("Pixel access")
@@ -1422,6 +1387,178 @@ final class BitmapTests: XCTestCase {
 		let cg = try XCTUnwrap(bitmap.cgImage)
 		XCTAssertEqual(cg.width, bitmap.width)
 		XCTAssertEqual(cg.height, bitmap.height)
+	}
+	#endif
+
+	func testErase() throws {
+
+		markdown.h2("Erasing paths")
+
+		do {
+			markdown.h3("Erase hole")
+
+			markdown.raw("| original | erased |\n")
+			markdown.raw("|----|----|\n")
+			markdown.raw("|")
+
+			let bitmap = bitmapResource(name: "gps-image", extension: "jpg")
+			try markdown.image(bitmap.cgImage!, linked: true)
+
+			markdown.raw("|")
+
+			let punch = CGRect(x: 50, y: 50, width: 70, height: 150).insetBy(dx: 0.5, dy: 0.5)
+			let punched = try bitmap.erasing(punch.path, backgroundColor: .red.copy(alpha: 0.2))
+				.drawingPath(
+					CGPath(rect: punch, transform: nil),
+					fillColor: nil,
+					stroke: Bitmap.Stroke(color: .green, lineWidth: 1)
+				)
+				.erasing(complexPath())
+
+			try markdown.image(punched, linked: true)
+
+			markdown.raw("|")
+
+			markdown.br()
+		}
+
+
+		let starPath: CGPath = {
+			let s = CGMutablePath()
+			s.move(to: CGPoint(x: 24, y: 48))
+			s.addLine(to: CGPoint(x: 29.51, y: 37.3))
+			s.addLine(to: CGPoint(x: 40.97, y: 40.97))
+			s.addLine(to: CGPoint(x: 37.3, y: 29.51))
+			s.addLine(to: CGPoint(x: 48, y: 24))
+			s.addLine(to: CGPoint(x: 37.3, y: 18.49))
+			s.addLine(to: CGPoint(x: 40.97, y: 7.03))
+			s.addLine(to: CGPoint(x: 29.51, y: 10.7))
+			s.addLine(to: CGPoint(x: 24, y: 0))
+			s.addLine(to: CGPoint(x: 18.49, y: 10.7))
+			s.addLine(to: CGPoint(x: 7.03, y: 7.03))
+			s.addLine(to: CGPoint(x: 10.7, y: 18.49))
+			s.addLine(to: CGPoint(x: 0, y: 24))
+			s.addLine(to: CGPoint(x: 10.7, y: 29.51))
+			s.addLine(to: CGPoint(x: 7.03, y: 40.97))
+			s.addLine(to: CGPoint(x: 18.49, y: 37.3))
+			s.closeSubpath()
+			return s
+		}()
+
+		do {
+			markdown.raw("| original | transparent | red | green |\n")
+			markdown.raw("|----|----|----|----|\n")
+			markdown.raw("|")
+
+			let orig = bitmapResource(name: "16-squares", extension: "png")
+			let bg = try Bitmap.Checkerboard(
+				width: orig.width,
+				height: orig.height,
+				checkSize: 4,
+				color0: CGColor(gray: 0, alpha: 0.05),
+				color1: CGColor(gray: 0, alpha: 0.15)
+			)
+
+			let pth = CGPath(ellipseIn: orig.bounds.insetBy(dx: 8, dy: 8), transform: nil)
+			try markdown.image(bg.drawingBitmap(orig).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			let erase1 = try orig.erasing(pth)
+			try markdown.image(bg.drawingBitmap(erase1).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			let erase2 = try orig.erasing(pth, backgroundColor: .red)
+			try markdown.image(bg.drawingBitmap(erase2).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			let erase7 = try orig.erasing(pth, backgroundColor: .green)
+			try markdown.image(bg.drawingBitmap(erase7).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			markdown.raw("\n")
+
+			markdown.raw("|    |")
+			let erase3 = try orig.erasing(starPath)
+			try markdown.image(bg.drawingBitmap(erase3).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			let erase4 = try orig.erasing(starPath, backgroundColor: .red)
+			try markdown.image(bg.drawingBitmap(erase4).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			let erase6 = try orig.erasing(starPath, backgroundColor: .green)
+			try markdown.image(bg.drawingBitmap(erase6).scaling(multiplier: 5), linked: true)
+
+			markdown.raw("|")
+			markdown.br()
+		}
+	}
+
+#if canImport(CoreImage)
+	func testDiagonalLines() throws {
+
+		markdown.h2("Diagonal lines generator")
+
+		do {
+			let linew: [CGFloat] = [4, 8, 12]
+			let st = stride(from: 0, to: CGFloat.pi, by: CGFloat.pi / 8)
+			markdown.raw("|")
+
+			let f = NumberFormatter()
+			f.maximumFractionDigits = 3
+			st.forEach { angle in
+				markdown.raw("  \(f.string(for: angle)!)  |")
+			}
+			markdown.raw("\n|")
+			st.forEach { _ in markdown.raw("----|") }
+			markdown.raw("\n")
+			try linew.forEach { lineWidth in
+				markdown.raw("|")
+				try st.forEach { angle in
+					let bss = try Bitmap.DiagonalLines(width: 100, height: 100, lineWidth: lineWidth, angle: .radians(angle))
+					try markdown.image(bss, linked: true)
+					markdown.raw("|")
+				}
+				markdown.raw("\n")
+			}
+			markdown.br()
+
+			do {
+				markdown.raw("|    |    |    |\n")
+				markdown.raw("|----|----|----|\n")
+				markdown.raw("|")
+				let bss1 = try Bitmap.DiagonalLines(
+					width: 100,
+					height: 100,
+					lineWidth: 10,
+					color0: CGColor.red,
+					color1: CGColor.blue
+				)
+				try markdown.image(bss1, linked: true)
+				markdown.raw("|")
+				let bss2 = try Bitmap.DiagonalLines(
+					width: 100,
+					height: 100,
+					lineWidth: 4,
+					angle: .radians(0.1),
+					color0: CGColor(srgbRed: 0, green: 1, blue: 0, alpha: 0.1),
+					color1: CGColor.clear
+				)
+				try markdown.image(bss2, linked: true)
+				markdown.raw("|")
+				let bss3 = try Bitmap.DiagonalLines(
+					width: 100,
+					height: 100,
+					lineWidth: 20,
+					angle: .radians(CGFloat.pi / 4),
+					color0: CGColor(red: 1.000, green: 0.838, blue: 0.034, alpha: 1.0),
+					color1: CGColor(red: 1.000, green: 0.763, blue: 0.000, alpha: 1.0)
+				)
+				try markdown.image(bss3, linked: true)
+			}
+
+			markdown.br()
+		}
 	}
 	#endif
 }

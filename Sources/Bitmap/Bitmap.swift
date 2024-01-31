@@ -250,11 +250,6 @@ public extension Bitmap {
 	@inlinable func copy() throws -> Bitmap {
 		try Bitmap(self.bitmapData)
 	}
-
-	/// Erase the bitmap (set the image content to all transparent)
-	func eraseAll() {
-		self.bitmapData.eraseAll()
-	}
 }
 
 // MARK: - Retrieving the image
