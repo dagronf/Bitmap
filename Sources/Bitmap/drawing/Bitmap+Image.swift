@@ -52,7 +52,7 @@ public extension Bitmap {
 	///   - image: The image to draw
 	///   - point: The point at which to draw the image
 	/// - Returns: A new bitmap
-	@inlinable func drawingBitmap(_ bitmap: Bitmap, atPoint point: CGPoint) throws -> Bitmap {
+	@inlinable func drawingBitmap(_ bitmap: Bitmap, atPoint point: CGPoint = .zero) throws -> Bitmap {
 		let newBitmap = try self.copy()
 		try newBitmap.drawBitmap(bitmap, atPoint: point)
 		return newBitmap
@@ -62,7 +62,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - image: The image to draw
 	///   - point: The point at which to draw the image
-	@inlinable func drawBitmap(_ bitmap: Bitmap, atPoint point: CGPoint) throws {
+	@inlinable func drawBitmap(_ bitmap: Bitmap, atPoint point: CGPoint = .zero) throws {
 		guard let overlayImage = bitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
 		self.drawImage(overlayImage, atPoint: point)
 	}

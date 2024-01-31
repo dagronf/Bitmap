@@ -1017,8 +1017,15 @@ final class BitmapTests: XCTestCase {
 
 	func testScrolling() throws {
 
-		markdown.h2("Image scrolling")
+		let logoImg = bitmapResource(name: "apple-logo-dark", extension: "png")
+		let logoBg = try Bitmap.Checkerboard(
+			width: logoImg.width,
+			height: logoImg.height,
+			color0: CGColor(gray: 0, alpha: 0.05),
+			color1: CGColor(gray: 0, alpha: 0.15)
+		)
 
+		markdown.h2("Image scrolling")
 		markdown.h3("Vertical")
 
 		do {
@@ -1069,108 +1076,258 @@ final class BitmapTests: XCTestCase {
 			markdown.br()
 		}
 
+		let stamp = bitmapResource(name: "16-squares", extension: "png")
+		let bg = try Bitmap.Checkerboard(
+			width: stamp.width,
+			height: stamp.height,
+			checkSize: 4,
+			color0: CGColor(gray: 0, alpha: 0.05),
+			color1: CGColor(gray: 0, alpha: 0.15)
+		)
+
 		do {
-			markdown.raw("| original | 6 rows down | 6 rows up | 12 rows down | 24 rows up |\n")
-			markdown.raw("|----|----|----|----|----|----|\n")
-			markdown.raw("|")
-
 			let orig = bitmapResource(name: "16-squares", extension: "png")
-			try markdown.image(try orig.scaling(multiplier: 32), linked: true)
+			let step = orig.height / 8
 
-			markdown.raw("|")
+			let stepper = stride(from: 0, to: orig.height, by: step)
+			let directions: [Bitmap.ScrollDirection] = [.down, .up, .right, .left]
 
-			let scrollRight6 = try orig.scrolling(direction: .down, count: 6)
-			try markdown.image(try scrollRight6.scaling(multiplier: 32), linked: true)
+			try directions.forEach { dir in
+				markdown.h3("\(dir)").br()
+				markdown.raw("|    |")
+				stepper.forEach { o in markdown.raw("  \(Int(o))  |") }
+				markdown.raw("\n|----|")
+				stepper.forEach { _ in markdown.raw("----|") }
+				markdown.raw("\n|")
 
-			markdown.raw("|")
-
-			let scrollLeft6 = try orig.scrolling(direction: .up, count: 6)
-			try markdown.image(try scrollLeft6.scaling(multiplier: 32), linked: true)
-
-			markdown.raw("|")
-
-			let scrollLeft = try orig.scrolling(direction: .down, count: 12)
-			try markdown.image(try scrollLeft.scaling(multiplier: 32), linked: true)
-
-			markdown.raw("|")
-
-			let scrollRight = try orig.scrolling(direction: .up, count: 24)
-			try markdown.image(try scrollRight.scaling(multiplier: 32), linked: true)
-
+				try [true, false].forEach { wraps in
+					markdown.raw(" \(wraps ? "wrap" : "nowrap") |")
+					try stepper.forEach { offset in
+						let scrolled = try bg.drawingBitmap(orig.scrolling(direction: dir, count: offset, wrapsContent: wraps))
+						try markdown.image(scrolled.scaling(multiplier: 2), linked: true)
+						markdown.raw("|")
+					}
+					markdown.raw("\n")
+				}
+			}
 			markdown.br()
 		}
 
 		do {
-			markdown.raw("| original | downwards | upwards |\n")
-			markdown.raw("|----|----|----|\n")
-			markdown.raw("|")
+			markdown.raw("|    | original | 6 rows down | 6 rows up | 12 rows down | 24 rows up |\n")
+			markdown.raw("|----|----|----|----|----|----|----|\n")
+			do {
+				markdown.raw("| wraps |")
 
-			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
-			try markdown.image(orig, linked: true)
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				try markdown.image(try orig.scaling(multiplier: 8), linked: true)
 
-			markdown.raw("|")
+				markdown.raw("|")
 
-			let scrolledDown = try orig.scrolling(direction: .down, count: orig.height / 6)
-			try markdown.image(scrolledDown, linked: true)
-			markdown.raw("|")
+				let scrollRight6 = try orig.scrolling(direction: .down, count: 6)
+				try markdown.image(try scrollRight6.scaling(multiplier: 8), linked: true)
 
-			let scrolledUp = try orig.scrolling(direction: .up, count: orig.height / 6)
-			try markdown.image(scrolledUp, linked: true)
-			markdown.raw("|")
+				markdown.raw("|")
+
+				let scrollLeft6 = try orig.scrolling(direction: .up, count: 6)
+				try markdown.image(try scrollLeft6.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollLeft = try orig.scrolling(direction: .down, count: 12)
+				try markdown.image(try scrollLeft.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollRight = try orig.scrolling(direction: .up, count: 24)
+				try markdown.image(try scrollRight.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+			}
+			markdown.raw("\n")
+			markdown.raw("| no-wrap |")
+			do {
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				try markdown.image(try orig.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollRight6 = try orig.scrolling(direction: .down, count: 6, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollRight6).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollLeft6 = try orig.scrolling(direction: .up, count: 6, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollLeft6).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollLeft = try orig.scrolling(direction: .down, count: 12, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollLeft).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollRight = try orig.scrolling(direction: .up, count: 24, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollRight).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+			}
+			markdown.br()
+		}
+
+		do {
+			markdown.raw("|    | original | downwards | upwards |\n")
+			markdown.raw("|----|----|----|----|\n")
+			markdown.raw("| wraps |")
+
+			do {
+				try markdown.image(logoBg.drawingBitmap(logoImg), linked: true)
+
+				markdown.raw("|")
+
+				let scrolledDown = try logoImg.scrolling(direction: .down, count: logoImg.height / 6)
+				try markdown.image(logoBg.drawingBitmap(scrolledDown), linked: true)
+				markdown.raw("|")
+
+				let scrolledUp = try logoImg.scrolling(direction: .up, count: logoImg.height / 6)
+				try markdown.image(logoBg.drawingBitmap(scrolledUp), linked: true)
+				markdown.raw("|")
+			}
+			markdown.raw("\n")
+			markdown.raw("| no-wrap |")
+			do {
+
+				try markdown.image(logoBg.drawingBitmap(logoImg), linked: true)
+
+				markdown.raw("|")
+
+				let scrolledDown = try logoImg.scrolling(direction: .down, count: logoImg.height / 6, wrapsContent: false)
+				try markdown.image(logoBg.drawingBitmap(scrolledDown), linked: true)
+				markdown.raw("|")
+
+				let scrolledUp = try logoImg.scrolling(direction: .up, count: logoImg.height / 6, wrapsContent: false)
+				try markdown.image(logoBg.drawingBitmap(scrolledUp), linked: true)
+				markdown.raw("|")
+			}
+
 			markdown.br()
 		}
 
 		markdown.h3("Horizontal")
 
 		do {
-			markdown.raw("| original | 6 cols right | 6 cols left | 12 cols right | 24 cols left |\n")
-			markdown.raw("|----|----|----|----|----|----|\n")
-			markdown.raw("|")
+			markdown.raw("|    | original | 6 cols right | 6 cols left | 12 cols right | 24 cols left |\n")
+			markdown.raw("|----|----|----|----|----|----|----|\n")
 
-			let orig = bitmapResource(name: "16-squares", extension: "png")
-			try markdown.image(try orig.scaling(multiplier: 32), linked: true)
+			do {
+				markdown.raw("| wrap |")
 
-			markdown.raw("|")
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				try markdown.image(try orig.scaling(multiplier: 8), linked: true)
 
-			let scrollRight6 = try orig.scrolling(direction: .right, count: 6)
-			try markdown.image(try scrollRight6.scaling(multiplier: 32), linked: true)
+				markdown.raw("|")
 
-			markdown.raw("|")
+				let scrollRight6 = try orig.scrolling(direction: .right, count: 6)
+				try markdown.image(try scrollRight6.scaling(multiplier: 8), linked: true)
 
-			let scrollLeft6 = try orig.scrolling(direction: .left, count: 6)
-			try markdown.image(try scrollLeft6.scaling(multiplier: 32), linked: true)
+				markdown.raw("|")
 
-			markdown.raw("|")
+				let scrollLeft6 = try orig.scrolling(direction: .left, count: 6)
+				try markdown.image(try scrollLeft6.scaling(multiplier: 8), linked: true)
 
-			let scrollLeft = try orig.scrolling(direction: .right, count: 12)
-			try markdown.image(try scrollLeft.scaling(multiplier: 32), linked: true)
+				markdown.raw("|")
 
-			markdown.raw("|")
+				let scrollLeft = try orig.scrolling(direction: .right, count: 12)
+				try markdown.image(try scrollLeft.scaling(multiplier: 8), linked: true)
 
-			let scrollRight = try orig.scrolling(direction: .left, count: 24)
-			try markdown.image(try scrollRight.scaling(multiplier: 32), linked: true)
+				markdown.raw("|")
 
-			markdown.raw("|")
+				let scrollRight = try orig.scrolling(direction: .left, count: 24)
+				try markdown.image(try scrollRight.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+			}
+		
+			markdown.raw("\n")
+
+			do {
+				markdown.raw("| no-wrap |")
+
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				try markdown.image(try orig.scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollRight6 = try orig.scrolling(direction: .right, count: 6, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollRight6).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollLeft6 = try orig.scrolling(direction: .left, count: 6, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollLeft6).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollLeft = try orig.scrolling(direction: .right, count: 12, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollLeft).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+
+				let scrollRight = try orig.scrolling(direction: .left, count: 24, wrapsContent: false)
+				try markdown.image(try bg.drawingBitmap(scrollRight).scaling(multiplier: 8), linked: true)
+
+				markdown.raw("|")
+			}
 			markdown.br()
 		}
 
 		do {
-			markdown.raw("| original | right | left |\n")
-			markdown.raw("|----|----|----|\n")
-			markdown.raw("|")
+			markdown.raw("|  | original | right | left |\n")
+			markdown.raw("|----|----|----|----|\n")
 
-			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
-			try markdown.image(orig, linked: true)
+			do {
+				markdown.raw("| wraps |")
 
-			markdown.raw("|")
+				try markdown.image(logoBg.drawingBitmap(logoImg), linked: true)
 
-			let scrolledDown = try orig.scrolling(direction: .right, count: orig.width / 6)
-			try markdown.image(scrolledDown, linked: true)
-			markdown.raw("|")
+				markdown.raw("|")
 
-			let scrolledUp = try orig.scrolling(direction: .left, count: orig.width / 6)
-			try markdown.image(scrolledUp, linked: true)
-			markdown.raw("|")
+				let scrolledDown = try logoImg.scrolling(direction: .right, count: logoImg.width / 6)
+				try markdown.image(logoBg.drawingBitmap(scrolledDown), linked: true)
+				markdown.raw("|")
+
+				let scrolledUp = try logoImg.scrolling(direction: .left, count: logoImg.width / 6)
+				try markdown.image(logoBg.drawingBitmap(scrolledUp), linked: true)
+				markdown.raw("|")
+			}
+
+			markdown.raw("\n")
+
+			do {
+				markdown.raw("| no wrap |")
+
+				let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
+				let bg = try Bitmap.Checkerboard(
+					width: orig.width,
+					height: orig.height,
+					color0: CGColor(gray: 0, alpha: 0.05),
+					color1: CGColor(gray: 0, alpha: 0.15)
+				)
+				
+				try markdown.image(bg.drawingBitmap(orig), linked: true)
+
+				markdown.raw("|")
+
+				let scrolledRight = try orig.scrolling(direction: .right, count: orig.width / 6, wrapsContent: false)
+				try markdown.image(bg.drawingBitmap(scrolledRight), linked: true)
+				markdown.raw("|")
+
+				let scrolledLeft = try orig.scrolling(direction: .left, count: orig.width / 6, wrapsContent: false)
+				try markdown.image(bg.drawingBitmap(scrolledLeft), linked: true)
+				markdown.raw("|")
+			}
+
+
 			markdown.br()
 		}
 

@@ -38,21 +38,23 @@ public extension Bitmap {
 	}
 
 	/// Scroll the bitmap, wrapping the content around the boundary
-	/// - Parameter direction: The direction of scrolling to apply
-	/// - Parameter count: The number of rows to scroll
-	func scroll(direction: ScrollDirection, count: Int = 1) {
+	/// - Parameters:
+	///   - direction: The direction of scrolling to apply
+	///   - count: The number of pixels to scroll
+	///   - wrapsContent: Should the content wrap when scrolled?
+	func scroll(direction: ScrollDirection, count: Int = 1, wrapsContent: Bool = true) {
 		// If the row count to scroll is zero, return early
 		if count == 0 { return }
 
 		switch direction {
 		case .down:
-			self.scrollVertically(isScrollingDown: true, count: count)
+			self.scrollVertically(isScrollingDown: true, count: count, wrapsContent: wrapsContent)
 		case .up:
-			self.scrollVertically(isScrollingDown: false, count: count)
+			self.scrollVertically(isScrollingDown: false, count: count, wrapsContent: wrapsContent)
 		case .left:
-			self.scrollHorizonally(isScrollingRight: false, count: count)
+			self.scrollHorizonally(isScrollingRight: false, count: count, wrapsContent: wrapsContent)
 		case .right:
-			self.scrollHorizonally(isScrollingRight: true, count: count)
+			self.scrollHorizonally(isScrollingRight: true, count: count, wrapsContent: wrapsContent)
 		}
 	}
 
@@ -60,10 +62,11 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - direction: The direction of scrolling to apply
 	///   - count: The number of rows or columns to scroll by
+	///   - wrapsContent: Should the content wrap when scrolled?
 	/// - Returns: A new image with the original image scrolled
-	func scrolling(direction: ScrollDirection, count: Int = 1) throws -> Bitmap {
+	func scrolling(direction: ScrollDirection, count: Int = 1, wrapsContent: Bool = true) throws -> Bitmap {
 		let copy = try self.copy()
-		copy.scroll(direction: direction, count: count)
+		copy.scroll(direction: direction, count: count, wrapsContent: wrapsContent)
 		return copy
 	}
 }
@@ -94,7 +97,7 @@ public extension Bitmap {
 }
 
 private extension Bitmap {
-	func scrollVertically(isScrollingDown: Bool, count: Int) {
+	func scrollVertically(isScrollingDown: Bool, count: Int, wrapsContent: Bool) {
 		assert(count >= 1)
 		assert(count < self.height)
 
@@ -107,30 +110,34 @@ private extension Bitmap {
 			splitPosition = splitSize
 		}
 
-		let topSlice = Array(self.rgbaBytes[..<splitPosition])
-		let bottomSlice = Array(self.rgbaBytes[splitPosition...])
+		let topSlice = (!wrapsContent && !isScrollingDown) ? Array(repeating: 0, count: splitPosition) : Array(self.rgbaBytes[..<splitPosition])
+		let bottomSlice = (!wrapsContent && isScrollingDown) ? Array(repeating: 0, count: self.rgbaBytes.count - splitPosition) : Array(self.rgbaBytes[splitPosition...])
+
 		let all: [UInt8] = bottomSlice + topSlice
 
 		self.bitmapData.setBytes(all)
 	}
 
-	func scrollHorizonally(isScrollingRight: Bool, count: Int = 1) {
+	func scrollHorizonally(isScrollingRight: Bool, count: Int, wrapsContent: Bool) {
 		var result: [UInt8] = []
 		let pixelWidth = 4
 		let rowWidth = width * pixelWidth
+		let zeroed: [UInt8] = Array(repeating: 0, count: rowWidth)
+		let zeroedSlice = zeroed[0 ..< rowWidth]
 		for y in stride(from: 0, to: height * rowWidth, by: rowWidth) {
 			let rowSlice = bitmapData.rgbaBytes[y ..< y + rowWidth]
 
 			let left: ArraySlice<UInt8>
 			let right: ArraySlice<UInt8>
 			if isScrollingRight {
-				left = rowSlice[rowSlice.startIndex ..< rowSlice.endIndex - (count * 4)]
-				right = rowSlice[rowSlice.endIndex - (count * 4) ..< rowSlice.endIndex]
+				left =  rowSlice[rowSlice.startIndex ..< rowSlice.endIndex - (count * 4)]
+				right = !wrapsContent ? zeroedSlice[0 ..< (count * 4)] : rowSlice[rowSlice.endIndex - (count * 4) ..< rowSlice.endIndex]
 			}
 			else { // direction == .left
-				left = rowSlice[rowSlice.startIndex ..< rowSlice.startIndex + (count * 4)]
+				left = !wrapsContent ? zeroedSlice[0 ..< (count * 4)] : rowSlice[rowSlice.startIndex ..< rowSlice.startIndex + (count * 4)]
 				right = rowSlice[rowSlice.startIndex + (count * 4) ..< rowSlice.endIndex]
 			}
+
 			result.append(contentsOf: right)
 			result.append(contentsOf: left)
 		}
