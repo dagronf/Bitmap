@@ -23,30 +23,33 @@ import CoreGraphics
 public extension Bitmap {
 	/// Rotate this bitmap clockwise around its center
 	/// - Parameters:
-	///   - radians: The rotation angle in radians
-	@inlinable func rotate(by radians: CGFloat) throws {
-		let update = try self.rotating(by: radians)
+	///   - angle: The rotation angle
+	@inlinable func rotate(by angle: Angle<Double>) throws {
+		let update = try self.rotating(by: angle)
 		try self.assign(update.bitmapData)
 	}
 
 	/// Create a new bitmap by rotating this bitmap clockwise round its center
 	/// - Parameters:
-	///   - radians: The rotation angle in radians
+	///   - angle: The rotation angle
 	/// - Returns: The rotated bitmap
-	func rotating(by radians: CGFloat) throws -> Bitmap {
+	func rotating(by angle: Angle<Double>) throws -> Bitmap {
 		guard let cgImage = self.cgImage else {
 			throw BitmapError.cannotCreateCGImage
 		}
 
+		// We only ever want to deal with radian values
+		let rotationAngle = angle.radians
+
 		let origWidth = CGFloat(width)
 		let origHeight = CGFloat(height)
 		let origRect = CGRect(origin: .zero, size: CGSize(width: origWidth, height: origHeight))
-		let rotatedRect = origRect.applying(CGAffineTransform(rotationAngle: radians))
+		let rotatedRect = origRect.applying(CGAffineTransform(rotationAngle: rotationAngle))
 
 		let n = try Bitmap(width: Int(rotatedRect.width), height: Int(rotatedRect.height))
 		n.draw { ctx in
 			ctx.translateBy(x: rotatedRect.size.width * 0.5, y: rotatedRect.size.height * 0.5)
-			ctx.rotate(by: -radians)
+			ctx.rotate(by: -rotationAngle)
 			ctx.draw(
 				cgImage,
 				in: CGRect(

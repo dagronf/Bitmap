@@ -20,6 +20,8 @@
 import Foundation
 
 /// An angle
+///
+/// An angle value represents either a radians or a degrees angle, with functions to easily convert between the two
 public enum Angle<T: BinaryFloatingPoint> {
 	/// Radians angle value
 	case radians(T)
@@ -42,42 +44,46 @@ public enum Angle<T: BinaryFloatingPoint> {
 		}
 	}
 
-	/// Add two angle values
-	@inlinable public static func +(_ left: Angle, _ right: Angle) -> Angle {
-		.radians(left.radians + right.radians)
-	}
+	/// Return a guaranteed radians angle representation
+	@inlinable public var asRadians: Angle { .radians(self.radians) }
+	/// Return a guaranteed degrees angle representation
+	@inlinable public var asDegrees: Angle { .degrees(self.degrees) }
 
+	/// Add two angle values
+	@inlinable public static func +(_ left: Angle, _ right: Angle) -> Angle { .radians(left.radians + right.radians) }
 	/// Subtract two angle values
-	@inlinable public static func -(_ left: Angle, _ right: Angle) -> Angle {
-		.radians(left.radians + right.radians)
-	}
+	@inlinable public static func -(_ left: Angle, _ right: Angle) -> Angle { .radians(left.radians + right.radians) }
 }
 
-///// An angle
+
 //public struct Angle<T: BinaryFloatingPoint> {
+//	/// Radians angle value
 //	public let radians: T
-//	public let degrees: T
+//	/// Degrees angle value
+//	public var degrees: T { radians * 180.0 / T.pi }
 //
-//	@inlinable public static func radians(_ value: T) -> Angle<T> { Angle(radians: value) }
-//	@inlinable public static func degrees(_ value: T) -> Angle<T> { Angle(degrees: value) }
+//	/// Create a radians value
+//	@inlinable public static func radians(_ value: T) -> Angle { Angle(radians: value) }
+//	/// Create a double value
+//	@inlinable public static func degrees(_ value: T) -> Angle { Angle(degrees: value) }
 //
 //	/// Create an angle from a radians value
-//	public init(radians: T) {
+//	@inlinable public init(radians: T) {
 //		self.radians = radians
-//		self.degrees = radians * 180.0 / T.pi
 //	}
 //
 //	/// Create an angle from a degrees value
-//	public init(degrees: T) {
-//		self.degrees = degrees
+//	@inlinable public init(degrees: T) {
 //		self.radians = degrees * T.pi / 180.0
 //	}
 //
+//	/// Add two angle values
 //	@inlinable public static func +(_ left: Angle, _ right: Angle) -> Angle {
-//		Angle(radians: left.radians + right.radians)
+//		.radians(left.radians + right.radians)
 //	}
 //
+//	/// Subtract two angle values
 //	@inlinable public static func -(_ left: Angle, _ right: Angle) -> Angle {
-//		Angle(radians: left.radians + right.radians)
+//		.radians(left.radians + right.radians)
 //	}
 //}

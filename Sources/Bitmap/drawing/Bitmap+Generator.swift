@@ -70,7 +70,7 @@ public extension Bitmap {
 	///   - width: The width for the resulting bitmap
 	///   - height: The height for the resulting bitmap
 	///   - lineWidth: The line width for the dialog lines
-	///   - radiansAngle: The line angle
+	///   - angle: The line angle
 	///   - color0: color 0
 	///   - color1: color 1
 	/// - Returns: A bitmap containing diagonal lines
