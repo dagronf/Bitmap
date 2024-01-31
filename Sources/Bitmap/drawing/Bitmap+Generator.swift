@@ -107,4 +107,43 @@ public extension Bitmap {
 	}
 }
 
+#else
+
+import Foundation
+import CoreGraphics
+
+public extension Bitmap {
+	/// Create a bitmap containing a checkerboard pattern
+	/// - Parameters:
+	///   - width: The bitmap width
+	///   - height: The bitmap height
+	///   - checkSize: The size of the check
+	///   - color0: odd color
+	///   - color1: even color
+	/// - Returns: A bitmap containing a checkerboard pattern
+	static func Checkerboard(
+		width: Int,
+		height: Int,
+		checkSize: CGFloat = 20,
+		color0: CGColor = .black,
+		color1: CGColor = .white
+	) throws -> Bitmap {
+		let bitmap = try Bitmap(width: width, height: height)
+
+		var isEvenRow = true
+		for y in stride(from: CGFloat(0), through: CGFloat(height), by: checkSize) {
+			var isEven = isEvenRow
+			for x in stride(from: CGFloat(0), through: CGFloat(width), by: checkSize) {
+				let r = CGRect(x: x, y: y, width: checkSize, height: checkSize)
+				bitmap.fill(CGPath(rect: r, transform: nil), isEven ? color0 : color1)
+				isEven.toggle()
+			}
+			isEvenRow.toggle()
+		}
+
+		return bitmap
+	}
+}
+
+
 #endif
