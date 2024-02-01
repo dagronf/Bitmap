@@ -381,7 +381,7 @@ extension Bitmap {
 	/// Assign the contents of another bitmap to this bitmap object
 	/// - Parameter bitmap: The bitmap to copy
 	public func assign(_ bitmap: Bitmap) throws {
-		if bitmap.width == self.width, bitmap.height == self.height {
+		if bitmap.size == self.size {
 			// If the dimensions are the same, just reuse our existing context
 			self.bitmapData.setBytes(bitmap.rgbaBytes)
 		}
