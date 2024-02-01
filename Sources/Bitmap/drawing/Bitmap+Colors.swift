@@ -271,13 +271,8 @@ public extension Bitmap {
 	///   - rect: The rect within the bitmap to tint
 	///   - intensity: The color intensity (0.0 -> 1.0)
 	func tint(with color: CGColor, in rect: CGRect, intensity: CGFloat = 1.0) throws {
-		// Cropping occurs from the start of the image data - ie. the top left
-		// Our coordinate system is from bottom left.
-		var converted = rect
-		converted.origin.y = CGFloat(self.height) - rect.minY - rect.height
-
 		// Crop out the part to be tinted
-		let component = try self.cropping(to: converted)
+		let component = try self.cropping(to: rect)
 
 		// Tint this component
 		let tinted = try component.tinting(with: color, intensity: intensity)

@@ -304,7 +304,7 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testTintRect() throws {
-		markdown.h2("Tinting a rectange within a bitmap")
+		markdown.h2("Tinting a rectangle within a bitmap")
 
 		markdown.raw("| original | tint1 | tint2 |\n")
 		markdown.raw("|-----|-----|-----|\n")
