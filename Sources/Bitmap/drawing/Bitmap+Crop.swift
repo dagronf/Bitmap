@@ -17,39 +17,22 @@
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 // MARK: - Crop
 
 public extension Bitmap {
-	/// Crop this bitmap to the given rect
-	/// - Parameter path: The rect to crop
-	///
-	/// The coordinate system (0, 0) is at the bitmap lower left
-	@inlinable func crop(to rect: CGRect) throws {
-		try self.assign(try cropping(to: rect))
-	}
-
 	/// Create a new bitmap by cropping this bitmap to a rect
 	/// - Parameter path: The rect to crop
 	/// - Returns: A new bitmap
 	///
 	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func cropping(to rect: CGRect) throws -> Bitmap {
-		// CGRect cropping has zero coordinate at the top left
+		// CGImage cropping has zero coordinate at the top left. We need to flip first
 		let flipped = rect.flippingY(within: self.bounds)
-		//let flipped = CGRect(x: rect.minX, y: CGFloat(self.height) - rect.height - rect.minY, width: rect.width, height: rect.height)
 		guard let image = self.cgImage?.cropping(to: flipped) else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(image)
-	}
-
-	/// Crop the image to a path
-	/// - Parameter path: The path to crop
-	///
-	/// The coordinate system (0, 0) is at the bitmap lower left
-	@inlinable func crop(to path: CGPath) throws {
-		try self.assign(try self.cropping(to: path))
 	}
 
 	/// Create a new bitmap by cropping this bitmap to the given path
@@ -71,7 +54,7 @@ public extension Bitmap {
 		// Move the path to the origin
 		let newPath = CGMutablePath()
 		newPath.addPath(path, transform: CGAffineTransform(translationX: -path.boundingBoxOfPath.origin.x,
-																			y: -path.boundingBoxOfPath.origin.y))
+		                                                   y: -path.boundingBoxOfPath.origin.y))
 
 		// Okay. Now mask the path and re-draw the original image
 		newBitmap.draw { ctx in
@@ -81,5 +64,23 @@ public extension Bitmap {
 		}
 
 		return newBitmap
+	}
+}
+
+public extension Bitmap {
+	/// Crop this bitmap to the given rect
+	/// - Parameter path: The rect to crop
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
+	@inlinable func crop(to rect: CGRect) throws {
+		try self.assign(self.cropping(to: rect))
+	}
+
+	/// Crop the image to a path
+	/// - Parameter path: The path to crop
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
+	@inlinable func crop(to path: CGPath) throws {
+		try self.assign(self.cropping(to: path))
 	}
 }
