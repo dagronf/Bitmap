@@ -33,6 +33,17 @@ func bitmapResource(name: String, extension extn: String) -> Bitmap {
 	return try! Bitmap(image)
 }
 
+func checked(_ size: CGSize) throws -> Bitmap { try checked(Int(size.width), Int(size.height)) }
+func checked(_ width: Int, _ height: Int) throws -> Bitmap {
+	try Bitmap.Checkerboard(
+		width: width,
+		height: height,
+		checkSize: 4,
+		color0: CGColor(gray: 0, alpha: 0.05),
+		color1: CGColor(gray: 0, alpha: 0.15)
+	)
+}
+
 final class BitmapTests: XCTestCase {
 	override class func setUp() {
 		super.setUp()
@@ -1392,6 +1403,68 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(cg.height, bitmap.height)
 	}
 	#endif
+
+	func testExtract() throws {
+
+		markdown.h2("Extracting Content")
+
+		markdown.raw("| original | extracted | extracted and clipped<br/>to path bounds |\n")
+		markdown.raw("|----|----|----|\n")
+		markdown.raw("|")
+
+		do {
+			let orig = bitmapResource(name: "16-squares", extension: "png")
+			try markdown.image(orig.scaling(multiplier: 2), linked: true)
+
+			markdown.raw("|")
+
+			do {
+				let extracted = try orig.extracting(CGRect(x: 12, y: 12, width: 24, height: 24))
+				XCTAssertEqual(extracted.size, orig.size)
+				try markdown.image(try checked(orig.width, orig.height).drawingBitmap(extracted).scaling(multiplier: 2), linked: true)
+			}
+
+			markdown.raw("|")
+
+			do {
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				let extracted = try orig.extracting(CGRect(x: 12, y: 12, width: 24, height: 24), clipToPath: true)
+				XCTAssertEqual(extracted.size, CGSize(width: 24, height: 24))
+				try markdown.image(try checked(24, 24).drawingBitmap(extracted).scaling(multiplier: 2), linked: true)
+			}
+			markdown.raw("|\n")
+		}
+
+		do {
+			let p2 = CGRect(x: 6, y: 6, width: 30, height: 30)
+			let pth = CGPath(roundedRect: p2, cornerWidth: 8, cornerHeight: 8, transform: nil)
+
+			markdown.raw("|")
+			do {
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				try markdown.image(orig.scaling(multiplier: 2), linked: true)
+			}
+			markdown.raw("|")
+			do {
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				let extracted = try orig.extracting(pth, clipToPath: false)
+				XCTAssertEqual(extracted.size, orig.size)
+				try markdown.image(try checked(orig.size).drawingBitmap(extracted).scaling(multiplier: 2), linked: true)
+			}
+
+			markdown.raw("|")
+
+			do {
+				let orig = bitmapResource(name: "16-squares", extension: "png")
+				let extracted = try orig.extracting(pth, clipToPath: true)
+				XCTAssertEqual(extracted.size, p2.size)
+				try markdown.image(try checked(p2.size).drawingBitmap(extracted).scaling(multiplier: 2), linked: true)
+			}
+
+			markdown.raw("|")
+		}
+		markdown.br()
+	}
 
 	func testErase() throws {
 
