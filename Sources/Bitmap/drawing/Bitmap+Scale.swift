@@ -112,10 +112,10 @@ public extension Bitmap {
 	/// Scale this image by a multiplier value without interpolation (so the resulting image is pixelly)
 	/// - Parameter multiplier: The multiplier value
 	/// - Returns: A new bitmap
-	func scaling(multiplier: Int) throws -> Bitmap {
+	func scaling(multiplier: CGFloat) throws -> Bitmap {
 		assert(multiplier > 0)
 		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		let targetSize = CGSize(width: width * multiplier, height: height * multiplier)
+		let targetSize = CGSize(width: CGFloat(width) * multiplier, height: CGFloat(height) * multiplier)
 		return try Bitmap(size: targetSize) { ctx in
 			ctx.savingGState { context in
 				context.interpolationQuality = .none
