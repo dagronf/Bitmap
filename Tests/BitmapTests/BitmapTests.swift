@@ -665,9 +665,8 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 
 		let orig = bitmapResource(name: "food", extension: "jpg")
-		let origcg = try XCTUnwrap(orig.cgImage)
 
-		try markdown.image(origcg, linked: true)
+		try markdown.image(orig, linked: true)
 
 		markdown.raw("|")
 
@@ -685,21 +684,86 @@ final class BitmapTests: XCTestCase {
 
 		markdown.raw("|")
 
-		let copy = try orig.copy()
-		let tinted = try cropped.tinting(with: CGColor(red: 0, green: 0, blue: 1, alpha: 1))
+		do {
+			let copy = try orig.copy()
+			let tinted = try cropped.tinting(with: CGColor(red: 0, green: 0, blue: 1, alpha: 1))
+			try copy.drawBitmap(tinted, atPoint: bezierPath.boundingBoxOfPath.origin)
+			try markdown.image(copy, linked: true)
+		}
+
+		markdown.raw("|")
+
+		do {
+			let masked = try orig.copy()
+			try masked.mask(using: bezierPath)
+			try markdown.image(masked, linked: true)
+		}
+
+		markdown.raw("|")
+		markdown.br()
+	}
+
+	func testDrawBitmap() throws {
 		
-		try copy.drawBitmap(tinted, atPoint: bezierPath.boundingBoxOfPath.origin)
+		markdown.h2("Check bitmap draw coordinate zero")
 
-		try markdown.image(copy, linked: true)
+		let orig = bitmapResource(name: "16-squares", extension: "png")
+		let c1 = try orig.cropping(to: CGRect(x: 0, y: 0, width: 12, height: 12))
+
+		let made = try Bitmap(size: orig.size)
+
+		try made.drawBitmap(c1, atPoint: .zero)
+		try made.drawBitmap(c1, atPoint: CGPoint(x: 12, y: 12))
+		try made.drawBitmap(c1, atPoint: CGPoint(x: 24, y: 24))
+		try made.drawBitmap(c1, atPoint: CGPoint(x: 36, y: 36))
+
+		markdown.raw("| original (48x48) | Drawing |\n")
+		markdown.raw("|----|----|\n")
+		markdown.raw("|")
+		try markdown.image(orig.scaling(multiplier: 4), linked: true)
+		markdown.raw("|")
+		try markdown.image(made.scaling(multiplier: 4), linked: true)
+		markdown.raw("|")
+		markdown.br()
+	}
+
+	func testCropping2() throws {
+
+		markdown.h2("Crop checking")
+
+		let orig = bitmapResource(name: "16-squares", extension: "png")
+		
+		markdown.raw("| original (48x48) | (0,0->24,24) | (12,12->36,36) | (24,24->48,48) |\n")
+		markdown.raw("|----|----|----|----|\n")
+		markdown.raw("|")
+
+		try markdown.image(orig.scaling(multiplier: 4), linked: true)
 
 		markdown.raw("|")
 
-		let masked = try orig.copy()
-		try masked.mask(using: bezierPath)
-		try markdown.image(masked, linked: true)
+		do {
+			// Lower 2x2
+			let c1 = try orig.cropping(to: CGRect(x: 0, y: 0, width: 24, height: 24))
+			try markdown.image(c1.scaling(multiplier: 4), linked: true)
+		}
 
 		markdown.raw("|")
 
+		do {
+			// Middle 2x2
+			let c1 = try orig.cropping(to: CGRect(x: 12, y: 12, width: 24, height: 24))
+			try markdown.image(c1.scaling(multiplier: 4), linked: true)
+		}
+
+		markdown.raw("|")
+
+		do {
+			// top left 2x2
+			let c1 = try orig.cropping(to: CGRect(x: 24, y: 24, width: 24, height: 24))
+			try markdown.image(c1.scaling(multiplier: 4), linked: true)
+		}
+
+		markdown.raw("|")
 		markdown.br()
 	}
 

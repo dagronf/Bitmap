@@ -28,15 +28,13 @@ public extension Bitmap {
 	/// - Returns: A new bitmap containing the contents of the clip path
 	func extracting(_ path: CGPath, clipToPath: Bool = false) throws -> Bitmap {
 		guard let cgImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		var result = try Bitmap(size: self.size)
+		let result = try Bitmap(size: self.size)
 		result.clip(to: path) { ctx in
 			ctx.draw(cgImage, in: self.bounds)
 		}
 
 		if clipToPath {
-			let b = path.boundingBoxOfPath
-			result = try Bitmap(size: b.size)
-				.drawingBitmap(result, atPoint: CGPoint(x: -b.minX, y: -b.minY))
+			try result.crop(to: path.boundingBoxOfPath)
 		}
 
 		return result

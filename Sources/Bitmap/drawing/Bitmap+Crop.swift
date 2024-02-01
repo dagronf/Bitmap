@@ -25,6 +25,8 @@ import CoreGraphics
 public extension Bitmap {
 	/// Crop this bitmap to the given rect
 	/// - Parameter path: The rect to crop
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func crop(to rect: CGRect) throws {
 		try self.assign(try cropping(to: rect))
 	}
@@ -32,13 +34,20 @@ public extension Bitmap {
 	/// Create a new bitmap by cropping this bitmap to a rect
 	/// - Parameter path: The rect to crop
 	/// - Returns: A new bitmap
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func cropping(to rect: CGRect) throws -> Bitmap {
-		guard let image = self.cgImage?.cropping(to: rect) else { throw BitmapError.cannotCreateCGImage }
+		// CGRect cropping has zero coordinate at the top left
+		let flipped = rect.flippingY(within: self.bounds)
+		//let flipped = CGRect(x: rect.minX, y: CGFloat(self.height) - rect.height - rect.minY, width: rect.width, height: rect.height)
+		guard let image = self.cgImage?.cropping(to: flipped) else { throw BitmapError.cannotCreateCGImage }
 		return try Bitmap(image)
 	}
 
 	/// Crop the image to a path
 	/// - Parameter path: The path to crop
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func crop(to path: CGPath) throws {
 		try self.assign(try self.cropping(to: path))
 	}
@@ -46,10 +55,11 @@ public extension Bitmap {
 	/// Create a new bitmap by cropping this bitmap to the given path
 	/// - Parameter path: The path
 	/// - Returns: A new bitmap with the clipping path applied
+	///
+	/// The coordinate system (0, 0) is at the bitmap lower left
 	func cropping(to path: CGPath) throws -> Bitmap {
 		// Crop to the path bounds
-		let flipped = path.boundingBoxOfPath.flippingY(within: self.bounds)
-		let newBitmap = try self.cropping(to: flipped)
+		let newBitmap = try self.cropping(to: path.boundingBoxOfPath)
 		let newBounds = newBitmap.bounds
 
 		// Take a snapshot of the cropped image so we can mask out the path
