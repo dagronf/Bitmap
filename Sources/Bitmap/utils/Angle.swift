@@ -52,7 +52,7 @@ public enum Angle<T: BinaryFloatingPoint> {
 	/// Add two angle values
 	@inlinable public static func +(_ left: Angle, _ right: Angle) -> Angle { .radians(left.radians + right.radians) }
 	/// Subtract two angle values
-	@inlinable public static func -(_ left: Angle, _ right: Angle) -> Angle { .radians(left.radians + right.radians) }
+	@inlinable public static func -(_ left: Angle, _ right: Angle) -> Angle { .radians(left.radians - right.radians) }
 }
 
 
