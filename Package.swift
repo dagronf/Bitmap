@@ -11,12 +11,16 @@ let package = Package(
 			targets: ["Bitmap"]),
 	],
 	dependencies: [
-		.package(url: "https://github.com/dagronf/SwiftImageReadWrite", from: "1.1.3")
+		.package(url: "https://github.com/dagronf/SwiftImageReadWrite", from: "1.7.0")
 	],
 	targets: [
 		.target(
 			name: "Bitmap",
-			dependencies: ["SwiftImageReadWrite"]),
+			dependencies: ["SwiftImageReadWrite"],
+			resources: [
+				.copy("PrivacyInfo.xcprivacy"),
+			]
+		),
 		.testTarget(
 			name: "BitmapTests",
 			dependencies: ["Bitmap"],
