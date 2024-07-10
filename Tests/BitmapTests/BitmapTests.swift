@@ -1634,6 +1634,44 @@ final class BitmapTests: XCTestCase {
 		}
 	}
 
+	func testBlurring() throws {
+
+		markdown.h2("Blurring")
+
+		let imgs = [
+			imageResource(name: "gps-image", extension: "jpg"),
+			imageResource(name: "apple-logo-dark", extension: "png")
+		]
+
+		try imgs.forEach { cgi in
+
+			markdown.raw("| original | blurred (5) | blurred (10) |\n")
+			markdown.raw("|--------|--------|--------|\n")
+
+			let bmi = try Bitmap(cgi)
+			markdown.raw("|")
+			try markdown.image(cgi, linked: true)
+
+			do {
+				let bm1 = try bmi.blurring(5)
+				let cg1 = try XCTUnwrap(bm1.cgImage)
+				markdown.raw("|")
+				try markdown.image(cg1, linked: true)
+			}
+
+			do {
+				let bm2 = try bmi.copy()
+				try bm2.blur(10)
+				let cg2 = try XCTUnwrap(bm2.cgImage)
+				markdown.raw("|")
+				try markdown.image(cg2, linked: true)
+			}
+
+			markdown.raw("|")
+			markdown.br()
+		}
+	}
+
 #if canImport(CoreImage)
 	func testDiagonalLines() throws {
 
