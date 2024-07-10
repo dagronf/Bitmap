@@ -23,7 +23,6 @@ import CoreGraphics
 #if canImport(CoreImage)
 
 import CoreImage
-//import CIFilterFactory
 
 // MARK: - CoreImage routines
 
@@ -152,11 +151,6 @@ public extension Bitmap {
 					"inputContrast": 1.0,
 				]
 			),
-//			let filter = CIFF.ColorControls(
-//				inputImage: self.ciImage,
-//				saturation: saturation,
-//				brightness: brightness,
-//				contrast: contrast),
 			let output = filter.outputImage
 		else {
 			throw BitmapError.cannotCreateCGImage
