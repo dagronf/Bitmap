@@ -1673,6 +1673,52 @@ final class BitmapTests: XCTestCase {
 	}
 
 #if canImport(CoreImage)
+	func testGamma() throws {
+
+		markdown.h2("Gamma")
+
+		let imgs = [
+			imageResource(name: "gps-image", extension: "jpg"),
+			imageResource(name: "apple-logo-dark", extension: "png")
+		]
+
+		try imgs.forEach { cgi in
+			markdown.raw("| original | gamma (2.2) | gamma (1/2.2) | gamma (5) |\n")
+			markdown.raw("|--------|--------|--------|--------|\n")
+
+			let bmi = try Bitmap(cgi)
+			markdown.raw("|")
+			try markdown.image(cgi, linked: true)
+
+			do {
+				let bm1 = try bmi.adjustingGamma(power: 2.2)
+				let cg1 = try XCTUnwrap(bm1.cgImage)
+				markdown.raw("|")
+				try markdown.image(cg1, linked: true)
+			}
+
+			do {
+				let bm1 = try bmi.adjustingGamma(power: 1/2.2)
+				let cg1 = try XCTUnwrap(bm1.cgImage)
+				markdown.raw("|")
+				try markdown.image(cg1, linked: true)
+			}
+
+			do {
+				let bm2 = try bmi.copy()
+				try bm2.adjustGamma(power: 5)
+				let cg2 = try XCTUnwrap(bm2.cgImage)
+				markdown.raw("|")
+				try markdown.image(cg2, linked: true)
+			}
+
+			markdown.raw("|")
+			markdown.br()
+		}
+	}
+#endif
+
+#if canImport(CoreImage)
 	func testDiagonalLines() throws {
 
 		markdown.h2("Diagonal lines generator")

@@ -41,6 +41,7 @@ public class Bitmap {
 		case cannotFilter
 		case cannotConvertColorSpace
 		case cannotConvert
+		case notImplemented
 	}
 
 	/// Raw bitmap information
