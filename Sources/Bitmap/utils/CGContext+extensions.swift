@@ -27,4 +27,11 @@ extension CGContext {
 		defer { self.restoreGState() }
 		try drawBlock(self)
 	}
+
+	/// Wrap the drawing commands in `block` within a transparency layer
+	@inlinable func usingTransparencyLayer(auxiliaryInfo: CFDictionary? = nil, _ block: () -> Void) {
+		self.beginTransparencyLayer(auxiliaryInfo: auxiliaryInfo)
+		defer { self.endTransparencyLayer() }
+		block()
+	}
 }

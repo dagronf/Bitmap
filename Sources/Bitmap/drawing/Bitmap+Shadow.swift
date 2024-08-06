@@ -36,7 +36,11 @@ public extension Bitmap {
 			self.color = color
 		}
 	}
+}
 
+// MARK: - Shadows
+
+public extension Bitmap {
 	/// Apply a shadow to a drawing block
 	/// - Parameters:
 	///   - shadow: The shadow style
@@ -46,5 +50,43 @@ public extension Bitmap {
 			ctx.setShadow(offset: shadow.offset, blur: shadow.blur, color: shadow.color)
 			draw(self)
 		}
+	}
+}
+
+// MARK: - Inner shadows
+
+public extension Bitmap {
+	/// Draw a path using an inner shadow
+	/// - Parameters:
+	///   - path: The path
+	///   - fillColor: The color to fill the path, or nil for no color
+	///   - shadow: The shadow definition
+	func drawInnerShadow(_ path: CGPath, fillColor: CGColor? = nil, shadow: Bitmap.Shadow) {
+		self.draw { ctx in
+			if let fillColor = fillColor {
+				ctx.setFillColor(fillColor)
+				ctx.addPath(path)
+				ctx.fillPath()
+			}
+
+			ctx.drawInnerShadow(
+				in: path,
+				shadowColor: shadow.color,
+				offset: shadow.offset,
+				blurRadius: shadow.blur
+			)
+		}
+	}
+
+	/// Create a new bitmap by drawing a path using an inner shadow
+	/// - Parameters:
+	///   - path: The path
+	///   - fillColor: The color to fill the path, or nil for no color
+	///   - shadow: The shadow definition
+	/// - Returns: A new bitmap
+	func drawingInnerShadow(_ path: CGPath, fillColor: CGColor? = nil, shadow: Bitmap.Shadow) throws -> Bitmap {
+		let copy = try self.copy()
+		copy.drawInnerShadow(path, fillColor: fillColor, shadow: shadow)
+		return copy
 	}
 }

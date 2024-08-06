@@ -255,20 +255,35 @@ final class BitmapTests: XCTestCase {
 	func testShadow() throws {
 		markdown.h2("Shadow drawing")
 
-		let bitmap = try Bitmap(width: 255, height: 255)
-		bitmap.applyingShadow(Bitmap.Shadow()) { bitmap in
-			bitmap.fill(CGRect(x: 10, y: 10, width: 100, height: 100).path, .init(gray: 0.5, alpha: 1))
+		do {
+			let bitmap = try Bitmap(width: 255, height: 255)
+			bitmap.applyingShadow(Bitmap.Shadow()) { bitmap in
+				bitmap.fill(CGRect(x: 10, y: 10, width: 100, height: 100).path, .init(gray: 0.5, alpha: 1))
+			}
+
+			bitmap.applyingShadow(Bitmap.Shadow(offset: CGSize(width: -3, height: 3), color: CGColor.blue)) { bitmap in
+				bitmap.stroke(
+					CGRect(x: 110, y: 110, width: 100, height: 100).path,
+					Bitmap.Stroke(color: CGColor.red, lineWidth: 2)
+				)
+			}
+
+			let image = try XCTUnwrap(bitmap.cgImage)
+			try markdown.image(image, linked: true)
 		}
 
-		bitmap.applyingShadow(Bitmap.Shadow(offset: CGSize(width: -3, height: 3), color: CGColor.blue)) { bitmap in
-			bitmap.stroke(
-				CGRect(x: 110, y: 110, width: 100, height: 100).path,
-				Bitmap.Stroke(color: CGColor.red, lineWidth: 2)
-			)
+		markdown.br()
+
+		do {
+			let bitmap = try Bitmap(width: 300, height: 300, backgroundColor: CGColor.white)
+			let path = CGPath(roundedRect: CGRect(x: 20, y: 20, width: 260, height: 260), cornerWidth: 10, cornerHeight: 10, transform: nil)
+			let shadow = Bitmap.Shadow(offset: .init(width: 4, height: -4), blur: 20, color: .blue)
+			let b = try bitmap.drawingInnerShadow(path, fillColor: CGColor(red: 1, green: 1, blue: 0.4, alpha: 1), shadow: shadow)
+
+			let image = try XCTUnwrap(b.cgImage)
+			try markdown.image(image, width: 150, linked: true)
 		}
 
-		let image = try XCTUnwrap(bitmap.cgImage)
-		try markdown.image(image, linked: true)
 		markdown.br()
 	}
 
