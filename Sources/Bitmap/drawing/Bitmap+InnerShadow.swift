@@ -20,35 +20,34 @@
 import Foundation
 import CoreGraphics
 
+// MARK: - Inner shadows
+
 public extension Bitmap {
-	/// Shadow definition
-	struct Shadow {
-		/// Specifies a translation in base-space
-		public let offset: CGSize
-		/// A non-negative number specifying the amount of blur.
-		public let blur: Double
-		/// Specifies the color of the shadow, which may contain a non-opaque alpha value. If NULL, then shadowing is disabled.
-		public let color: CGColor
-		/// Create a shadow style
-		public init(offset: CGSize = .init(width: 3, height: -3), blur: Double = 5, color: CGColor = .black) {
-			self.offset = offset
-			self.blur = blur
-			self.color = color
+	/// Draw a path using an inner shadow
+	/// - Parameters:
+	///   - path: The path
+	///   - fillColor: The color to fill the path, or nil for no color
+	///   - shadow: The shadow definition
+	func drawInnerShadow(_ path: CGPath, fillColor: CGColor? = nil, shadow: Bitmap.Shadow) {
+		self.draw { ctx in
+			if let fillColor = fillColor {
+				ctx.setFillColor(fillColor)
+				ctx.addPath(path)
+				ctx.fillPath()
+			}
+			ctx.drawInnerShadow(in: path, shadowColor: shadow.color, offset: shadow.offset, blurRadius: shadow.blur)
 		}
 	}
-}
 
-// MARK: - Shadows
-
-public extension Bitmap {
-	/// Apply a shadow to a drawing block
+	/// Create a new bitmap by drawing a path using an inner shadow
 	/// - Parameters:
-	///   - shadow: The shadow style
-	///   - draw: The drawing to apply the shadow to
-	func applyingShadow(_ shadow: Shadow, _ draw: (Bitmap) -> Void) {
-		self.savingGState { ctx in
-			ctx.setShadow(offset: shadow.offset, blur: shadow.blur, color: shadow.color)
-			draw(self)
-		}
+	///   - path: The path
+	///   - fillColor: The color to fill the path, or nil for no color
+	///   - shadow: The shadow definition
+	/// - Returns: A new bitmap
+	func drawingInnerShadow(_ path: CGPath, fillColor: CGColor? = nil, shadow: Bitmap.Shadow) throws -> Bitmap {
+		let copy = try self.copy()
+		copy.drawInnerShadow(path, fillColor: fillColor, shadow: shadow)
+		return copy
 	}
 }
