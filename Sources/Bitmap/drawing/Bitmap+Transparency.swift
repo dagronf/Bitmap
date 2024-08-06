@@ -23,7 +23,7 @@ import CoreGraphics
 public extension Bitmap {
 	/// Remove transparency from this image
 	/// - Parameter backgroundColor: The background color
-	@inlinable func removeTransparency(backgroundColor: CGColor = .black) throws {
+	@inlinable func removeTransparency(backgroundColor: CGColor = .standard.black) throws {
 		try self.assign(try self.removingTransparency(backgroundColor: backgroundColor))
 	}
 
@@ -44,7 +44,7 @@ public extension Bitmap {
 	/// Create a new image by removing the transparency information from this image
 	/// - Parameter backgroundColor: The background color
 	/// - Returns: A new bitmap with transparency removed
-	func removingTransparency(backgroundColor: CGColor = .black) throws -> Bitmap {
+	func removingTransparency(backgroundColor: CGColor = .standard.black) throws -> Bitmap {
 		let newBitmap = try Bitmap(size: self.size, backgroundColor: backgroundColor)
 		try newBitmap.drawBitmap(self, atPoint: .zero)
 		return newBitmap

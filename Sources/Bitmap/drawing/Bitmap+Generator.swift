@@ -38,8 +38,8 @@ public extension Bitmap {
 		height: Int,
 		center: CGPoint? = nil,
 		checkSize: CGFloat = 20,
-		color0: CGColor = .black,
-		color1: CGColor = .white
+		color0: CGColor = .standard.black,
+		color1: CGColor = .standard.white
 	) throws -> Bitmap {
 		let bitmap = try Bitmap(width: width, height: height)
 		let center = center ?? CGPoint(x: 150.0, y: 150.0)
@@ -79,8 +79,8 @@ public extension Bitmap {
 		height: Int,
 		lineWidth: CGFloat,
 		angle: Angle<Double> = .radians(Double.pi * 3 / 4),
-		color0: CGColor = .black,
-		color1: CGColor = .white
+		color0: CGColor = .standard.black,
+		color1: CGColor = .standard.white
 	) throws -> Bitmap {
 		let bitmap = try Bitmap(width: width, height: height)
 		let center = CIVector(x: 0.0, y: 0.0)
@@ -125,8 +125,8 @@ public extension Bitmap {
 		width: Int,
 		height: Int,
 		checkSize: CGFloat = 20,
-		color0: CGColor = .black,
-		color1: CGColor = .white
+		color0: CGColor = .standard.black,
+		color1: CGColor = .standard.white
 	) throws -> Bitmap {
 		let bitmap = try Bitmap(width: width, height: height)
 

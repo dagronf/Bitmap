@@ -30,7 +30,7 @@ public extension Bitmap {
 		/// Specifies the color of the shadow, which may contain a non-opaque alpha value. If NULL, then shadowing is disabled.
 		public let color: CGColor
 		/// Create a shadow style
-		public init(offset: CGSize = .init(width: 3, height: -3), blur: Double = 5, color: CGColor = .black) {
+		public init(offset: CGSize = .init(width: 3, height: -3), blur: Double = 5, color: CGColor = .standard.black) {
 			self.offset = offset
 			self.blur = blur
 			self.color = color

@@ -94,7 +94,7 @@ final class BitmapTests: XCTestCase {
 
 		// Draw a square black rect
 		bitmap.draw { ctx in
-			ctx.setFillColor(.black)
+			ctx.setFillColor(.standard.black)
 			ctx.fill([CGRect(x: 5, y: 5, width: 20, height: 20)])
 		}
 
@@ -114,7 +114,7 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(100, image.width)
 		XCTAssertEqual(100, image.height)
 
-		let paddedBitmap = try bitmap.padding(40, backgroundColor: .black)
+		let paddedBitmap = try bitmap.padding(40, backgroundColor: .standard.black)
 		try markdown.image(paddedBitmap, linked: true)
 		XCTAssertEqual(180, paddedBitmap.width)
 		XCTAssertEqual(180, paddedBitmap.height)
@@ -183,7 +183,7 @@ final class BitmapTests: XCTestCase {
 			width: 640,
 			height: 480,
 			checkSize: 100,
-			color0: .clear,
+			color0: .standard.clear,
 			color1: .init(gray: 0.5, alpha: 0.3)
 		)
 		try markdown.image(check2, linked: true)
@@ -244,7 +244,7 @@ final class BitmapTests: XCTestCase {
 
 		bitmap.drawRect(
 			CGRect(x: 50, y: 50, width: 80, height: 100),
-			fillColor: CGColor.red,
+			fillColor: .standard.red,
 			stroke: Bitmap.Stroke(color: CGColor(gray: 0.5, alpha: 1.0), lineWidth: 2)
 		)
 		let image = try XCTUnwrap(bitmap.cgImage)
@@ -261,10 +261,10 @@ final class BitmapTests: XCTestCase {
 				bitmap.fill(CGRect(x: 10, y: 10, width: 100, height: 100).path, .init(gray: 0.5, alpha: 1))
 			}
 
-			bitmap.applyingShadow(Bitmap.Shadow(offset: CGSize(width: -3, height: 3), color: CGColor.blue)) { bitmap in
+			bitmap.applyingShadow(Bitmap.Shadow(offset: CGSize(width: -3, height: 3), color: .standard.blue)) { bitmap in
 				bitmap.stroke(
 					CGRect(x: 110, y: 110, width: 100, height: 100).path,
-					Bitmap.Stroke(color: CGColor.red, lineWidth: 2)
+					Bitmap.Stroke(color: .standard.red, lineWidth: 2)
 				)
 			}
 
@@ -275,9 +275,10 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 
 		do {
-			let bitmap = try Bitmap(width: 300, height: 300, backgroundColor: CGColor.white)
+			let c1 = CGColor.standard.yellow
+			let bitmap = try Bitmap(width: 300, height: 300, backgroundColor: .standard.white)
 			let path = CGPath(roundedRect: CGRect(x: 20, y: 20, width: 260, height: 260), cornerWidth: 10, cornerHeight: 10, transform: nil)
-			let shadow = Bitmap.Shadow(offset: .init(width: 4, height: -4), blur: 20, color: .blue)
+			let shadow = Bitmap.Shadow(offset: .init(width: 4, height: -4), blur: 20, color: .standard.blue)
 			let b = try bitmap.drawingInnerShadow(path, fillColor: CGColor(red: 1, green: 1, blue: 0.4, alpha: 1), shadow: shadow)
 
 			let image = try XCTUnwrap(b.cgImage)
@@ -356,7 +357,7 @@ final class BitmapTests: XCTestCase {
 			let orig = bitmapResource(name: "apple-logo-dark", extension: "png")
 			try markdown.image(orig, linked: true)
 			markdown.raw("|")
-			try orig.removeTransparency(backgroundColor: CGColor.red)
+			try orig.removeTransparency(backgroundColor: .standard.red)
 			try markdown.image(orig, linked: true)
 			markdown.raw("|")
 			markdown.br()
@@ -460,7 +461,7 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 
 		bitmap.clip(to: CGRect(x: 10, y: 10, width: 50, height: 50).ellipsePath) { ctx in
-			ctx.setFillColor(.white)
+			ctx.setFillColor(.standard.white)
 			ctx.fill([bounds])
 		}
 
@@ -645,7 +646,7 @@ final class BitmapTests: XCTestCase {
 		image.stroke(
 			CGRect(x: 50, y: 50, width: 100, height: 100).path,
 			Bitmap.Stroke(
-				color: CGColor.red,
+				color: .standard.red,
 				lineWidth: 3.0,
 				dash: Bitmap.Stroke.Dash(lengths: [6, 6], phase: 0)
 			)
@@ -659,7 +660,7 @@ final class BitmapTests: XCTestCase {
 			CGPath(ellipseIn: CGRect(x: 10, y: 10, width: 30, height: 30), transform: nil),
 			fillColor: CGColor(srgbRed: 0, green: 0.5, blue: 0.8, alpha: 0.6),
 			stroke: Bitmap.Stroke(
-				color: CGColor.yellow,
+				color: .standard.yellow,
 				lineWidth: 1.0,
 				dash: Bitmap.Stroke.Dash(lengths: [3, 1], phase: 0.6)
 			)
@@ -783,11 +784,11 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testColors() throws {
-		let c1 = try Bitmap.RGBA(.red)
+		let c1 = try Bitmap.RGBA(.standard.red)
 		XCTAssertEqual(Bitmap.RGBA.red, c1)
-		let c2 = try Bitmap.RGBA(.red.copy(alpha: 0.1)!)
+		let c2 = try Bitmap.RGBA(.standard.red.copy(alpha: 0.1)!)
 		XCTAssertEqual(Bitmap.RGBA(r: 255, g: 0, b: 0, a: 25), c2)
-		let c3 = try Bitmap.RGBA(.cyan)
+		let c3 = try Bitmap.RGBA(.standard.cyan)
 		XCTAssertEqual(Bitmap.RGBA.cyan, c3)
 
 		let c4 = try Bitmap.RGBA(CGColor(gray: 0.5, alpha: 1))
@@ -822,7 +823,7 @@ final class BitmapTests: XCTestCase {
 		let orig = bitmapResource(name: "food", extension: "jpg")
 		try markdown.image(orig, linked: true)
 		markdown.raw("|")
-		orig.fill(.yellow.copy(alpha: 0.3)!)
+		orig.fill(.standard.yellow.copy(alpha: 0.3)!)
 		try markdown.image(orig, linked: true)
 		markdown.raw("|")
 		markdown.br()
@@ -859,15 +860,15 @@ final class BitmapTests: XCTestCase {
 		let bmp = try Bitmap(width: 20, height: 20)
 
 		bmp.draw { ctx in
-			ctx.setFillColor(.red)
+			ctx.setFillColor(.standard.red)
 			ctx.fill([CGRect(x: 0, y: 0, width: 1, height: 1)])
-			ctx.setFillColor(.blue)
+			ctx.setFillColor(.standard.blue)
 			ctx.fill([CGRect(x: 19, y: 0, width: 1, height: 1)])
-			ctx.setFillColor(.green)
+			ctx.setFillColor(.standard.green)
 			ctx.fill([CGRect(x: 19, y: 19, width: 1, height: 1)])
-			ctx.setFillColor(.white)
+			ctx.setFillColor(.standard.white)
 			ctx.fill([CGRect(x: 0, y: 19, width: 1, height: 1)])
-			ctx.setFillColor(.black)
+			ctx.setFillColor(.standard.black)
 			ctx.fill([
 				CGRect(x: 3, y: 17, width: 1, height: 1),
 				CGRect(x: 16, y: 17, width: 1, height: 1),
@@ -987,31 +988,31 @@ final class BitmapTests: XCTestCase {
 
 			markdown.raw("|")
 
-			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5))
+			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 0.5))
 			try markdown.image(p1, linked: true)
 			markdown.raw("<br/>\(p1.size)")
 
 			markdown.raw("|")
 
-			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0))
+			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 1.0))
 			try markdown.image(p2, linked: true)
 			markdown.raw("<br/>\(p2.size)")
 
 			markdown.raw("|")
 
-			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0))
+			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 2.0))
 			try markdown.image(p3, linked: true)
 			markdown.raw("<br/>\(p3.size)")
 
 			markdown.raw("|")
 
-			let p4 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])))
+			let p4 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.green, lineWidth: 1.0, dash: .init(lengths: [1, 2])))
 			try markdown.image(p4, linked: true)
 			markdown.raw("<br/>\(p4.size)")
 
 			markdown.raw("|")
 
-			let p5 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])))
+			let p5 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 2.0, dash: .init(lengths: [2, 2])))
 			try markdown.image(p5, linked: true)
 			markdown.raw("<br/>\(p5.size)")
 
@@ -1033,26 +1034,26 @@ final class BitmapTests: XCTestCase {
 
 			markdown.raw("|")
 
-			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 0.5), expanding: true)
+			let p1 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 0.5), expanding: true)
 			try markdown.image(p1, linked: true)
 			markdown.raw("<br/>\(p1.size)")
 
 			markdown.raw("|")
 
-			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 1.0), expanding: true)
+			let p2 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 1.0), expanding: true)
 			try markdown.image(p2, linked: true)
 			markdown.raw("<br/>\(p2.size)")
 
 			markdown.raw("|")
 
-			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0), expanding: true)
+			let p3 = try orig.drawingBorder(stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 2.0), expanding: true)
 			try markdown.image(p3, linked: true)
 			markdown.raw("<br/>\(p3.size)")
 
 			markdown.raw("|")
 
 			let p4 = try orig.drawingBorder(
-				stroke: Bitmap.Stroke(color: .green, lineWidth: 1.0, dash: .init(lengths: [1, 2])),
+				stroke: Bitmap.Stroke(color: .standard.green, lineWidth: 1.0, dash: .init(lengths: [1, 2])),
 				expanding: true
 			)
 			try markdown.image(p4, linked: true)
@@ -1061,7 +1062,7 @@ final class BitmapTests: XCTestCase {
 			markdown.raw("|")
 
 			let p5 = try orig.drawingBorder(
-				stroke: Bitmap.Stroke(color: .red, lineWidth: 2.0, dash: .init(lengths: [2, 2])),
+				stroke: Bitmap.Stroke(color: .standard.red, lineWidth: 2.0, dash: .init(lengths: [2, 2])),
 				expanding: true
 			)
 			try markdown.image(p5, linked: true)
@@ -1425,17 +1426,17 @@ final class BitmapTests: XCTestCase {
 			cornerHeight: 6,
 			transform: nil
 		)
-		l.fillColor = .blue
+		l.fillColor = .standard.blue
 
 		let e1 = CAShapeLayer()
 		e1.path = CGPath(ellipseIn: CGRect(origin: .zero, size: CGSize(width: 30, height: 30)), transform: nil)
-		e1.fillColor = .black
+		e1.fillColor = .standard.black
 		l.addSublayer(e1)
 
 		let t = CATextLayer()
 		t.contentsScale = 2
 		t.fontSize = 26
-		t.foregroundColor = .white
+		t.foregroundColor = .standard.white
 		t.string = "A"
 		t.frame = CGRect(origin: .zero, size: CGSize(width: 30, height: 30))
 		l.addSublayer(t)
@@ -1468,7 +1469,7 @@ final class BitmapTests: XCTestCase {
 		let view = UIButton(type: .roundedRect)
 		view.translatesAutoresizingMaskIntoConstraints = false
 		view.setTitle("Press me!", for: .normal)
-		view.layer.backgroundColor = .red
+		view.layer.backgroundColor = .standard.red
 		view.tintColor = .white
 		view.layer.cornerRadius = 6
  		view.sizeToFit()
@@ -1562,11 +1563,11 @@ final class BitmapTests: XCTestCase {
 			markdown.raw("|")
 
 			let punch = CGRect(x: 50, y: 50, width: 70, height: 150).insetBy(dx: 0.5, dy: 0.5)
-			let punched = try bitmap.erasing(punch.path, backgroundColor: .red.copy(alpha: 0.2))
+			let punched = try bitmap.erasing(punch.path, backgroundColor: .standard.red.copy(alpha: 0.2))
 				.drawingPath(
 					CGPath(rect: punch, transform: nil),
 					fillColor: nil,
-					stroke: Bitmap.Stroke(color: .green, lineWidth: 1)
+					stroke: Bitmap.Stroke(color: .standard.green, lineWidth: 1)
 				)
 				.erasing(complexPath())
 
@@ -1622,11 +1623,11 @@ final class BitmapTests: XCTestCase {
 			try markdown.image(bg.drawingBitmap(erase1).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
-			let erase2 = try orig.erasing(pth, backgroundColor: .red)
+			let erase2 = try orig.erasing(pth, backgroundColor: .standard.red)
 			try markdown.image(bg.drawingBitmap(erase2).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
-			let erase7 = try orig.erasing(pth, backgroundColor: .green)
+			let erase7 = try orig.erasing(pth, backgroundColor: .standard.green)
 			try markdown.image(bg.drawingBitmap(erase7).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
@@ -1637,11 +1638,11 @@ final class BitmapTests: XCTestCase {
 			try markdown.image(bg.drawingBitmap(erase3).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
-			let erase4 = try orig.erasing(starPath, backgroundColor: .red)
+			let erase4 = try orig.erasing(starPath, backgroundColor: .standard.red)
 			try markdown.image(bg.drawingBitmap(erase4).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
-			let erase6 = try orig.erasing(starPath, backgroundColor: .green)
+			let erase6 = try orig.erasing(starPath, backgroundColor: .standard.green)
 			try markdown.image(bg.drawingBitmap(erase6).scaling(multiplier: 5), linked: true)
 
 			markdown.raw("|")
@@ -1770,8 +1771,8 @@ final class BitmapTests: XCTestCase {
 					width: 100,
 					height: 100,
 					lineWidth: 10,
-					color0: CGColor.red,
-					color1: CGColor.blue
+					color0: .standard.red,
+					color1: .standard.blue
 				)
 				try markdown.image(bss1, linked: true)
 				markdown.raw("|")
@@ -1781,7 +1782,7 @@ final class BitmapTests: XCTestCase {
 					lineWidth: 4,
 					angle: .radians(0.1),
 					color0: CGColor(srgbRed: 0, green: 1, blue: 0, alpha: 0.1),
-					color1: CGColor.clear
+					color1: .standard.clear
 				)
 				try markdown.image(bss2, linked: true)
 				markdown.raw("|")

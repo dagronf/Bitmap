@@ -51,7 +51,7 @@ public extension Bitmap {
 	///   - string: The string to draw
 	///   - color: The text color
 	///   - path: The position to draw the text
-	@inlinable func drawText(_ string: String, color: CGColor = .black, position: CGPoint) {
+	@inlinable func drawText(_ string: String, color: CGColor = .standard.black, position: CGPoint) {
 		let astr = NSAttributedString(string: string, attributes: [NSAttributedString.Key.foregroundColor: color])
 		self.drawText(astr, position: position)
 	}
@@ -61,7 +61,7 @@ public extension Bitmap {
 	///   - string: The string to draw
 	///   - color: The text color
 	///   - path: The path containing the text, or nil for the entire image
-	@inlinable func drawText(_ string: String, color: CGColor = .black, path: CGPath? = nil) {
+	@inlinable func drawText(_ string: String, color: CGColor = .standard.black, path: CGPath? = nil) {
 		let astr = NSAttributedString(string: string, attributes: [NSAttributedString.Key.foregroundColor: color])
 		self.drawText(astr, path: path)
 	}

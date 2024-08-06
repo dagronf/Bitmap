@@ -107,7 +107,7 @@ public extension Bitmap {
 		return try Bitmap(size: size) { ctx in
 			// draw black background to preserve color of transparent pixels
 			ctx.setBlendMode(.normal)
-			ctx.setFillColor(.black)
+			ctx.setFillColor(.standard.black)
 			ctx.fill([rect])
 
 			// Draw the image
