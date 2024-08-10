@@ -24,9 +24,9 @@ import CoreGraphics
 
 public extension CGColor {
 	struct StandardColors {
-		static public let clear = CGColor(red: 0, green: 0, blue: 0, alpha: 0)
-		static public let black = CGColor(colorSpace: .init(name: CGColorSpace.linearGray)!, components: [0, 1])!
-		static public let white = CGColor(colorSpace: .init(name: CGColorSpace.linearGray)!, components: [1, 1])!
+		static public let clear = CGColor(colorSpace: CGColorSpace.csRGB, components: [0.0, 0.0, 0.0, 0.0])!
+		static public let black = CGColor(colorSpace: CGColorSpace.csRGB, components: [0.0, 0.0, 0.0, 1.0])!
+		static public let white = CGColor(colorSpace: CGColorSpace.csRGB, components: [1.0, 1.0, 1.0, 1.0])!
 
 		static public let red = CGColor(colorSpace: CGColorSpace.csRGB, components: [1.0, 0.0, 0.0, 1.0])!
 		static public let green = CGColor(colorSpace: CGColorSpace.csRGB, components: [0.0, 1.0, 0.0, 1.0])!
