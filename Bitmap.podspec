@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 s.name                       = 'Bitmap'
-s.version                    = '1.3.0'
+s.version                    = '1.3.1'
 s.summary                    = 'A Swift-y convenience for loading, saving and manipulating bitmap images.'
 s.homepage                   = 'https://github.com/dagronf/Bitmap'
 s.license                    = { :type => 'MIT', :file => 'LICENSE' }
@@ -24,7 +24,7 @@ s.watchos.framework          = 'UIKit'
 
 s.source_files               = 'Sources/Bitmap/**/*.swift'
 s.resource_bundles           = {
-   'DSF_QRCode' => 'Sources/Bitmap/PrivacyInfo.xcprivacy'
+   'Bitmap' => 'Sources/Bitmap/PrivacyInfo.xcprivacy'
 }
 
 s.swift_versions             = ['5.4', '5.5', '5.6', '5.7', '5.8', '5.9', '5.10']
