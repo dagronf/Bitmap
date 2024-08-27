@@ -20,6 +20,10 @@
 import XCTest
 @testable import Bitmap
 
+#if canImport(CoreImage)
+import CoreImage.CIFilterBuiltins
+#endif
+
 let tempContainer = TestOutputContainer(title: "BitmapTestOutput")
 private let markdown = MarkdownGenerator()
 
@@ -376,6 +380,38 @@ final class BitmapTests: XCTestCase {
 			markdown.raw("|")
 			markdown.br()
 		}
+	}
+
+	func testMapColors() throws {
+		let orig = bitmapResource(name: "qrcode", extension: "png")
+		let transparentBG = try Bitmap.Checkerboard(
+			width: orig.width,
+			height: orig.height,
+			checkSize: 8,
+			color0: CGColor(gray: 0, alpha: 0.05),
+			color1: CGColor(gray: 0, alpha: 0.15)
+		)
+
+		markdown.h2("Mapping colors")
+		try markdown.image(orig, width: 80, linked: true)
+
+		let r1 = try orig.mappingColor(.white, to: .red)
+		try markdown.image(r1, width: 80, linked: true)
+
+		let r2 = try orig.mappingColor(.black, to: .blue)
+		try markdown.image(r2, width: 80, linked: true)
+
+		var r3 = try orig
+			.mappingColor(.white, to: .clear)
+			.mappingColor(.black, to: .magenta)
+		r3 = try transparentBG.drawingBitmap(r3)
+		try markdown.image(r3, width: 80, linked: true)
+
+		var r4 = try orig.mappingColorToTransparency(.black)
+		r4 = try transparentBG.drawingBitmap(r4)
+		try markdown.image(r4, width: 80, linked: true)
+
+		markdown.br()
 	}
 
 	func testRotating() throws {
@@ -1735,6 +1771,29 @@ final class BitmapTests: XCTestCase {
 #endif
 
 #if canImport(CoreImage)
+
+	func testCIImageImport() throws {
+
+		markdown.h2("Import from a CIImage")
+
+		let filter = CIFilter.sunbeamsGenerator()
+		filter.setDefaults()
+		filter.center = CGPoint(x: 150.0, y: 150.0)
+		filter.color = CIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 1.0)
+		filter.sunRadius = 40.0
+		filter.maxStriationRadius = 2.58
+		filter.striationStrength = 0.5
+		filter.striationContrast = 1.375
+		filter.time = 0.0
+		let output = try XCTUnwrap(filter.outputImage)
+
+		let bitmap = try Bitmap(output, context: nil, size: nil)
+		XCTAssertEqual(output.extent.size, bitmap.size)
+		try markdown.image(bitmap, linked: true)
+
+		markdown.br()
+	}
+
 	func testDiagonalLines() throws {
 
 		markdown.h2("Diagonal lines generator")

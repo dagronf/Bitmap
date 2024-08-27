@@ -1,5 +1,5 @@
 //
-//  Copyright © 2023 Darren Ford. All rights reserved.
+//  Copyright © 2024 Darren Ford. All rights reserved.
 //
 //  MIT license
 //
@@ -53,29 +53,24 @@ public extension Bitmap {
 
 public extension Bitmap {
 	/// Map a specific color in this bitmap to transparency
-	/// - Parameter color: The color to map to transparency
-	func mapColorToTransparency(_ color: Bitmap.RGBA, includeTransparency: Bool = false) {
-		self.bitmapData.rgbaBytes.withUnsafeMutableBytes { buffer in
-			for p in stride(from: 0, to: buffer.count, by: 4) {
-				if buffer[p] == color.r,
-					buffer[p + 1] == color.g,
-					buffer[p + 2] == color.b,
-					(includeTransparency == false || buffer[p + 3] == color.a)
-				{
-					buffer[p] = 0
-					buffer[p + 1] = 0
-					buffer[p + 2] = 0
-					buffer[p + 3] = 0
-				}
-			}
-		}
+	/// - Parameters:
+	///   - color: The color to map to transparency
+	///   - includeTransparencyInCheck: If true, include the alpha value in the comparison check
+	@inlinable @inline(__always) func mapColorToTransparency(
+		_ color: Bitmap.RGBA,
+		includeTransparencyInCheck: Bool = false
+	) {
+		self.mapColor(color, to: .clear, includeTransparencyInCheck: includeTransparencyInCheck)
 	}
 
 	/// Create a new bitmap by mapping a specific color in this bitmap to transparency
-	/// - Parameter color: The color to map to transparency
-	func mappingColorToTransparency(_ color: Bitmap.RGBA) throws -> Bitmap {
-		let copy = try self.copy()
-		copy.mapColorToTransparency(color)
-		return copy
+	/// - Parameters:
+	///   - color: The color to map to transparency
+	///   - includeTransparencyInCheck: If true, include the alpha value in the comparison check
+	@inlinable @inline(__always) func mappingColorToTransparency(
+		_ color: Bitmap.RGBA,
+		includeTransparencyInCheck: Bool = false
+	) throws -> Bitmap {
+		try self.mappingColor(color, to: .clear, includeTransparencyInCheck: includeTransparencyInCheck)
 	}
 }
