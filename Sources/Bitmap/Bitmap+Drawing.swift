@@ -24,19 +24,19 @@ import CoreGraphics
 
 public extension Bitmap {
 	/// Perform 'block' within a saved GState on a bitmap
+	/// - Parameter block: The block to perform with a new graphics state
 	@inlinable func savingGState(_ block: (CGContext) -> Void) {
 		self.bitmapContext.savingGState(block)
 	}
-}
 
-public extension Bitmap {
 	/// Perform drawing actions within a saved GState on a bitmap
+	/// - Parameter block: The block to perform within a new graphics state using the bitmap's context
 	@inlinable func draw(_ block: (CGContext) -> Void) {
 		self.savingGState(block)
 	}
 
 	/// Performs drawing operations on a copy of this bitmap
-	/// - Parameter block: The block containing the drawing commands
+	/// - Parameter block: The block to perform within a new graphics state using the bitmap's context
 	/// - Returns: A new bitmap
 	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
 		let copy = try self.copy()

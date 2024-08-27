@@ -51,11 +51,15 @@ public extension Bitmap {
 		public let color: RGBA
 
 		/// x coordinate
-		public var x: Int { self.point.x }
+		@inlinable public var x: Int { self.point.x }
 		/// y coordinate
-		public var y: Int { self.point.y }
+		@inlinable public var y: Int { self.point.y }
 
-		/// Creator
+		/// Create a pixel
+		/// - Parameters:
+		///   - x: The x-coordinate
+		///   - y: The y-coordinate
+		///   - color: The pixel's RGBA color
 		public init(x: Int, y: Int, color: RGBA) {
 			self.point = Coordinate(x: x, y: y)
 			self.color = color

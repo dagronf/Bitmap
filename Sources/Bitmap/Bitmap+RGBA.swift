@@ -63,14 +63,23 @@ extension Bitmap {
 }
 
 public extension Bitmap.RGBA {
+	/// Clear color
 	static let clear = Bitmap.RGBA(r: 0, g: 0, b: 0, a: 0)
+	/// Black color
 	static let black = Bitmap.RGBA(r: 0, g: 0, b: 0, a: 255)
+	/// White color
 	static let white = Bitmap.RGBA(r: 255, g: 255, b: 255, a: 255)
+	/// Red color
 	static let red = Bitmap.RGBA(r: 255, g: 0, b: 0, a: 255)
+	/// Green color
 	static let green = Bitmap.RGBA(r: 0, g: 255, b: 0, a: 255)
+	/// Blue color
 	static let blue = Bitmap.RGBA(r: 0, g: 0, b: 255, a: 255)
+	/// Yellow color
 	static let yellow = Bitmap.RGBA(r: 255, g: 255, b: 0, a: 255)
+	/// Magenta color
 	static let magenta = Bitmap.RGBA(r: 255, g: 0, b: 255, a: 255)
+	/// Cyan color
 	static let cyan = Bitmap.RGBA(r: 0, g: 255, b: 255, a: 255)
 }
 

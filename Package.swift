@@ -11,7 +11,7 @@ let package = Package(
 			targets: ["Bitmap"]),
 	],
 	dependencies: [
-		.package(url: "https://github.com/dagronf/SwiftImageReadWrite", from: "1.7.0")
+		.package(url: "https://github.com/dagronf/SwiftImageReadWrite", from: "1.9.2")
 	],
 	targets: [
 		.target(

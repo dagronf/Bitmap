@@ -17,43 +17,21 @@
 //  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// CoreImage additions
-
-#if canImport(CoreImage)
-
+import CoreGraphics
 import Foundation
-import CoreImage
 
-public extension Bitmap {
-	/// Create a bitmap from the content of a CIImage
-	/// - Parameters:
-	///   - image: The image
-	///   - context: The CIImage's context, or nil for default
-	///   - size: The image size
-	convenience init(_ image: CIImage, context: CIContext? = nil, size: CGSize? = nil) throws {
-		let context = context ?? CIContext(options: nil)
-		let rect: CGRect
-		if let size = size {
-			rect = CGRect(origin: .zero, size: size)
-		}
-		else {
-			rect = image.extent
-			// Arbitrary 'large' values here.
-			if rect.width > 20000 || rect.height > 20000 {
-				throw BitmapError.invalidContext
-			}
-		}
-		guard let cgImage = context.createCGImage(image, from: rect) else {
-			throw BitmapError.cannotCreateCGImage
-		}
-		try self.init(cgImage)
-	}
-
-	/// Returns a CIImage representation of the bitmap
-	@inlinable var ciImage: CIImage? {
-		guard let cgImage = self.cgImage else { return nil }
-		return CIImage(cgImage: cgImage)
+extension Bitmap {
+	/// Bitmap errors
+	public enum BitmapError: Error {
+		case outOfBounds
+		case invalidContext
+		case cannotCreateCGImage
+		case paddingOrInsetMustBePositiveValue
+		case rgbaDataMismatchSize
+		case unableToMask
+		case cannotFilter
+		case cannotConvertColorSpace
+		case cannotConvert
+		case notImplemented
 	}
 }
-
-#endif

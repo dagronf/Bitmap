@@ -30,23 +30,8 @@ import UIKit
 ///
 /// Coordinates start at the bottom left of the image, always in the sRGB colorspace
 public class Bitmap {
-	/// The errors thrown
-	public enum BitmapError: Error {
-		case outOfBounds
-		case invalidContext
-		case cannotCreateCGImage
-		case paddingOrInsetMustBePositiveValue
-		case rgbaDataMismatchSize
-		case unableToMask
-		case cannotFilter
-		case cannotConvertColorSpace
-		case cannotConvert
-		case notImplemented
-	}
-
 	/// Raw bitmap information
 	public internal(set) var bitmapData: Bitmap.RGBAData
-
 	/// The raw RGBA byte data for the bitmap
 	public var rgbaBytes: [UInt8] { bitmapData.rgbaBytes }
 
@@ -121,7 +106,7 @@ public class Bitmap {
 	}
 
 	/// Create a bitmap containing an image
-	/// - Parameter image: The initial image contained within the bitmap
+	/// - Parameter image: The image to present in the bitmap
 	public convenience init(_ image: CGImage) throws {
 		try self.init(width: image.width, height: image.height)
 		self.draw { ctx in
@@ -130,12 +115,16 @@ public class Bitmap {
 	}
 
 	/// Create a bitmap of a specified size with a context block for initialization
+	/// - Parameters:
+	///   - size: The bitmap size
+	///   - setupBlock: The block to call when the bitmap has been created
 	public convenience init(size: CGSize, _ setupBlock: (CGContext) -> Void) throws {
 		try self.init(width: Int(size.width), height: Int(size.height))
 		self.draw(setupBlock)
 	}
 
 	/// Create a bitmap by copying another bitmap
+	/// - Parameter bitmap: The bitmap to copy
 	@inlinable public convenience init(_ bitmap: Bitmap) throws {
 		try self.init(bitmap.bitmapData)
 	}
