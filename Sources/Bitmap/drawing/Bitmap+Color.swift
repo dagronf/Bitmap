@@ -53,8 +53,27 @@ public extension Bitmap {
 		to replacementColor: Bitmap.RGBA,
 		includeTransparencyInCheck: Bool = true
 	) throws -> Bitmap {
-		let copy = try self.copy()
-		copy.mapColor(color, to: replacementColor, includeTransparencyInCheck: includeTransparencyInCheck)
-		return copy
+		try self.makingCopy {
+			$0.mapColor(color, to: replacementColor, includeTransparencyInCheck: includeTransparencyInCheck)
+		}
+	}
+}
+
+public extension Bitmap {
+	/// Invert the colors in this bitmap
+	func invertColors() {
+		self.bitmapData.rgbaBytes.withUnsafeMutableBytes { buffer in
+			for p in stride(from: 0, to: buffer.count, by: 4) {
+				buffer[p] = 255 - buffer[p]
+				buffer[p + 1] = 255 - buffer[p + 1]
+				buffer[p + 2] = 255 - buffer[p + 2]
+			}
+		}
+	}
+
+	/// Make a copy of this bitmap by inverting its colors
+	/// - Returns: A new bitmap
+	func invertingColors() throws -> Bitmap {
+		try self.makingCopy { $0.invertColors() }
 	}
 }

@@ -414,6 +414,29 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 	}
 
+	func testInvertColors() throws {
+		markdown.h2("Inverting colors")
+
+		let orig = bitmapResource(name: "qrcode", extension: "png")
+		try markdown.image(orig, width: 80, linked: true)
+		let o1 = try orig.invertingColors()
+		try markdown.image(o1, width: 80, linked: true)
+		let o2 = try o1.invertingColors()
+		try markdown.image(o2, width: 80, linked: true)
+
+		markdown.br()
+
+		let sq16 = bitmapResource(name: "16-squares", extension: "png")
+		try markdown.image(sq16, width: 80, linked: true)
+		let i2 = try sq16.invertingColors()
+		try markdown.image(i2, width: 80, linked: true)
+
+		let i3 = try i2.invertingColors()
+		try markdown.image(i3, width: 80, linked: true)
+
+		markdown.br()
+	}
+
 	func testRotating() throws {
 		markdown.h2("Rotating an image")
 

@@ -401,3 +401,14 @@ extension Bitmap {
 		self.bitmapContext = ctx
 	}
 }
+
+extension Bitmap {
+	/// Create a copy of this bitmap and perform a block on the copy
+	/// - Parameter block: The block to perform on the copy
+	/// - Returns: A new bitmap
+	@inlinable func makingCopy(_ block: (Bitmap) -> Void) throws -> Bitmap {
+		let copy = try self.copy()
+		block(copy)
+		return copy
+	}
+}
