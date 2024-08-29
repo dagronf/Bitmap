@@ -77,7 +77,6 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testExample() throws {
-
 		markdown.h2("Creation")
 
 		let bitmap = try Bitmap(width: 100, height: 100)
@@ -279,7 +278,6 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 
 		do {
-			let c1 = CGColor.standard.yellow
 			let bitmap = try Bitmap(width: 300, height: 300, backgroundColor: .standard.white)
 			let path = CGPath(roundedRect: CGRect(x: 20, y: 20, width: 260, height: 260), cornerWidth: 10, cornerHeight: 10, transform: nil)
 			let shadow = Bitmap.Shadow(offset: .init(width: 4, height: -4), blur: 20, color: .standard.blue)
@@ -440,7 +438,7 @@ final class BitmapTests: XCTestCase {
 	func testRotating() throws {
 		markdown.h2("Rotating an image")
 
-		markdown.raw("| original | rotated1 | rotated2 | rotated3 |\n")
+		markdown.raw("| original | rotated (r: 1.4) | rotated (r: -2.6) | rotated (d: 270) |\n")
 		markdown.raw("|-----|-----|-----|-----|\n")
 		markdown.raw("|")
 		let orig = bitmapResource(name: "gps-image", extension: "jpg")
@@ -1852,7 +1850,8 @@ final class BitmapTests: XCTestCase {
 				let bss1 = try Bitmap.DiagonalLines(
 					width: 100,
 					height: 100,
-					lineWidth: 10,
+					lineWidth: 10, 
+					angle: .radians(Double.pi * 3 / 4),
 					color0: .standard.red,
 					color1: .standard.blue
 				)

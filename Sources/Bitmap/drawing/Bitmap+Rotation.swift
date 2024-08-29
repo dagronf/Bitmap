@@ -24,7 +24,7 @@ public extension Bitmap {
 	/// Rotate this bitmap clockwise around its center
 	/// - Parameters:
 	///   - angle: The rotation angle
-	@inlinable func rotate(by angle: Angle<Double>) throws {
+	@inlinable func rotate<T: BinaryFloatingPoint>(by angle: Angle2D<T>) throws {
 		let update = try self.rotating(by: angle)
 		try self.assign(update.bitmapData)
 	}
@@ -33,13 +33,13 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - angle: The rotation angle
 	/// - Returns: The rotated bitmap
-	func rotating(by angle: Angle<Double>) throws -> Bitmap {
+	func rotating<T: BinaryFloatingPoint>(by angle: Angle2D<T>) throws -> Bitmap {
 		guard let cgImage = self.cgImage else {
 			throw BitmapError.cannotCreateCGImage
 		}
 
 		// We only ever want to deal with radian values
-		let rotationAngle = angle.radians
+		let rotationAngle = CGFloat(angle.radians)
 
 		let origWidth = CGFloat(width)
 		let origHeight = CGFloat(height)

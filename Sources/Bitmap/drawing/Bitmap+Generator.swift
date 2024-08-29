@@ -74,11 +74,11 @@ public extension Bitmap {
 	///   - color0: color 0
 	///   - color1: color 1
 	/// - Returns: A bitmap containing diagonal lines
-	static func DiagonalLines(
+	static func DiagonalLines<T: BinaryFloatingPoint>(
 		width: Int,
 		height: Int,
 		lineWidth: CGFloat,
-		angle: Angle<Double> = .radians(Double.pi * 3 / 4),
+		angle: Angle2D<T>,
 		color0: CGColor = .standard.black,
 		color1: CGColor = .standard.white
 	) throws -> Bitmap {
