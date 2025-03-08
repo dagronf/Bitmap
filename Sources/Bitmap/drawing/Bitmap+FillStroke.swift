@@ -120,6 +120,25 @@ public extension Bitmap {
 }
 
 public extension Bitmap {
+	/// Fill a rect in this bitmap
+	/// - Parameters:
+	///   - path: The path to fill
+	///   - fillColor: The color to fill
+	@inlinable func fill(_ rect: CGRect, _ fillColor: CGColor) {
+		self.fill([rect], fillColor)
+	}
+
+	/// Fill rects in this bitmap
+	/// - Parameters:
+	///   - path: The path to fill
+	///   - fillColor: The color to fill
+	func fill(_ rects: [CGRect], _ fillColor: CGColor) {
+		self.draw { ctx in
+			ctx.setFillColor(fillColor)
+			ctx.fill(rects)
+		}
+	}
+
 	/// Fill a path in this bitmap
 	/// - Parameters:
 	///   - path: The path to fill
@@ -152,12 +171,7 @@ public extension Bitmap {
 	func stroke(_ path: CGPath, _ stroke: Stroke) {
 		self.savingGState { ctx in
 			ctx.addPath(path)
-			ctx.setStrokeColor(stroke.color)
-			ctx.setLineWidth(stroke.lineWidth)
-			if let dash = stroke.dash {
-				ctx.setLineDash(phase: dash.phase, lengths: dash.lengths)
-			}
-			ctx.strokePath()
+			ctx.stroke(stroke)
 		}
 	}
 
@@ -183,6 +197,27 @@ public extension Bitmap {
 }
 
 public extension Bitmap {
+	/// Stroke multiple rects within the bitmap
+	/// - Parameters:
+	///   - rects: The rects to stroke
+	///   - stroke: Stroke parameters
+	func stroke(_ rects: [CGRect], _ stroke: Stroke) {
+		self.savingGState { ctx in
+			ctx.addRects(rects)
+			ctx.stroke(stroke)
+		}
+	}
+
+	/// Stroke a single rect within the bitmap
+	/// - Parameters:
+	///   - rect: The rect to stroke
+	///   - stroke: Stroke parameters
+	@inlinable func stroke(_ rect: CGRect, _ stroke: Stroke) {
+		self.stroke([rect], stroke)
+	}
+}
+
+public extension Bitmap {
 	/// Fill and stroke a path on this bitmap
 	/// - Parameters:
 	///   - path: The path
@@ -194,13 +229,8 @@ public extension Bitmap {
 			ctx.addPath(path)
 			ctx.setFillColor(fillColor)
 			ctx.fillPath()
-			ctx.addPath(path)
-			ctx.setStrokeColor(stroke.color)
-			ctx.setLineWidth(stroke.lineWidth)
-			if let dash = stroke.dash {
-				ctx.setLineDash(phase: dash.phase, lengths: dash.lengths)
-			}
-			ctx.strokePath()
+
+			self.stroke(path, stroke)
 		}
 	}
 
@@ -234,5 +264,17 @@ public extension Bitmap {
 	/// Draw a simple line on the bitmap
 	@inlinable func drawLine(x1: CGFloat, y1: CGFloat, x2: CGFloat, y2: CGFloat, stroke: Stroke) {
 		self.drawLine(from: CGPoint(x: x1, y: y1), to: CGPoint(x: x2, y: y2), stroke: stroke)
+	}
+}
+
+public extension CGContext {
+	/// Stroke using the specified stroke style
+	func stroke(_ stokeStyle: Bitmap.Stroke) {
+		self.setStrokeColor(stokeStyle.color)
+		self.setLineWidth(stokeStyle.lineWidth)
+		if let dash = stokeStyle.dash {
+			self.setLineDash(phase: dash.phase, lengths: dash.lengths)
+		}
+		self.strokePath()
 	}
 }

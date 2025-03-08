@@ -1509,7 +1509,7 @@ final class BitmapTests: XCTestCase {
 	#endif
 
 	#if os(macOS)
-	func testBasicNSView() throws {
+	@MainActor func testBasicNSView() throws {
 		let v = NSButton()
 		v.translatesAutoresizingMaskIntoConstraints = false
 		v.title = "Press me!"
@@ -1522,7 +1522,7 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(cg.height, bitmap.height)
 	}
 	#elseif !os(watchOS)
-	func testBasicUIView() throws {
+	@MainActor func testBasicUIView() throws {
 		let view = UIButton(type: .roundedRect)
 		view.translatesAutoresizingMaskIntoConstraints = false
 		view.setTitle("Press me!", for: .normal)
@@ -1743,6 +1743,91 @@ final class BitmapTests: XCTestCase {
 			markdown.raw("|")
 			markdown.br()
 		}
+	}
+
+	func testBlending() throws {
+
+		// Inspired by https://www.sketch.com/blog/blend-modes/
+
+		let image = bitmapResource(name: "viking", extension: "jpg")
+		let sliceW = (image.width / 2)
+		let destim = CGPoint(x: image.width / 2, y: 0)
+		let sz = CGSize(width: image.width + sliceW, height: image.height)
+		let background = try Bitmap(size: sz) { ctx in
+			ctx.setFillColor(CGColor(red: 0.104, green: 0.502, blue: 0.501, alpha: 1.0))
+			ctx.fill(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+		}
+
+		let background2 = try Bitmap(size: sz) { ctx in
+			ctx.setFillColor(CGColor(red: 0.5, green: 0.2, blue: 0.1, alpha: 1.0))
+			ctx.fill(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+		}
+
+		let background3 = try Bitmap(size: sz) { ctx in
+			ctx.setFillColor(CGColor(red: 0.7, green: 0.0, blue: 0.0, alpha: 0.7))
+			ctx.fill(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+		}
+
+		markdown.h2("Blending")
+
+		do {
+			markdown.h3("Darken")
+			markdown.raw("| darken | multiply | color burn |\n")
+			markdown.raw("|--------|----------|-----------|\n")
+
+			markdown.raw("|")
+			let darken = try background.blending(image, blendMode: .darken, position: destim)
+			try markdown.image(darken)
+			markdown.raw("|")
+			let multiply = try background.blending(image, blendMode: .multiply, position: destim)
+			try markdown.image(multiply)
+			markdown.raw("|")
+			let colorBurn = try background.blending(image, blendMode: .colorBurn, position: destim)
+			try markdown.image(colorBurn)
+			markdown.raw("|")
+		}
+
+		markdown.br()
+
+		do {
+			markdown.h3("Lighten")
+
+			markdown.raw("| lighten | screen | dodge |\n")
+			markdown.raw("|---------|--------|-------|\n")
+
+			markdown.raw("|")
+			let darken = try background2.blending(image, blendMode: .lighten, position: destim)
+			try markdown.image(darken)
+			markdown.raw("|")
+			let multiply = try background2.blending(image, blendMode: .screen, position: destim)
+			try markdown.image(multiply)
+			markdown.raw("|")
+			let colorBurn = try background2.blending(image, blendMode: .colorDodge, position: destim)
+			try markdown.image(colorBurn)
+			markdown.raw("|")
+		}
+
+		markdown.br()
+
+		do {
+			markdown.h3("Contrast")
+
+			markdown.raw("| overlay | soft light | hard light |\n")
+			markdown.raw("|---------|------------|------------|\n")
+
+			markdown.raw("|")
+			let darken = try background3.blending(image, blendMode: .overlay, position: destim)
+			try markdown.image(darken)
+			markdown.raw("|")
+			let multiply = try background3.blending(image, blendMode: .softLight, position: destim)
+			try markdown.image(multiply)
+			markdown.raw("|")
+			let colorBurn = try background3.blending(image, blendMode: .hardLight, position: destim)
+			try markdown.image(colorBurn)
+			markdown.raw("|")
+		}
+
+		markdown.br()
 	}
 
 #if canImport(CoreImage)
