@@ -22,7 +22,7 @@ import Foundation
 /// A 2D angle
 ///
 /// An angle value represents either a radians or a degrees angle, with functions to easily convert between the two
-public enum Angle2D<FloatingPointType: BinaryFloatingPoint & Codable> {
+public enum Angle2D<FloatingPointType: BinaryFloatingPoint & Codable & Sendable>: Sendable {
 	/// Radians angle value
 	case radians(FloatingPointType)
 	/// Degrees angle value
