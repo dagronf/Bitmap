@@ -22,16 +22,18 @@ import CoreGraphics
 
 // MARK: - Drawing
 
-public extension Bitmap {
+extension Bitmap {
 	/// Perform 'block' within a saved GState on a bitmap
 	/// - Parameter block: The block to perform with a new graphics state
-	@inlinable func savingGState(_ block: (CGContext) -> Void) {
+	@inlinable @inline(__always)
+	internal func savingGState(_ block: (CGContext) -> Void) {
 		self.bitmapContext.savingGState(block)
 	}
 
 	/// Perform drawing actions within a saved GState on a bitmap
 	/// - Parameter block: The block to perform within a new graphics state using the bitmap's context
-	@inlinable func draw(_ block: (CGContext) -> Void) {
+	@inlinable @inline(__always)
+	public func draw(_ block: (CGContext) -> Void) {
 		self.savingGState(block)
 	}
 

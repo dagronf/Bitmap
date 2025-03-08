@@ -192,6 +192,7 @@ public extension Bitmap {
 
 	/// Create a bitmap from the contents of an NSView. Must be called on the main thread
 	/// - Parameter view: The view
+	@MainActor
 	convenience init(_ view: NSView) throws {
 		precondition(Thread.isMainThread)
 		guard let imageRepresentation = view.bitmapImageRepForCachingDisplay(in: view.bounds) else {
@@ -208,6 +209,7 @@ public extension Bitmap {
 public extension Bitmap {
 	/// Create a bitmap from the contents of a UIView. Must be called on the main thread
 	/// - Parameter view: The view
+	@MainActor
 	convenience init(_ view: UIView) throws {
 		precondition(Thread.isMainThread)
 
@@ -409,6 +411,15 @@ extension Bitmap {
 	@inlinable func makingCopy(_ block: (Bitmap) -> Void) throws -> Bitmap {
 		let copy = try self.copy()
 		block(copy)
+		return copy
+	}
+
+	/// Create a copy of this bitmap and perform a throwing block on the copy
+	/// - Parameter block: The block to perform
+	/// - Returns: A new bitmap
+	@inlinable func makingCopy(_ block: (Bitmap) throws -> Void) throws -> Bitmap {
+		let copy = try self.copy()
+		try block(copy)
 		return copy
 	}
 }
