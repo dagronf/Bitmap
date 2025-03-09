@@ -41,8 +41,8 @@ extension Bitmap {
 	/// - Parameter block: The block to perform within a new graphics state using the bitmap's context
 	/// - Returns: A new bitmap
 	func drawing(_ block: (CGContext) -> Void) throws -> Bitmap {
-		let copy = try self.copy()
-		copy.draw(block)
-		return copy
+		try self.makingCopy { copy in
+			copy.draw(block)
+		}
 	}
 }

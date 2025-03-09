@@ -372,7 +372,9 @@ public extension Bitmap {
 extension Bitmap {
 	/// Replace the contents of this bitmap with another bitmap
 	/// - Parameter bitmap: The bitmap to copy
-	public func replaceContents(with bitmap: Bitmap) throws {
+	/// - Returns: self
+	@discardableResult
+	public func replaceContents(with bitmap: Bitmap) throws -> Bitmap {
 		if bitmap.size == self.size {
 			// If the dimensions are the same, just reuse our existing context
 			self.bitmapData.setBytes(bitmap.rgbaBytes)
@@ -381,11 +383,14 @@ extension Bitmap {
 			// Build a new context and map the new data
 			try self.replaceContents(with: bitmap.bitmapData)
 		}
+		return self
 	}
 
 	/// Replace the contents of this bitmap raw RGBA data
 	/// - Parameter data: The bitmap data to copy
-	public func replaceContents(with data: Bitmap.RGBAData) throws {
+	/// - Returns: self
+	@discardableResult
+	public func replaceContents(with data: Bitmap.RGBAData) throws -> Bitmap {
 		self.bitmapData = data
 		guard
 			let ctx = CGContext(
@@ -401,5 +406,15 @@ extension Bitmap {
 			throw BitmapError.invalidContext
 		}
 		self.bitmapContext = ctx
+		return self
+	}
+
+	/// Make a copy of this bitmap, and perform a block on that copy
+	/// - Parameter block: The block to perform on the copy
+	/// - Returns: A copy of the bitmap
+	internal func makingCopy(_ block: (Bitmap) throws -> Void) throws -> Bitmap {
+		let copy = try self.copy()
+		try block(copy)
+		return copy
 	}
 }

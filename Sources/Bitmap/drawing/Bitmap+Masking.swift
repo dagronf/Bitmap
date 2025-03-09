@@ -52,17 +52,18 @@ public extension Bitmap {
 public extension Bitmap {
 	/// Mask out the part of the bitmap contained within the image
 	/// - Parameter path: The mask path
-	@discardableResult func mask(using path: CGPath) throws -> Bitmap {
+	func mask(using path: CGPath) throws {
 		let cropped = try self.cropping(to: path)
 		self.eraseAll()
 		try self.drawBitmap(cropped, atPoint: path.boundingBoxOfPath.origin)
-		return self
 	}
 
 	/// Create a new bitmap by masking this bitmap with a path
 	/// - Parameter path: The path to mask
 	/// - Returns: A new bitmap
 	func masking(using path: CGPath) throws -> Bitmap {
-		try self.copy().mask(using: path)
+		try self.makingCopy { copy in
+			try copy.mask(using: path)
+		}
 	}
 }

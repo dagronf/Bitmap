@@ -46,8 +46,8 @@ public extension Bitmap {
 	///   - shadow: The shadow definition
 	/// - Returns: A new bitmap
 	func drawingInnerShadow(_ path: CGPath, fillColor: CGColor? = nil, shadow: Bitmap.Shadow) throws -> Bitmap {
-		let copy = try self.copy()
-		copy.drawInnerShadow(path, fillColor: fillColor, shadow: shadow)
-		return copy
+		try self.makingCopy { copy in
+			copy.drawInnerShadow(path, fillColor: fillColor, shadow: shadow)
+		}
 	}
 }

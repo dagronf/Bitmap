@@ -22,8 +22,7 @@ import CoreGraphics
 
 public extension Bitmap {
 	/// Invert the colors in this bitmap
-	@discardableResult
-	func invertColors() -> Bitmap {
+	func invertColors() {
 		self.bitmapData.rgbaBytes.withUnsafeMutableBytes { buffer in
 			for p in stride(from: 0, to: buffer.count, by: 4) {
 				buffer[p] = 255 - buffer[p]
@@ -31,13 +30,15 @@ public extension Bitmap {
 				buffer[p + 2] = 255 - buffer[p + 2]
 			}
 		}
-		return self
 	}
 
 	/// Make a copy of this bitmap by inverting its colors
 	/// - Returns: A new bitmap
 	func invertingColors() throws -> Bitmap {
-		try self.copy()
-			.invertColors()
+		try makingCopy { bitmap in
+			bitmap.invertColors()
+		}
 	}
 }
+
+

@@ -59,9 +59,9 @@ public extension Bitmap {
 	///   - intensity: The color intensity (0.0 -> 1.0)
 	/// - Returns: A new bitmap 
 	func tinting(with color: CGColor, in rect: CGRect, intensity: CGFloat = 1.0) throws -> Bitmap {
-		let copy = try self.copy()
-		try copy.tint(with: color, in: rect, intensity: intensity)
-		return copy
+		try makingCopy { copy in
+			try copy.tint(with: color, in: rect, intensity: intensity)
+		}
 	}
 }
 

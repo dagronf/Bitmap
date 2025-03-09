@@ -60,8 +60,8 @@ public extension Bitmap {
 	/// - Parameter flipType: The type of flipping to apply
 	/// - Returns: A new image with the original image flipped
 	func flipping(_ flipType: FlipType) throws -> Bitmap {
-		let copy = try self.copy()
-		try copy.flip(flipType)
-		return copy
+		try self.makingCopy { copy in
+			try copy.flip(flipType)
+		}
 	}
 }

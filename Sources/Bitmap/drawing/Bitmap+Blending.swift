@@ -55,20 +55,18 @@ public extension Bitmap {
 	///   - dest: The rect in which to draw the blended image
 	///   - clippingRects: Clipping rects within the bitmap
 	/// - Returns: self
-	@discardableResult
 	func blend(
 		_ image: ImageRepresentationType,
 		blendMode: CGBlendMode,
 		dest: CGRect? = nil,
 		clippingRects: [CGRect]? = nil
-	) throws -> Bitmap {
+	) throws {
 		let image = try image.imageRepresentation()
 		self.bitmapContext.savingGState { ctx in
 			ctx.clip(to: clippingRects ?? [self.bounds])
 			ctx.setBlendMode(blendMode)
 			ctx.draw(image, in: dest ?? CGRect(origin: .zero, size: image.size))
 		}
-		return self
 	}
 }
 
@@ -80,16 +78,15 @@ public extension Bitmap {
 	///   - position: The position to draw the image
 	///   - clippingRects: Clipping rects within the bitmap
 	/// - Returns: self
-	@discardableResult
 	func blend(
 		_ image: ImageRepresentationType,
 		blendMode: CGBlendMode,
 		position: CGPoint,
 		clippingRects: [CGRect]? = nil
-	) throws -> Bitmap {
+	) throws {
 		let image = try image.imageRepresentation()
 		let dest = CGRect(origin: position, size: image.size)
-		return try self.blend(image, blendMode: blendMode, dest: dest, clippingRects: clippingRects)
+		try self.blend(image, blendMode: blendMode, dest: dest, clippingRects: clippingRects)
 	}
 }
 
@@ -103,14 +100,15 @@ public extension Bitmap {
 	///   - dest: The rect in which to draw the blended image
 	///   - clippingRects: Rects to clip within the bitmap
 	/// - Returns: A blended bitmap
-	@inlinable func blending(
+	func blending(
 		_ image: ImageRepresentationType,
 		blendMode: CGBlendMode,
 		dest: CGRect? = nil,
 		clippingRects: [CGRect]? = nil
 	) throws -> Bitmap {
-		try self.copy()
-			.blend(image, blendMode: blendMode, dest: dest, clippingRects: clippingRects)
+		try self.makingCopy { copy in
+			try copy.blend(image, blendMode: blendMode, dest: dest, clippingRects: clippingRects)
+		}
 	}
 
 	/// Create a new bitmap by blending another image onto this image
@@ -120,13 +118,14 @@ public extension Bitmap {
 	///   - position: The position to draw the image
 	///   - clippingRects: Rects to clip within the bitmap
 	/// - Returns: A blended bitmap
-	@inlinable func blending(
+	func blending(
 		_ image: ImageRepresentationType,
 		blendMode: CGBlendMode,
 		position: CGPoint,
 		clippingRects: [CGRect]? = nil
 	) throws -> Bitmap {
-		try self.copy()
-			.blend(image, blendMode: blendMode, position: position, clippingRects: clippingRects)
+		try self.makingCopy { copy in
+			try copy.blend(image, blendMode: blendMode, position: position, clippingRects: clippingRects)
+		}
 	}
 }

@@ -65,9 +65,9 @@ public extension Bitmap {
 	///   - wrapsContent: Should the content wrap when scrolled?
 	/// - Returns: A new image with the original image scrolled
 	func scrolling(direction: ScrollDirection, count: Int = 1, wrapsContent: Bool = true) throws -> Bitmap {
-		let copy = try self.copy()
-		copy.scroll(direction: direction, count: count, wrapsContent: wrapsContent)
-		return copy
+		try self.makingCopy { copy in
+			copy.scroll(direction: direction, count: count, wrapsContent: wrapsContent)
+		}
 	}
 }
 
