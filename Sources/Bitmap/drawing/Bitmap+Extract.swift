@@ -54,7 +54,7 @@ public extension Bitmap {
 	///   - path: The clip path
 	///   - clipToPath: If true, resize the resulting image to fit the clip path bounds
 	@inlinable func extract(_ path: CGPath, clipToPath: Bool = false) throws {
-		try self.replaceContents(with: self.extracting(path, clipToPath: clipToPath))
+		try self.replaceContent(with: self.extracting(path, clipToPath: clipToPath))
 	}
 
 	/// Extract the content of a rect into a new Bitmap
@@ -62,6 +62,6 @@ public extension Bitmap {
 	///   - rect: The clip rect
 	///   - clipToPath: If true, resize the resulting image to fit the clip path bounds
 	@inlinable func extract(_ rect: CGRect, clipToPath: Bool = false) throws {
-		try self.replaceContents(with: self.extracting(rect, clipToPath: clipToPath))
+		try self.replaceContent(with: self.extracting(rect, clipToPath: clipToPath))
 	}
 }

@@ -31,7 +31,7 @@ public extension Bitmap {
 	///   - path: The path to erase
 	///   - backgroundColor: The background color for the erased path
 	func erase(_ path: CGPath, backgroundColor: CGColor? = nil) throws {
-		try self.replaceContents(with: try self.erasing(path))
+		try self.replaceContent(with: try self.erasing(path))
 	}
 
 	/// Create a new bitmap by erasing the content of the path

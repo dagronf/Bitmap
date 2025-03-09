@@ -29,7 +29,7 @@ public extension Bitmap {
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
 	@discardableResult @inlinable
 	func pad(by value: CGFloat, backgroundColor: CGColor? = nil) throws -> Bitmap {
-		try self.replaceContents(with: try self.padding(by: value, backgroundColor: backgroundColor))
+		try self.replaceContent(with: try self.padding(by: value, backgroundColor: backgroundColor))
 		return self
 	}
 
@@ -39,7 +39,7 @@ public extension Bitmap {
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
 	@discardableResult @inlinable
 	func pad(by padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
-		try self.replaceContents(with: try self.padding(by: padding, backgroundColor: backgroundColor))
+		try self.replaceContent(with: try self.padding(by: padding, backgroundColor: backgroundColor))
 		return self
 	}
 

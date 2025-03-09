@@ -44,7 +44,7 @@ public extension Bitmap {
 		scalingType: ScalingType = .axesIndependent,
 		to targetSize: CGSize
 	) throws {
-		try self.replaceContents(with: try self.scalingImage(scalingType: scalingType, to: targetSize))
+		try self.replaceContent(with: try self.scalingImage(scalingType: scalingType, to: targetSize))
 	}
 
 	/// Create a bitmap by scaling to fit a target size

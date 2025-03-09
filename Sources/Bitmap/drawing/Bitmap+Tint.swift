@@ -30,7 +30,7 @@ public extension Bitmap {
 	///   - color: The tinting color
 	///   - intensity: The tinting intensity (0 -> 1)
 	@inlinable func tint(with color: CGColor, intensity: CGFloat = 1.0) throws {
-		try self.replaceContents(with: try self.tinting(with: color, intensity: intensity))
+		try self.replaceContent(with: try self.tinting(with: color, intensity: intensity))
 	}
 }
 

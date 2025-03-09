@@ -82,10 +82,7 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - attributedString: The string to draw
 	///   - path: The path containing the text, or nil for the entire image
-	func drawText(
-		_ attributedString: NSAttributedString,
-		path: CGPath? = nil
-	) {
+	func drawText(_ attributedString: NSAttributedString, path: CGPath? = nil) {
 		let w = self.width
 		let h = self.height
 		self.savingGState { ctx in

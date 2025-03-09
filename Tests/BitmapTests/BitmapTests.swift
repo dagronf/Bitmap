@@ -1921,7 +1921,7 @@ final class BitmapTests: XCTestCase {
 
 			// Replace content with an image of the same size
 			let bdogInverted = try orig.invertingColors()
-			try orig.replaceContents(with: bdogInverted)
+			try orig.replaceContent(with: bdogInverted)
 			try markdown.image(orig)
 
 			markdown.br()
@@ -1935,7 +1935,7 @@ final class BitmapTests: XCTestCase {
 
 			// Replace with a different size
 			let bviking = bitmapResource(name: "viking", extension: "jpg")
-			try orig.replaceContents(with: bviking)
+			try orig.replaceContent(with: bviking)
 
 			try markdown.image(orig)
 

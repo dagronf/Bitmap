@@ -374,7 +374,7 @@ extension Bitmap {
 	/// - Parameter bitmap: The bitmap to copy
 	/// - Returns: self
 	@discardableResult
-	public func replaceContents(with bitmap: Bitmap) throws -> Bitmap {
+	public func replaceContent(with bitmap: Bitmap) throws -> Bitmap {
 		if bitmap.size == self.size {
 			// If the dimensions are the same, just reuse our existing context
 			self.bitmapData.setBytes(bitmap.rgbaBytes)
