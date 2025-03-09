@@ -21,47 +21,9 @@ import Foundation
 import CoreGraphics
 
 public extension Bitmap {
-	/// Map one color in the bitmap to another color
-	/// - Parameters:
-	///   - color: The color to replace
-	///   - replacementColor: The color to replace with
-	///   - includeTransparencyInCheck: If true, the pixel's alpha is used in the comparison check
-	func mapColor(_ color: Bitmap.RGBA, to replacementColor: Bitmap.RGBA, includeTransparencyInCheck: Bool = true) {
-		self.bitmapData.rgbaBytes.withUnsafeMutableBytes { buffer in
-			for p in stride(from: 0, to: buffer.count, by: 4) {
-				if buffer[p] == color.r,
-					buffer[p + 1] == color.g,
-					buffer[p + 2] == color.b,
-					(includeTransparencyInCheck == false || (buffer[p + 3] == color.a))
-				{
-					buffer[p] = replacementColor.r
-					buffer[p + 1] = replacementColor.g
-					buffer[p + 2] = replacementColor.b
-					buffer[p + 3] = replacementColor.a
-				}
-			}
-		}
-	}
-
-	/// Map one color in the bitmap to another color, returning a new bitmap
-	/// - Parameters:
-	///   - color: The color to replace
-	///   - replacementColor: The color to replace with
-	///   - includeTransparencyInCheck: If true, the pixel's alpha is used in the comparison check
-	func mappingColor(
-		_ color: Bitmap.RGBA,
-		to replacementColor: Bitmap.RGBA,
-		includeTransparencyInCheck: Bool = true
-	) throws -> Bitmap {
-		try self.makingCopy {
-			$0.mapColor(color, to: replacementColor, includeTransparencyInCheck: includeTransparencyInCheck)
-		}
-	}
-}
-
-public extension Bitmap {
 	/// Invert the colors in this bitmap
-	func invertColors() {
+	@discardableResult
+	func invertColors() -> Bitmap {
 		self.bitmapData.rgbaBytes.withUnsafeMutableBytes { buffer in
 			for p in stride(from: 0, to: buffer.count, by: 4) {
 				buffer[p] = 255 - buffer[p]
@@ -69,11 +31,13 @@ public extension Bitmap {
 				buffer[p + 2] = 255 - buffer[p + 2]
 			}
 		}
+		return self
 	}
 
 	/// Make a copy of this bitmap by inverting its colors
 	/// - Returns: A new bitmap
 	func invertingColors() throws -> Bitmap {
-		try self.makingCopy { $0.invertColors() }
+		try self.copy()
+			.invertColors()
 	}
 }
