@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
 s.name                       = 'Bitmap'
-s.version                    = '1.4.0'
+s.version                    = '1.5.0'
 s.summary                    = 'A Swift-y convenience for loading, saving and manipulating bitmap images.'
 s.homepage                   = 'https://github.com/dagronf/Bitmap'
 s.license                    = { :type => 'MIT', :file => 'LICENSE' }
