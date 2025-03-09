@@ -26,7 +26,7 @@ public extension Bitmap {
 	/// - Parameter inputRadius: The blur radius
 	@inlinable func blur(_ inputRadius: Int32 = 5) throws {
 		let update = try self.blurring(inputRadius)
-		try self.assign(update.bitmapData)
+		try self.replaceContents(with: update.bitmapData)
 	}
 
 	/// Return a blurred version of this bitmap using a box convolve

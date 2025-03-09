@@ -39,6 +39,6 @@ public extension Bitmap {
 	/// the current bitmap as required
 	/// - Parameter size: The new size for the bitmap
 	@inlinable func adjustSize(to size: CGSize) throws {
-		try self.assign(try self.adjustingSize(to: size))
+		try self.replaceContents(with: try self.adjustingSize(to: size))
 	}
 }

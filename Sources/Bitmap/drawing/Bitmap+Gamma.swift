@@ -28,7 +28,7 @@ public extension Bitmap {
 	/// Adjusts midtone brightness
 	/// - Parameter power: The input power. The larger the value, the darker the result
 	@inlinable func adjustGamma(power: Double) throws {
-		try self.assign(try self.adjustingGamma(power: power))
+		try self.replaceContents(with: try self.adjustingGamma(power: power))
 	}
 }
 

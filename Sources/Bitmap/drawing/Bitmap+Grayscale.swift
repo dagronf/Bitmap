@@ -27,7 +27,7 @@ import CoreImage
 public extension Bitmap {
 	/// Apply a grayscale filter to this bitmap
 	@inlinable func grayscale() throws {
-		try self.assign(try self.grayscaling())
+		try self.replaceContents(with: try self.grayscaling())
 	}
 }
 

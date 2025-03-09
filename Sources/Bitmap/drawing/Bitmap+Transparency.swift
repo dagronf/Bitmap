@@ -24,14 +24,14 @@ public extension Bitmap {
 	/// Remove transparency from this image
 	/// - Parameter backgroundColor: The background color
 	@inlinable func removeTransparency(backgroundColor: CGColor = .standard.black) throws {
-		try self.assign(try self.removingTransparency(backgroundColor: backgroundColor))
+		try self.replaceContents(with: try self.removingTransparency(backgroundColor: backgroundColor))
 	}
 
 	/// Remove transparency from this image
 	/// - Parameter backgroundColor: The background color
 	/// - Returns: A new bitmap with the transparency removed
 	@inlinable func removeTransparency(backgroundColor: Bitmap.RGBA = .black) throws {
-		try self.assign(try self.removingTransparency(backgroundColor: backgroundColor))
+		try self.replaceContents(with: try self.removingTransparency(backgroundColor: backgroundColor))
 	}
 
 	/// Create a new image by removing the transparency information from this image

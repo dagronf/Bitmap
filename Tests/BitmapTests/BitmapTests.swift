@@ -1909,6 +1909,43 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 	}
 
+	func testBitmapReplaceContent() throws {
+
+		markdown.h2("Replacing image content")
+
+		do {
+			markdown.h3("same size")
+
+			let orig = bitmapResource(name: "dog", extension: "jpeg")
+			try markdown.image(orig)
+
+			// Replace content with an image of the same size
+			let bdogInverted = try orig.invertingColors()
+			try orig.replaceContents(with: bdogInverted)
+			try markdown.image(orig)
+
+			markdown.br()
+		}
+
+		do {
+			markdown.h3("different sizes")
+
+			let orig = bitmapResource(name: "dog", extension: "jpeg")
+			try markdown.image(orig)
+
+			// Replace with a different size
+			let bviking = bitmapResource(name: "viking", extension: "jpg")
+			try orig.replaceContents(with: bviking)
+
+			try markdown.image(orig)
+
+			markdown.br()
+		}
+
+		markdown.br()
+	}
+
+
 #if canImport(CoreImage)
 	func testGamma() throws {
 

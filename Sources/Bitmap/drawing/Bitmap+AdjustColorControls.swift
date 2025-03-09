@@ -37,8 +37,8 @@ public extension Bitmap {
 		brightness: Double = 0.0,
 		contrast: Double = 1.0
 	) throws {
-		try self.assign(
-			try self.adjustingColorControls(
+		try self.replaceContents(
+			with: try self.adjustingColorControls(
 				saturation: saturation,
 				brightness: brightness,
 				contrast: contrast

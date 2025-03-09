@@ -27,7 +27,7 @@ public extension Bitmap {
 	/// - Parameter maskImage: The mask image
 	/// - Returns: self
 	@discardableResult func mask(using maskImage: ImageRepresentationType) throws -> Bitmap {
-		try self.assign(try self.masking(using: try maskImage.imageRepresentation()))
+		try self.replaceContents(with: try self.masking(using: try maskImage.imageRepresentation()))
 		return self
 	}
 

@@ -28,7 +28,7 @@ public extension Bitmap {
 	///
 	/// The original bitmap size is not affected.
 	@inlinable func inset(by value: Double, backgroundColor: CGColor? = nil) throws {
-		try self.assign(try self.insetting(by: value, backgroundColor: backgroundColor))
+		try self.replaceContents(with: try self.insetting(by: value, backgroundColor: backgroundColor))
 	}
 
 	/// Inset this bitmap
@@ -36,7 +36,7 @@ public extension Bitmap {
 	///
 	/// The original bitmap size is not affected
 	@inlinable func inset(by edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
-		try self.assign(try self.insetting(by: edgeInsets, backgroundColor: backgroundColor))
+		try self.replaceContents(with: try self.insetting(by: edgeInsets, backgroundColor: backgroundColor))
 	}
 
 	/// Create a new bitmap by applying insets to this bitmap

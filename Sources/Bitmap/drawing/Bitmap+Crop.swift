@@ -73,7 +73,7 @@ public extension Bitmap {
 	///
 	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func crop(to rect: CGRect) throws {
-		try self.assign(self.cropping(to: rect))
+		try self.replaceContents(with: self.cropping(to: rect))
 	}
 
 	/// Crop the image to a path
@@ -81,6 +81,6 @@ public extension Bitmap {
 	///
 	/// The coordinate system (0, 0) is at the bitmap lower left
 	@inlinable func crop(to path: CGPath) throws {
-		try self.assign(self.cropping(to: path))
+		try self.replaceContents(with: self.cropping(to: path))
 	}
 }

@@ -370,22 +370,22 @@ public extension Bitmap {
 // MARK: - Adopting data from another bitmap
 
 extension Bitmap {
-	/// Assign the contents of another bitmap to this bitmap object
+	/// Replace the contents of this bitmap with another bitmap
 	/// - Parameter bitmap: The bitmap to copy
-	public func assign(_ bitmap: Bitmap) throws {
+	public func replaceContents(with bitmap: Bitmap) throws {
 		if bitmap.size == self.size {
 			// If the dimensions are the same, just reuse our existing context
 			self.bitmapData.setBytes(bitmap.rgbaBytes)
 		}
 		else {
 			// Build a new context and map the new data
-			try self.assign(bitmap.bitmapData)
+			try self.replaceContents(with: bitmap.bitmapData)
 		}
 	}
 
-	/// Assign the contents of another bitmap to this bitmap object
+	/// Replace the contents of this bitmap raw RGBA data
 	/// - Parameter data: The bitmap data to copy
-	public func assign(_ data: Bitmap.RGBAData) throws {
+	public func replaceContents(with data: Bitmap.RGBAData) throws {
 		self.bitmapData = data
 		guard
 			let ctx = CGContext(

@@ -26,7 +26,7 @@ public extension Bitmap {
 	///   - angle: The rotation angle
 	@inlinable func rotate<T: BinaryFloatingPoint>(by angle: Angle2D<T>) throws {
 		let update = try self.rotating(by: angle)
-		try self.assign(update.bitmapData)
+		try self.replaceContents(with: update.bitmapData)
 	}
 
 	/// Create a new bitmap by rotating this bitmap clockwise round its center
