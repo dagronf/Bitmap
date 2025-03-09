@@ -23,67 +23,71 @@ import Foundation
 // MARK: - Drawing
 
 public extension Bitmap {
-	/// Draw an image, scaling to fit within the specified rect
+	/// Create a new bitmap by drawing an image on this bitmap
 	/// - Parameters:
-	///   - image: The image to draw
+	///   - bitmap: The image to draw
 	///   - rect: The destination rect
 	///   - scaling: The scaling method for scaling the image up/down to fit/fill the rect
-	/// - Returns: A new bitmap
-	func drawingImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) throws -> Bitmap {
-		guard let image = self.cgImage else { throw BitmapError.cannotCreateCGImage }
-		let copy = try Bitmap(cgImage)
-		copy.drawImage(image, in: rect, scaling: scaling)
-		return copy
+	/// - Returns: A copy of this bitmap with the new bitmap drawn on
+	@inlinable func drawingBitmap(
+		_ image: ImageRepresentationType,
+		in rect: CGRect,
+		scaling: ScalingType = .axesIndependent
+	) throws -> Bitmap {
+		try self.copy()
+			.drawBitmap(image, in: rect, scaling: scaling)
 	}
 
-	/// Draw an image, scaling to fit within the specified rect
+	/// Draw an image onto this image, scaling to fit within the specified rect
 	/// - Parameters:
-	///   - cgImage: The image
+	///   - bitmap: The image to draw
 	///   - rect: The destination rect
 	///   - scaling: The scaling method for scaling the image up/down to fit/fill the rect
-	@inlinable func drawImage(_ cgImage: CGImage, in rect: CGRect, scaling: ScalingType = .axesIndependent) {
-		drawImageInContext(self.bitmapContext, image: cgImage, rect: rect, scalingType: scaling)
+	/// - Returns: self
+	@discardableResult
+	func drawBitmap(
+		_ image: ImageRepresentationType,
+		in rect: CGRect,
+		scaling: ScalingType = .axesIndependent
+	) throws -> Bitmap {
+		let image = try image.imageRepresentation()
+		drawImageInContext(self.bitmapContext, image: image, rect: rect, scalingType: scaling)
+		return self
 	}
 }
 
 public extension Bitmap {
-	/// Draw an image at a point within this bitmap, cropping to the bounds of the original image
-	/// - Parameters:
-	///   - image: The image to draw
-	///   - point: The point at which to draw the image
-	/// - Returns: A new bitmap
-	@inlinable func drawingBitmap(_ bitmap: Bitmap, atPoint point: CGPoint = .zero) throws -> Bitmap {
-		let newBitmap = try self.copy()
-		try newBitmap.drawBitmap(bitmap, atPoint: point)
-		return newBitmap
-	}
-
 	/// Draw an image at a point within this bitmap
 	/// - Parameters:
 	///   - image: The image to draw
 	///   - point: The point at which to draw the image
-	@inlinable func drawBitmap(_ bitmap: Bitmap, atPoint point: CGPoint = .zero) throws {
-		guard let overlayImage = bitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
-		self.drawImage(overlayImage, atPoint: point)
-	}
-
-	/// Draw an image at a point within this bitmap
-	/// - Parameters:
-	///   - image: The image to draw
-	///   - point: The point at which to draw the image
-	func drawImage(_ image: CGImage, atPoint point: CGPoint) {
+	/// - Returns: self
+	@discardableResult
+	func drawBitmap(_ image: ImageRepresentationType, atPoint point: CGPoint = .zero) throws -> Bitmap {
+		let image = try image.imageRepresentation()
 		let bounds = self.bounds
 		let dest = CGRect(origin: point, size: image.size)
 		self.draw { ctx in
 			ctx.clip(to: [bounds])
 			ctx.draw(image, in: dest)
 		}
+		return self
+	}
+
+	/// Draw an image at a point within this bitmap, cropping to the bounds of the original image
+	/// - Parameters:
+	///   - image: The image to draw
+	///   - point: The point at which to draw the image
+	/// - Returns: A new bitmap
+	@inlinable func drawingBitmap(_ image: ImageRepresentationType, atPoint point: CGPoint = .zero) throws -> Bitmap {
+		try self.copy()
+			.drawBitmap(image, atPoint: point)
 	}
 }
 
 // MARK: - Global implementations
 
-public func drawImageInContext(_ ctx: CGContext, image: CGImage, rect: CGRect, scalingType: Bitmap.ScalingType = .axesIndependent) {
+internal func drawImageInContext(_ ctx: CGContext, image: CGImage, rect: CGRect, scalingType: Bitmap.ScalingType = .axesIndependent) {
 	switch scalingType {
 	case .axesIndependent:
 		ctx.draw(image, in: rect)
@@ -94,7 +98,7 @@ public func drawImageInContext(_ ctx: CGContext, image: CGImage, rect: CGRect, s
 	}
 }
 
-public func drawImageToFit(in ctx: CGContext, image: CGImage, rect: CGRect) {
+internal func drawImageToFit(in ctx: CGContext, image: CGImage, rect: CGRect) {
 	let origSize = image.size
 
 	// Keep aspect ratio
@@ -132,7 +136,7 @@ public func drawImageToFit(in ctx: CGContext, image: CGImage, rect: CGRect) {
 	)
 }
 
-public func drawImageToFill(in ctx: CGContext, image: CGImage, rect: CGRect) {
+internal func drawImageToFill(in ctx: CGContext, image: CGImage, rect: CGRect) {
 	let imageSize = image.size
 
 	ctx.saveGState()

@@ -59,8 +59,7 @@ public extension Bitmap {
 		else {
 			throw BitmapError.cannotFilter
 		}
-		bitmap.drawImage(cgImage, atPoint: .zero)
-		return bitmap
+		return try bitmap.drawBitmap(cgImage, atPoint: .zero)
 	}
 }
 
@@ -101,8 +100,9 @@ public extension Bitmap {
 		else {
 			throw BitmapError.cannotFilter
 		}
+		
 		// Scale the 2x generated image down into the bitmap
-		bitmap.drawImage(cgImage, in: .init(origin: .zero, size: bitmap.bounds.size) )
+		try bitmap.drawBitmap(cgImage, in: .init(origin: .zero, size: bitmap.bounds.size) )
 		return bitmap
 	}
 }

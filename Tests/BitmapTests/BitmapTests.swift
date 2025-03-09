@@ -117,7 +117,7 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(100, image.width)
 		XCTAssertEqual(100, image.height)
 
-		let paddedBitmap = try bitmap.padding(40, backgroundColor: .standard.black)
+		let paddedBitmap = try bitmap.padding(by: 40, backgroundColor: .standard.black)
 		try markdown.image(paddedBitmap, linked: true)
 		XCTAssertEqual(180, paddedBitmap.width)
 		XCTAssertEqual(180, paddedBitmap.height)
@@ -302,19 +302,19 @@ final class BitmapTests: XCTestCase {
 
 		do {
 			let bitmap = try Bitmap(width: 200, height: 200)
-			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100))
+			try bitmap.drawBitmap(image, in: CGRect(x: 50, y: 50, width: 100, height: 100))
 			try markdown.image(bitmap, linked: true)
 		}
 		markdown.raw("|")
 		do {
 			let bitmap = try Bitmap(width: 200, height: 200)
-			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFit)
+			try bitmap.drawBitmap(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFit)
 			try markdown.image(bitmap, linked: true)
 		}
 		markdown.raw("|")
 		do {
 			let bitmap = try Bitmap(width: 200, height: 200)
-			bitmap.drawImage(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFill)
+			try bitmap.drawBitmap(image, in: CGRect(x: 50, y: 50, width: 100, height: 100), scaling: .aspectFill)
 			try markdown.image(bitmap, linked: true)
 		}
 		markdown.raw("|")
@@ -659,6 +659,87 @@ final class BitmapTests: XCTestCase {
 		try markdown.image(resized, linked: true)
 
 		markdown.raw("|")
+		markdown.br()
+	}
+
+	func testInset() throws {
+		markdown.h2("Testing insets and padding")
+
+		let image = try bitmapResource(name: "dog", extension: "jpeg")
+			//.scaling(scale: 0.25)
+
+		markdown.h3("Insets")
+
+		do {
+			try markdown.image(image, linked: true)
+
+			let inset1 = try image.insetting(by: 8)
+				.drawingBorder()
+			try markdown.image(inset1, linked: true)
+
+			let inset2 = try image.insetting(by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5))
+				.drawingBorder()
+			try markdown.image(inset2, linked: true)
+		}
+
+		markdown.br()
+
+		do {
+			try markdown.image(image, linked: true)
+
+			let inset1 = try image.insetting(
+				by: 8,
+				backgroundColor: CGColor(red: 0, green: 1, blue: 0, alpha: 1)
+			)
+			.drawingBorder()
+			try markdown.image(inset1, linked: true)
+
+			let inset2 = try image.insetting(
+				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5),
+				backgroundColor: CGColor(red: 0, green: 1, blue: 0, alpha: 1)
+			)
+			.drawingBorder()
+			try markdown.image(inset2, linked: true)
+		}
+
+		markdown.br()
+
+		markdown.h3("Padding")
+
+		do {
+			try markdown.image(image, linked: true)
+
+			let inset1 = try image.padding(by: 8)
+				.drawingBorder()
+			try markdown.image(inset1, linked: true)
+
+			let inset2 = try image.padding(
+				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5)
+			)
+			.drawingBorder()
+			try markdown.image(inset2, linked: true)
+		}
+
+		markdown.br()
+
+		do {
+			try markdown.image(image, linked: true)
+
+			let inset1 = try image.padding(
+				by: 8,
+				backgroundColor: CGColor(red: 0, green: 0, blue: 1, alpha: 1)
+			)
+			.drawingBorder()
+			try markdown.image(inset1, linked: true)
+
+			let inset2 = try image.padding(
+				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5),
+				backgroundColor: CGColor(red: 0, green: 0, blue: 1, alpha: 1)
+			)
+			.drawingBorder()
+			try markdown.image(inset2, linked: true)
+		}
+
 		markdown.br()
 	}
 

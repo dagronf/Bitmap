@@ -27,16 +27,16 @@ public extension Bitmap {
 	/// - Parameters:
 	///   - value: The amount to pad the edges of the bitmap
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
-	@inlinable func padded(_ value: CGFloat, backgroundColor: CGColor? = nil) throws {
-		try self.assign(try self.padding(value, backgroundColor: backgroundColor))
+	@inlinable func pad(by value: CGFloat, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.padding(by: value, backgroundColor: backgroundColor))
 	}
 
 	/// Pad the current image by adding pixels on all edges (so the image will be larger)
 	/// - Parameters:
 	///   - padding: The padding to apply to each edge of the bitmap
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
-	@inlinable func padded(_ padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
-		try self.assign(try self.padding(padding, backgroundColor: backgroundColor))
+	@inlinable func pad(by padding: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.padding(by: padding, backgroundColor: backgroundColor))
 	}
 
 	/// Create a new bitmap by padding the edges of the image with additional pixels
@@ -44,9 +44,9 @@ public extension Bitmap {
 	///   - value: The amount to pad the edges of the bitmap
 	///   - backgroundColor: The color to use for the extended edges, or `nil` for transparent
 	/// - Returns: A new bitmap
-	@inlinable func padding(_ value: Double, backgroundColor: CGColor? = nil) throws -> Bitmap {
+	@inlinable func padding(by value: Double, backgroundColor: CGColor? = nil) throws -> Bitmap {
 		try padding(
-			NSEdgeInsets(top: value, left: value, bottom: value, right: value),
+			by: NSEdgeInsets(top: value, left: value, bottom: value, right: value),
 			backgroundColor: backgroundColor
 		)
 	}
@@ -56,7 +56,7 @@ public extension Bitmap {
 	///   - edgeInsets: the padding to apply to each edge
 	///   - backgroundColor: The background color to use for the padded areas, or nil for clear
 	/// - Returns: A new bitmap
-	func padding(_ edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
+	func padding(by edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
 		guard
 			edgeInsets.top >= 0,
 			edgeInsets.bottom >= 0,
@@ -84,14 +84,13 @@ public extension Bitmap {
 			newImage.draw { ctx in
 				// Clip out the image's destination out of the background fill
 				ctx.addRect(bounds)
-				ctx.addPath(CGPath(rect: imageDestination, transform: nil))
+				ctx.addRect(imageDestination)
 				ctx.clip(using: .evenOdd)
 				ctx.setFillColor(backgroundColor)
 				ctx.fill(bounds)
 			}
 		}
 
-		newImage.drawImage(cgi, in: imageDestination)
-		return newImage
+		return try newImage.drawBitmap(cgi, in: imageDestination)
 	}
 }

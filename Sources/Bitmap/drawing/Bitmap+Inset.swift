@@ -23,28 +23,38 @@ import CoreGraphics
 // MARK: - Inset
 
 public extension Bitmap {
-	/// Insets the current bitmap
+	/// Inset this bitmap
 	/// - Parameter value: The amount to inset the bitmap
-	@inlinable func inset(_ value: Double) throws {
-		try self.assign(try self.inset(NSEdgeInsets(top: value, left: value, bottom: value, right: value)))
-	}
-
-	/// Insets the current bitmap
-	@inlinable func insetting(_ edgeInsets: NSEdgeInsets) throws {
-		try self.assign(try self.inset(edgeInsets))
-	}
-
-	/// Create a new image by insetting the current image with transparent pixels
-	@inlinable func insetting(_ value: Double) throws -> Bitmap {
-		try self.inset(NSEdgeInsets(top: value, left: value, bottom: value, right: value))
-	}
-
-	/// Create a new image by insetting the current image within the bitmap
 	///
-	/// Resulting image will be the same dimension as the original
+	/// The original bitmap size is not affected.
+	@inlinable func inset(by value: Double, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.insetting(by: value, backgroundColor: backgroundColor))
+	}
+
+	/// Inset this bitmap
+	/// - Parameter edgeInsets: Edge insets to apply
 	///
-	/// Uses transparent pixels for the padded areas
-	func inset(_ edgeInsets: NSEdgeInsets) throws -> Bitmap {
+	/// The original bitmap size is not affected
+	@inlinable func inset(by edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws {
+		try self.assign(try self.insetting(by: edgeInsets, backgroundColor: backgroundColor))
+	}
+
+	/// Create a new bitmap by applying insets to this bitmap
+	/// - Parameter value: The amount to inset
+	/// - Returns: A copy of this bitmap with the inset applied
+	@inlinable func insetting(by value: Double, backgroundColor: CGColor? = nil) throws -> Bitmap {
+		try self.insetting(
+			by: NSEdgeInsets(top: value, left: value, bottom: value, right: value),
+			backgroundColor: backgroundColor
+		)
+	}
+
+	/// Create a new bitmap by applying insets to this bitmap
+	/// - Parameters:
+	///   - edgeInsets: the padding to apply to each edge
+	///   - backgroundColor: The background color to use for the inset areas, or nil for clear
+	/// - Returns: A copy of this bitmap with the inset applied
+	func insetting(by edgeInsets: NSEdgeInsets, backgroundColor: CGColor? = nil) throws -> Bitmap {
 		guard
 			edgeInsets.top >= 0,
 			edgeInsets.bottom >= 0,
@@ -60,15 +70,26 @@ public extension Bitmap {
 
 		// New bitmap will be the same pixel size as the original
 		let newImage = try Bitmap(width: self.width, height: self.height)
+
 		let nw = Double(self.width) - (edgeInsets.left + edgeInsets.right)
 		let nh = Double(self.height) - (edgeInsets.top + edgeInsets.bottom)
-		newImage.drawImage(
-			cgi,
-			in: CGRect(
-				origin: CGPoint(x: edgeInsets.left, y: edgeInsets.bottom),
-				size: CGSize(width: nw, height: nh)
-			)
+		let imageDestination = CGRect(
+			origin: CGPoint(x: edgeInsets.left, y: edgeInsets.bottom),
+			size: CGSize(width: nw, height: nh)
 		)
-		return newImage
+
+		if let backgroundColor = backgroundColor {
+			let bounds = newImage.bounds
+			newImage.draw { ctx in
+				// Clip out the image's destination out of the background fill
+				ctx.addRect(bounds)
+				ctx.addRect(imageDestination)
+				ctx.clip(using: .evenOdd)
+				ctx.setFillColor(backgroundColor)
+				ctx.fill(bounds)
+			}
+		}
+
+		return try newImage.drawBitmap(cgi, in: imageDestination)
 	}
 }

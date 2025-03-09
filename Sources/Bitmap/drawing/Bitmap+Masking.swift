@@ -27,22 +27,21 @@ public extension Bitmap {
 		try self.assign(try self.masking(using: maskImage))
 	}
 
-	/// Create a new bitmap by masking this image using an image mask
-	/// - Parameter maskBitmap: The mask image
-	@inlinable func mask(using maskBitmap: Bitmap) throws {
-		try self.assign(try self.masking(using: maskBitmap))
+	/// Mask this bitmap using a mask bitmap
+	/// - Parameter maskImage: The mask image
+	@inlinable func mask(using maskImage: ImageRepresentationType) throws {
+		try self.assign(try self.masking(using: try maskImage.imageRepresentation()))
 	}
 
-	/// Mask this bitmap using a mask bitmap
-	/// - Parameter maskBitmap: The mask bitmap
+	/// Create a new bitmap by masking this image using an image mask
+	/// - Parameter maskImage: The mask bitmap
 	/// - Returns: A new bitmap
-	@inlinable func masking(using maskBitmap: Bitmap) throws -> Bitmap {
-		guard let origImage = maskBitmap.cgImage else { throw BitmapError.cannotCreateCGImage }
-		return try self.masking(using: origImage)
+	@inlinable func masking(using maskImage: ImageRepresentationType) throws -> Bitmap {
+		try self.masking(using: try maskImage.imageRepresentation())
 	}
 
 	/// Create a new bitmap by masking this bitmap using a mask image
-	/// - Parameter maskBitmap: The mask image
+	/// - Parameter maskImage: The mask image
 	/// - Returns: A new bitmap
 	func masking(using maskImage: CGImage) throws -> Bitmap {
 		guard let origImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }

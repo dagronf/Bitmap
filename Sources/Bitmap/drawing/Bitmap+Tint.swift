@@ -49,7 +49,7 @@ public extension Bitmap {
 		guard let ti = tinted.cgImage else { throw BitmapError.cannotCreateCGImage }
 
 		// And draw the tinted part back into the original image
-		self.drawImage(ti, in: rect)
+		try self.drawBitmap(ti, in: rect)
 	}
 
 	/// Tint an area within a bitmap with a specific color
