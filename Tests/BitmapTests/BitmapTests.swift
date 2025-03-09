@@ -663,11 +663,9 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testInset() throws {
+		let image = bitmapResource(name: "dog", extension: "jpeg")
+		
 		markdown.h2("Testing insets and padding")
-
-		let image = try bitmapResource(name: "dog", extension: "jpeg")
-			//.scaling(scale: 0.25)
-
 		markdown.h3("Insets")
 
 		do {

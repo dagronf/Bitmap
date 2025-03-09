@@ -20,56 +20,49 @@
 import Foundation
 import CoreGraphics
 
-public extension Bitmap {
-	/// Mask this image using an image mask
-	/// - Parameter maskImage: the mask image
-	@inlinable func mask(using maskImage: CGImage) throws {
-		try self.assign(try self.masking(using: maskImage))
-	}
+// MARK: - Mask using an image
 
+public extension Bitmap {
 	/// Mask this bitmap using a mask bitmap
 	/// - Parameter maskImage: The mask image
-	@inlinable func mask(using maskImage: ImageRepresentationType) throws {
+	/// - Returns: self
+	@discardableResult func mask(using maskImage: ImageRepresentationType) throws -> Bitmap {
 		try self.assign(try self.masking(using: try maskImage.imageRepresentation()))
+		return self
 	}
 
 	/// Create a new bitmap by masking this image using an image mask
 	/// - Parameter maskImage: The mask bitmap
 	/// - Returns: A new bitmap
-	@inlinable func masking(using maskImage: ImageRepresentationType) throws -> Bitmap {
-		try self.masking(using: try maskImage.imageRepresentation())
-	}
-
-	/// Create a new bitmap by masking this bitmap using a mask image
-	/// - Parameter maskImage: The mask image
-	/// - Returns: A new bitmap
-	func masking(using maskImage: CGImage) throws -> Bitmap {
+	func masking(using maskImage: ImageRepresentationType) throws -> Bitmap {
 		guard let origImage = self.cgImage else { throw BitmapError.cannotCreateCGImage }
+		let maskImage = try maskImage.imageRepresentation()
 		let origRect = self.bounds
-		let bitmap = try Bitmap(size: origRect.size)
-		bitmap.draw { ctx in
+		let resultBitmap = try Bitmap(size: origRect.size)
+		resultBitmap.draw { ctx in
 			ctx.clip(to: origRect, mask: maskImage)
 			ctx.draw(origImage, in: origRect)
 		}
-		return bitmap
+		return resultBitmap
 	}
 }
+
+// MARK: - Mask using a path
 
 public extension Bitmap {
 	/// Mask out the part of the bitmap contained within the image
 	/// - Parameter path: The mask path
-	func mask(using path: CGPath) throws {
+	@discardableResult func mask(using path: CGPath) throws -> Bitmap {
 		let cropped = try self.cropping(to: path)
 		self.eraseAll()
 		try self.drawBitmap(cropped, atPoint: path.boundingBoxOfPath.origin)
+		return self
 	}
 
 	/// Create a new bitmap by masking this bitmap with a path
 	/// - Parameter path: The path to mask
 	/// - Returns: A new bitmap
 	func masking(using path: CGPath) throws -> Bitmap {
-		let copy = try self.copy()
-		try copy.mask(using: path)
-		return copy
+		try self.copy().mask(using: path)
 	}
 }
