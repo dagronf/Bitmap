@@ -664,7 +664,7 @@ final class BitmapTests: XCTestCase {
 
 	func testInset() throws {
 		let image = bitmapResource(name: "dog", extension: "jpeg")
-		
+
 		markdown.h2("Testing insets and padding")
 		markdown.h3("Insets")
 
@@ -689,14 +689,14 @@ final class BitmapTests: XCTestCase {
 				by: 8,
 				backgroundColor: CGColor(red: 0, green: 1, blue: 0, alpha: 1)
 			)
-			.drawingBorder()
+				.drawingBorder()
 			try markdown.image(inset1, linked: true)
 
 			let inset2 = try image.insetting(
 				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5),
 				backgroundColor: CGColor(red: 0, green: 1, blue: 0, alpha: 1)
 			)
-			.drawingBorder()
+				.drawingBorder()
 			try markdown.image(inset2, linked: true)
 		}
 
@@ -714,7 +714,7 @@ final class BitmapTests: XCTestCase {
 			let inset2 = try image.padding(
 				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5)
 			)
-			.drawingBorder()
+				.drawingBorder()
 			try markdown.image(inset2, linked: true)
 		}
 
@@ -727,14 +727,14 @@ final class BitmapTests: XCTestCase {
 				by: 8,
 				backgroundColor: CGColor(red: 0, green: 0, blue: 1, alpha: 1)
 			)
-			.drawingBorder()
+				.drawingBorder()
 			try markdown.image(inset1, linked: true)
 
 			let inset2 = try image.padding(
 				by: NSEdgeInsets(top: 15, left: 20, bottom: 8, right: 5),
 				backgroundColor: CGColor(red: 0, green: 0, blue: 1, alpha: 1)
 			)
-			.drawingBorder()
+				.drawingBorder()
 			try markdown.image(inset2, linked: true)
 		}
 
@@ -803,7 +803,7 @@ final class BitmapTests: XCTestCase {
 		)
 
 		try markdown.image(image, linked: true)
-		
+
 		markdown.raw("|")
 		markdown.br()
 	}
@@ -856,7 +856,7 @@ final class BitmapTests: XCTestCase {
 	}
 
 	func testDrawBitmap() throws {
-		
+
 		markdown.h2("Check bitmap draw coordinate zero")
 
 		let orig = bitmapResource(name: "16-squares", extension: "png")
@@ -884,7 +884,7 @@ final class BitmapTests: XCTestCase {
 		markdown.h2("Crop checking")
 
 		let orig = bitmapResource(name: "16-squares", extension: "png")
-		
+
 		markdown.raw("| original (48x48) | (0,0->24,24) | (12,12->36,36) | (24,24->48,48) |\n")
 		markdown.raw("|----|----|----|----|\n")
 		markdown.raw("|")
@@ -1442,7 +1442,7 @@ final class BitmapTests: XCTestCase {
 
 				markdown.raw("|")
 			}
-		
+
 			markdown.raw("\n")
 
 			do {
@@ -1508,7 +1508,7 @@ final class BitmapTests: XCTestCase {
 					color0: CGColor(gray: 0, alpha: 0.05),
 					color1: CGColor(gray: 0, alpha: 0.15)
 				)
-				
+
 				try markdown.image(bg.drawingBitmap(orig), linked: true)
 
 				markdown.raw("|")
@@ -1551,7 +1551,7 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 	}
 
-	#if !os(watchOS)
+#if !os(watchOS)
 	func testLayer() throws {
 		let l = CAShapeLayer()
 		l.frame = CGRect(origin: .zero, size: CGSize(width: 30, height: 30))
@@ -1585,9 +1585,9 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(cg.width, 60)
 		XCTAssertEqual(cg.height, 60)
 	}
-	#endif
+#endif
 
-	#if os(macOS)
+#if os(macOS)
 	@MainActor func testBasicNSView() throws {
 		let v = NSButton()
 		v.translatesAutoresizingMaskIntoConstraints = false
@@ -1600,7 +1600,7 @@ final class BitmapTests: XCTestCase {
 		XCTAssertEqual(cg.width, bitmap.width)
 		XCTAssertEqual(cg.height, bitmap.height)
 	}
-	#elseif !os(watchOS)
+#elseif !os(watchOS)
 	@MainActor func testBasicUIView() throws {
 		let view = UIButton(type: .roundedRect)
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -1608,17 +1608,17 @@ final class BitmapTests: XCTestCase {
 		view.layer.backgroundColor = .standard.red
 		view.tintColor = .white
 		view.layer.cornerRadius = 6
- 		view.sizeToFit()
+		view.sizeToFit()
 
 		let bitmap = try Bitmap(view)
-		
+
 		XCTAssertGreaterThan(bitmap.width, 0)
 		XCTAssertGreaterThan(bitmap.height, 0)
 		let cg = try XCTUnwrap(bitmap.cgImage)
 		XCTAssertEqual(cg.width, bitmap.width)
 		XCTAssertEqual(cg.height, bitmap.height)
 	}
-	#endif
+#endif
 
 	func testExtract() throws {
 
@@ -1958,71 +1958,110 @@ final class BitmapTests: XCTestCase {
 		markdown.raw("|")
 		try markdown.image(o1)
 		markdown.raw("|")
-		try markdown.image(o1.dithered(.atkinson))
+		try markdown.image(o1.dithering(.atkinson))
 		markdown.raw("|")
-		try markdown.image(o1.dithered(.floydSteinberg))
+		try markdown.image(o1.dithering(.floydSteinberg))
 		markdown.raw("|")
-		try markdown.image(o1.dithered(.jarvisJudiceNinke))
+		try markdown.image(o1.dithering(.jarvisJudiceNinke))
 		markdown.raw("|\n")
 
 		markdown.raw("|")
 		try markdown.image(o2)
 		markdown.raw("|")
-		try markdown.image(o2.dithered(.atkinson))
+		try markdown.image(o2.dithering(.atkinson))
 		markdown.raw("|")
-		try markdown.image(o2.dithered(.floydSteinberg))
+		try markdown.image(o2.dithering(.floydSteinberg))
 		markdown.raw("|")
-		try markdown.image(o2.dithered(.jarvisJudiceNinke))
+		try markdown.image(o2.dithering(.jarvisJudiceNinke))
 		markdown.raw("|\n")
 
 		markdown.br()
+	}
+
+	func testQuantizeBW() throws {
+		markdown.h2("Quantize BW")
+
+		let o1 = bitmapResource(name: "sf-bb", extension: "jpeg")
+		let o2 = bitmapResource(name: "sf-ggb", extension: "jpeg")
 
 		markdown.raw("| original | Q(100) | Q(200) |\n")
 		markdown.raw("|----|----|----|\n")
 		markdown.raw("|")
 		try markdown.image(o1)
 		markdown.raw("|")
-		try markdown.image(o1.dithered(.quantize(100)))
+		try markdown.image(o1.quantizingBlackWhite(100))
 		markdown.raw("|")
-		try markdown.image(o1.dithered(.quantize(200)))
+		try markdown.image(o1.quantizingBlackWhite(200))
 		markdown.raw("|\n")
 		markdown.raw("|")
 		try markdown.image(o2)
 		markdown.raw("|")
-		try markdown.image(o2.dithered(.quantize(100)))
+		try markdown.image(o2.quantizingBlackWhite(100))
 		markdown.raw("|")
-		try markdown.image(o2.dithered(.quantize(200)))
+		try markdown.image(o2.quantizingBlackWhite(200))
 		markdown.raw("|\n")
 
-//		markdown.h3("Atkinson dithering")
-//		try markdown.image(o1)
-//		try markdown.image(o1.dithered(.atkinson), width: 200)
-//		try markdown.image(o2)
-//		try markdown.image(o2.dithered(.atkinson))
-//		markdown.br()
-//
-//		markdown.h3("Floyd-Steinberg dithering")
-//		try markdown.image(o1)
-//		try markdown.image(o1.dithered(.floydSteinberg))
-//		try markdown.image(o2)
-//		try markdown.image(o2.dithered(.floydSteinberg))
-//		markdown.br()
-//
-//		markdown.h3("Jarvis-Judice-Ninke dithering")
-//		try markdown.image(o1)
-//		try markdown.image(o1.dithered(.jarvisJudiceNinke))
-//		try markdown.image(o2)
-//		try markdown.image(o2.dithered(.jarvisJudiceNinke))
-//		markdown.br()
-//
-//		markdown.h3("Quantize")
-//		try markdown.image(o1)
-//		try markdown.image(o1.dithered(.quantize(100)))
-//		try markdown.image(o1.dithered(.quantize(200)))
-//		markdown.br()
-//		try markdown.image(o2)
-//		try markdown.image(o2.dithered(.quantize(100)))
-//		try markdown.image(o2.dithered(.quantize(200)))
+		markdown.br()
+	}
+
+	func testQuantizeGrays() throws {
+
+		markdown.h2("Quantize grays")
+
+		let o1 = bitmapResource(name: "dog", extension: "jpeg")
+		let g1 = try o1.grayscaling()
+		let q1 = try o1.quantizingGray(bucketCount: 4)
+		let q2 = try o1.quantizingGray(bucketCount: 8)
+		let q3 = try o1.quantizingGray(bucketCount: 16)
+
+		markdown.raw("| original | gray | 4 | 8 | 16 |\n")
+		markdown.raw("|----|----|----|----|----|\n")
+		markdown.raw("|")
+		try markdown.image(o1, linked: true)
+		markdown.raw("|")
+		try markdown.image(g1, linked: true)
+		markdown.raw("|")
+		try markdown.image(q1, linked: true)
+		markdown.raw("|")
+		try markdown.image(q2, linked: true)
+		markdown.raw("|")
+		try markdown.image(q3, linked: true)
+		markdown.raw("|")
+		markdown.br()
+
+	}
+
+	func testQuantizeGrays2() throws {
+
+		markdown.h2("Quantize linear gradient")
+
+		let c1 = try Bitmap(size: CGSize(width: 300, height: 300)) { ctx in
+			let c = CGGradient(
+				colorsSpace: CGColorSpace(name: CGColorSpace.extendedSRGB),
+				colors: [CGColor(gray: 0, alpha: 1), CGColor(gray: 1, alpha: 1)] as CFArray,
+				locations: [0.0, 1.0]
+			)!
+			ctx.drawLinearGradient(c, start: .init(x: 0, y: 300), end: .init(x: 300, y: 0), options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+		}
+		let q11 = try c1.quantizingGray(bucketCount: 4)
+		let q12 = try c1.quantizingGray(bucketCount: 8)
+		let q13 = try c1.quantizingGray(bucketCount: 16)
+		let q14 = try c1.quantizingGray(bucketCount: 64)
+
+		markdown.raw("| original | 4 | 8 | 16 | 64 |\n")
+		markdown.raw("|----|----|----|----|----|----|\n")
+		markdown.raw("|")
+		try markdown.image(c1, linked: true)
+		markdown.raw("|")
+		try markdown.image(q11, linked: true)
+		markdown.raw("|")
+		try markdown.image(q12, linked: true)
+		markdown.raw("|")
+		try markdown.image(q13, linked: true)
+		markdown.raw("|")
+		try markdown.image(q14, linked: true)
+		markdown.raw("|")
+		markdown.br()
 
 		markdown.br()
 	}

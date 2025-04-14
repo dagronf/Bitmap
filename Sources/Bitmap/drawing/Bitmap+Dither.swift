@@ -25,7 +25,6 @@ import CoreGraphics
 public extension Bitmap {
 	/// Types of dithering
 	enum DitherType {
-		case quantize(UInt8)
 		case atkinson
 		case floydSteinberg
 		case jarvisJudiceNinke
@@ -34,7 +33,7 @@ public extension Bitmap {
 	/// Black/white dither the image
 	/// - Parameter ditherType: The type of dithering to apply
 	/// - Returns: New bitmap
-	func dithered(_ ditherType: DitherType) throws -> Bitmap {
+	func dithering(_ ditherType: DitherType) throws -> Bitmap {
 		var gray = try self.grayscaling()
 
 		for y in (0 ..< self.height) {
@@ -48,26 +47,18 @@ public extension Bitmap {
 				// Calculate error
 				let error = Int(oldPixel) - Int(newPixel)
 
+				gray[x, y] = RGBA(r: UInt8(newPixel), g: UInt8(newPixel), b: UInt8(newPixel))
+
 				switch ditherType {
 				case .atkinson:
-					// Store the new pixel
-					gray[x, y] = RGBA(r: UInt8(newPixel), g: UInt8(newPixel), b: UInt8(newPixel))
 					atkinsonDither(x: x, y: y, error: error, bitmap: &gray)
 				case .floydSteinberg:
-					// Store the new pixel
-					gray[x, y] = RGBA(r: UInt8(newPixel), g: UInt8(newPixel), b: UInt8(newPixel))
 					floydSteinbergDither(x: x, y: y, error: error, bitmap: &gray)
 				case .jarvisJudiceNinke:
-					// Store the new pixel
-					gray[x, y] = RGBA(r: UInt8(newPixel), g: UInt8(newPixel), b: UInt8(newPixel))
 					jarvisJudiceNinkeDither(x: x, y: y, error: error, bitmap: &gray)
-				case .quantize(let q):
-					let value = gray[x, y].r > q ? 1.0 : 0.0
-					gray[x, y] = RGBA(rf: value, gf: value, bf: value, af: 1)
 				}
 			}
 		}
-
 		return gray
 	}
 }
@@ -76,7 +67,7 @@ public extension Bitmap {
 	/// Black/white dither this image
 	/// - Parameter ditherType: The type of dithering to apply
 	@inlinable func dither(_ ditherType: DitherType) throws {
-		try self.replaceContent(with: try self.dithered(ditherType))
+		try self.replaceContent(with: try self.dithering(ditherType))
 	}
 }
 
