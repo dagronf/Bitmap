@@ -33,8 +33,8 @@ public class Bitmap {
 	/// Raw bitmap information
 	public internal(set) var bitmapData: Bitmap.RGBAData
 	/// The raw RGBA byte data for the bitmap
+	@inlinable @inline(__always)
 	public var rgbaBytes: [UInt8] { bitmapData.rgbaBytes }
-
 	/// The width of the image in pixels
 	@inlinable public var width: Int { bitmapData.width }
 	/// The height of the image in pixels
@@ -408,12 +408,21 @@ extension Bitmap {
 		self.bitmapContext = ctx
 		return self
 	}
+}
 
+// MARK: - Creating copies
+
+extension Bitmap {
 	/// Make a copy of this bitmap, and perform a block on that copy
-	/// - Parameter block: The block to perform on the copy
+	/// - Parameters:
+	///   - isEmpty: If true, make a new bitmap with the same size without copying the content
+	///   - block: The block to call after creating the new bitmap
 	/// - Returns: A copy of the bitmap
-	internal func makingCopy(_ block: (Bitmap) throws -> Void) throws -> Bitmap {
-		let copy = try self.copy()
+	internal func makingCopy(
+		isEmpty: Bool = false,
+		_ block: (Bitmap) throws -> Void = { _ in }
+	) throws -> Bitmap {
+		let copy = isEmpty ? try Bitmap(size: self.size) : try self.copy()
 		try block(copy)
 		return copy
 	}

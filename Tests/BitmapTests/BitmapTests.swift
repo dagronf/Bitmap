@@ -1945,6 +1945,87 @@ final class BitmapTests: XCTestCase {
 		markdown.br()
 	}
 
+	func testAtkinsonDithering() throws {
+
+		markdown.h2("Dithering")
+
+		let o1 = bitmapResource(name: "sf-bb", extension: "jpeg")
+		let o2 = bitmapResource(name: "sf-ggb", extension: "jpeg")
+
+		markdown.raw("| original | atkinson | floyd-steinberg | JJN |\n")
+		markdown.raw("|----|----|----|----|\n")
+
+		markdown.raw("|")
+		try markdown.image(o1)
+		markdown.raw("|")
+		try markdown.image(o1.dithered(.atkinson))
+		markdown.raw("|")
+		try markdown.image(o1.dithered(.floydSteinberg))
+		markdown.raw("|")
+		try markdown.image(o1.dithered(.jarvisJudiceNinke))
+		markdown.raw("|\n")
+
+		markdown.raw("|")
+		try markdown.image(o2)
+		markdown.raw("|")
+		try markdown.image(o2.dithered(.atkinson))
+		markdown.raw("|")
+		try markdown.image(o2.dithered(.floydSteinberg))
+		markdown.raw("|")
+		try markdown.image(o2.dithered(.jarvisJudiceNinke))
+		markdown.raw("|\n")
+
+		markdown.br()
+
+		markdown.raw("| original | Q(100) | Q(200) |\n")
+		markdown.raw("|----|----|----|\n")
+		markdown.raw("|")
+		try markdown.image(o1)
+		markdown.raw("|")
+		try markdown.image(o1.dithered(.quantize(100)))
+		markdown.raw("|")
+		try markdown.image(o1.dithered(.quantize(200)))
+		markdown.raw("|\n")
+		markdown.raw("|")
+		try markdown.image(o2)
+		markdown.raw("|")
+		try markdown.image(o2.dithered(.quantize(100)))
+		markdown.raw("|")
+		try markdown.image(o2.dithered(.quantize(200)))
+		markdown.raw("|\n")
+
+//		markdown.h3("Atkinson dithering")
+//		try markdown.image(o1)
+//		try markdown.image(o1.dithered(.atkinson), width: 200)
+//		try markdown.image(o2)
+//		try markdown.image(o2.dithered(.atkinson))
+//		markdown.br()
+//
+//		markdown.h3("Floyd-Steinberg dithering")
+//		try markdown.image(o1)
+//		try markdown.image(o1.dithered(.floydSteinberg))
+//		try markdown.image(o2)
+//		try markdown.image(o2.dithered(.floydSteinberg))
+//		markdown.br()
+//
+//		markdown.h3("Jarvis-Judice-Ninke dithering")
+//		try markdown.image(o1)
+//		try markdown.image(o1.dithered(.jarvisJudiceNinke))
+//		try markdown.image(o2)
+//		try markdown.image(o2.dithered(.jarvisJudiceNinke))
+//		markdown.br()
+//
+//		markdown.h3("Quantize")
+//		try markdown.image(o1)
+//		try markdown.image(o1.dithered(.quantize(100)))
+//		try markdown.image(o1.dithered(.quantize(200)))
+//		markdown.br()
+//		try markdown.image(o2)
+//		try markdown.image(o2.dithered(.quantize(100)))
+//		try markdown.image(o2.dithered(.quantize(200)))
+
+		markdown.br()
+	}
 
 #if canImport(CoreImage)
 	func testGamma() throws {
